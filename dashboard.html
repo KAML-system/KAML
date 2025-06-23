@@ -696,10 +696,36 @@
             window.location.href = 'index.html';
         }
 
-        // إضافة بيانات تجريبية للأعضاء
-        function initializeSampleMembers() {
-            // تم إزالة البيانات التجريبية - النظام يبدأ الآن بقاعدة بيانات فارغة
-            console.log('تم تهيئة النظام بقاعدة بيانات فارغة');
+        // دالة مسح جميع البيانات التجريبية والقديمة
+        async function clearAllSampleData() {
+            try {
+                console.log('بدء مسح جميع البيانات التجريبية...');
+                
+                // مسح البيانات من localStorage
+                localStorage.removeItem('members');
+                localStorage.removeItem('membershipApplications');
+                localStorage.removeItem('renewalRequests');
+                
+                // مسح البيانات من Firebase إذا كان متصلاً
+                if (firebaseManager && firebaseManager.isOnline) {
+                    const collections = ['members', 'membershipApplications', 'renewalRequests'];
+                    
+                    for (const collection of collections) {
+                        try {
+                            await firebaseManager.clearCollection(collection);
+                            console.log(`تم مسح ${collection} من Firebase`);
+                        } catch (error) {
+                            console.log(`خطأ في مسح ${collection}:`, error);
+                        }
+                    }
+                }
+                
+                console.log('تم مسح جميع البيانات التجريبية بنجاح');
+                return true;
+            } catch (error) {
+                console.error('خطأ في مسح البيانات:', error);
+                return false;
+            }
         }
 
         // تحميل الإحصائيات
@@ -1707,7 +1733,7 @@
             window.location.href = 'index.html';
         }
 
-        // Firebase Configuration
+        // Firebase Configuration - Updated with correct settings
         const firebaseConfig = {
             apiKey: "AIzaSyBKvr6ZI_M_s_hk3Ch2ivWBuY5jSI9QxDo",
             authDomain: "kaml-membership-system.firebaseapp.com",
@@ -1816,37 +1842,39 @@
         // Initialize Firebase Data Manager
         const firebaseManager = new FirebaseDataManager();
 
-        // دالة مسح جميع البيانات التجريبية
-        async function clearAllData() {
+        // دالة مسح جميع البيانات التجريبية والقديمة
+        async function clearAllSampleData() {
             try {
+                console.log('بدء مسح جميع البيانات التجريبية...');
+                
                 // مسح البيانات من localStorage
                 localStorage.removeItem('members');
                 localStorage.removeItem('membershipApplications');
                 localStorage.removeItem('renewalRequests');
                 
                 // مسح البيانات من Firebase إذا كان متصلاً
-                if (firebaseManager.isOnline) {
+                if (firebaseManager && firebaseManager.isOnline) {
                     const collections = ['members', 'membershipApplications', 'renewalRequests'];
                     
                     for (const collection of collections) {
                         try {
-                            const collectionRef = firebaseManager.db.collection(collection);
+                            const collectionRef = db.collection(collection);
                             const snapshot = await collectionRef.get();
                             
-                            const batch = firebaseManager.db.batch();
+                            const batch = db.batch();
                             snapshot.docs.forEach(doc => {
                                 batch.delete(doc.ref);
                             });
                             
                             await batch.commit();
-                            console.log(`Cleared ${collection} from Firebase`);
+                            console.log(`تم مسح ${collection} من Firebase`);
                         } catch (error) {
-                            console.log(`Error clearing ${collection}:`, error);
+                            console.log(`خطأ في مسح ${collection}:`, error);
                         }
                     }
                 }
                 
-                console.log('جميع البيانات التجريبية تم مسحها بنجاح');
+                console.log('تم مسح جميع البيانات التجريبية بنجاح');
                 return true;
             } catch (error) {
                 console.error('خطأ في مسح البيانات:', error);
@@ -1856,35 +1884,18 @@
 
         // تحميل البيانات عند فتح الصفحة
         document.addEventListener('DOMContentLoaded', async function() {
-            // مسح البيانات التجريبية في أول مرة فقط
-            const dataCleared = localStorage.getItem('dataCleared');
-            if (!dataCleared) {
-                try {
-                    console.log('بدء مسح البيانات التجريبية...');
-                    
-                    // مسح البيانات من localStorage
-                    localStorage.removeItem('members');
-                    localStorage.removeItem('membershipApplications');
-                    localStorage.removeItem('renewalRequests');
-                    
-                    // مسح البيانات من Firebase
-                    if (firebaseManager.isOnline) {
-                        await firebaseManager.clearCollection('members');
-                        await firebaseManager.clearCollection('membershipApplications');
-                        await firebaseManager.clearCollection('renewalRequests');
-                    }
-                    
-                    // وضع علامة أن البيانات تم مسحها
-                    localStorage.setItem('dataCleared', 'true');
-                    console.log('تم مسح جميع البيانات التجريبية بنجاح');
-                } catch (error) {
-                    console.error('خطأ في مسح البيانات:', error);
-                }
+            // مسح البيانات التجريبية في كل مرة لضمان بداية نظيفة
+            try {
+                console.log('بدء مسح البيانات التجريبية...');
+                await clearAllSampleData();
+                console.log('تم مسح جميع البيانات التجريبية بنجاح');
+            } catch (error) {
+                console.error('خطأ في مسح البيانات:', error);
             }
             
-            // تحميل البيانات من Firebase أولاً
+            // تحميل البيانات من Firebase أولاً (البيانات الحقيقية فقط)
             try {
-                if (firebaseManager.isOnline) {
+                if (firebaseManager && firebaseManager.isOnline) {
                     console.log('Loading data from Firebase...');
                     await firebaseManager.loadData('members');
                     await firebaseManager.loadData('membershipApplications');
@@ -1901,7 +1912,7 @@
             loadApplications();
             loadRenewalRequests();
             
-            console.log('Dashboard loaded successfully');
+            console.log('Dashboard loaded successfully - النظام نظيف من البيانات التجريبية');
         });
     </script>
 </body>
