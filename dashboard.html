@@ -1884,16 +1884,7 @@
 
         // تحميل البيانات عند فتح الصفحة
         document.addEventListener('DOMContentLoaded', async function() {
-            // مسح البيانات التجريبية في كل مرة لضمان بداية نظيفة
-            try {
-                console.log('بدء مسح البيانات التجريبية...');
-                await clearAllSampleData();
-                console.log('تم مسح جميع البيانات التجريبية بنجاح');
-            } catch (error) {
-                console.error('خطأ في مسح البيانات:', error);
-            }
-            
-            // تحميل البيانات من Firebase أولاً (البيانات الحقيقية فقط)
+            // تحميل البيانات من Firebase أولاً (إذا كان متوفراً)
             try {
                 if (firebaseManager && firebaseManager.isOnline) {
                     console.log('Loading data from Firebase...');
@@ -1906,13 +1897,13 @@
                 console.log('Using local data only:', error);
             }
             
-            // تحميل البيانات (بدون بيانات تجريبية)
+            // تحميل البيانات
             loadStats();
             loadMembers();
             loadApplications();
             loadRenewalRequests();
             
-            console.log('Dashboard loaded successfully - النظام نظيف من البيانات التجريبية');
+            console.log('Dashboard loaded successfully');
         });
     </script>
 </body>
