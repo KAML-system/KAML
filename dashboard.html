@@ -1,0 +1,1909 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - الجمعية الكويتية للمختبرات الطبية</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #1e3a8a;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .logout-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .section {
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            color: white;
+            padding: 20px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+            transform: translateY(-2px);
+        }
+
+        .section-content {
+            padding: 25px;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 10px 20px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: #64748b;
+        }
+
+        .filter-tab.active,
+        .filter-tab:hover {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .data-table th {
+            background: #f8fafc;
+            padding: 15px 12px;
+            text-align: right;
+            font-weight: 600;
+            color: #1e293b;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .data-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+        }
+
+        .data-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn.edit {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .action-btn.edit:hover {
+            background: #2563eb;
+        }
+
+        .action-btn.delete {
+            background: #ef4444;
+            color: white;
+        }
+
+        .action-btn.delete:hover {
+            background: #dc2626;
+        }
+
+        .action-btn.view {
+            background: #10b981;
+            color: white;
+        }
+
+        .action-btn.view:hover {
+            background: #059669;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #1e293b;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            color: white;
+            padding: 20px 25px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            margin: 0;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #e2e8f0;
+        }
+
+        .modal-content form {
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #1e3a8a;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .section-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            
+            .section-actions {
+                justify-content: center;
+            }
+            
+            .filter-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .data-table {
+                font-size: 12px;
+            }
+            
+            .data-table th,
+            .data-table td {
+                padding: 8px 4px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <div>
+                    <h1>لوحة التحكم - إدارة العضوية</h1>
+                    <p>مرحباً، <span id="adminName">admin</span></p>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">A</div>
+                    <button class="logout-btn" onclick="logout()">تسجيل الخروج</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalMembers">0</div>
+                <div class="stat-label">إجمالي الأعضاء</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingApplications">0</div>
+                <div class="stat-label">في انتظار المراجعة</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="approvedMembers">0</div>
+                <div class="stat-label">تم الموافقة عليها</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="rejectedApplications">0</div>
+                <div class="stat-label">تم الرفض</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="renewalRequests">0</div>
+                <div class="stat-label">طلبات التجديد</div>
+            </div>
+            <div class="stat-card">
+                <a href="qr-scanner" class="btn btn-primary" style="display: block; text-align: center; padding: 20px; text-decoration: none;">
+                    🔍 استعلام بالباركود
+                </a>
+            </div>
+        </div>
+
+        <!-- Renewal Requests Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">🔄 إدارة طلبات التجديد</h2>
+            </div>
+            <div class="section-content">
+                <table class="data-table" id="renewalsTable">
+                    <thead>
+                        <tr>
+                            <th>رقم الطلب</th>
+                            <th>اسم العضو</th>
+                            <th>رقم العضوية</th>
+                            <th>تاريخ الطلب</th>
+                            <th>تاريخ الانتهاء الحالي</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="renewalsTableBody">
+                        <!-- سيتم ملؤها بـ JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Members Management Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">👥 إدارة الأعضاء</h2>
+                <div class="section-actions">
+                    <a href="add-old-member" class="btn btn-primary">إضافة عضو قديم</a>
+                    <button class="btn btn-secondary" onclick="exportMembers()">تصدير البيانات</button>
+                </div>
+            </div>
+            <div class="section-content">
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="filterMembers('all')">الكل</button>
+                    <button class="filter-tab" onclick="filterMembers('active')">نشط</button>
+                    <button class="filter-tab" onclick="filterMembers('منتسب')">عضو منتسب</button>
+                    <button class="filter-tab" onclick="filterMembers('غير منتسب')">عضو غير منتسب</button>
+                </div>
+                
+                <input type="text" class="search-box" placeholder="البحث في الأعضاء..." onkeyup="searchMembers(this.value)">
+                
+                <table class="data-table" id="membersTable">
+                    <thead>
+                        <tr>
+                            <th>رقم العضوية</th>
+                            <th>الاسم</th>
+                            <th>البريد الإلكتروني</th>
+                            <th>الهاتف</th>
+                            <th>نوع العضوية</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="membersTableBody">
+                        <!-- سيتم ملء البيانات هنا -->
+                    </tbody>
+                </table>
+                
+                <div class="empty-state" id="membersEmptyState" style="display: none;">
+                    <div class="empty-state-icon">👥</div>
+                    <h3>لا يوجد أعضاء</h3>
+                    <p>لم يتم العثور على أي أعضاء</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Applications Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">📋 طلبات العضوية</h2>
+            </div>
+            <div class="section-content">
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="filterApplications('all')">الكل</button>
+                    <button class="filter-tab" onclick="filterApplications('pending')">في الانتظار</button>
+                    <button class="filter-tab" onclick="filterApplications('approved')">موافق عليها</button>
+                    <button class="filter-tab" onclick="filterApplications('rejected')">مرفوضة</button>
+                </div>
+                
+                <table class="data-table" id="applicationsTable">
+                    <thead>
+                        <tr>
+                            <th>الاسم</th>
+                            <th>البريد الإلكتروني</th>
+                            <th>الهاتف</th>
+                            <th>نوع العضوية</th>
+                            <th>تاريخ التقديم</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="applicationsTableBody">
+                        <!-- سيتم ملء البيانات هنا -->
+                    </tbody>
+                </table>
+                
+                <div class="empty-state" id="applicationsEmptyState" style="display: none;">
+                    <div class="empty-state-icon">📋</div>
+                    <h3>لا توجد طلبات</h3>
+                    <p>ستظهر الطلبات هنا عند توفرها</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Member Modal -->
+    <div id="editMemberModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">تعديل بيانات العضو</h3>
+                <span class="close" onclick="closeEditModal()">&times;</span>
+            </div>
+            <form id="editMemberForm">
+                <input type="hidden" id="editMemberId">
+                
+                <div class="form-group">
+                    <label>رقم العضوية</label>
+                    <input type="text" id="editMembershipNumber" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label>الاسم الأول (عربي)</label>
+                    <input type="text" id="editFirstNameAr" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>الاسم الأوسط (عربي)</label>
+                    <input type="text" id="editMiddleNameAr" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>اسم العائلة (عربي)</label>
+                    <input type="text" id="editLastNameAr" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" id="editEmail" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>رقم الهاتف</label>
+                    <input type="tel" id="editPhone" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>نوع العضوية</label>
+                    <select id="editMembershipType" required>
+                        <option value="عضو منتسب">عضو منتسب</option>
+                        <option value="عضو غير منتسب">عضو غير منتسب</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>الحالة</label>
+                    <select id="editStatus" required>
+                        <option value="active">نشط</option>
+                        <option value="inactive">غير نشط</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">إلغاء</button>
+                    <button type="submit" class="btn btn-primary">حفظ التغييرات</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // التحقق من تسجيل الدخول
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'index.html';
+        }
+
+        // إضافة بيانات تجريبية للأعضاء
+        function initializeSampleMembers() {
+            // تم إزالة البيانات التجريبية - النظام يبدأ الآن بقاعدة بيانات فارغة
+            console.log('تم تهيئة النظام بقاعدة بيانات فارغة');
+        }
+
+        // تحميل الإحصائيات
+        function loadStats() {
+            const members = JSON.parse(localStorage.getItem('members') || '[]');
+            const applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+            const renewalRequests = JSON.parse(localStorage.getItem('renewalRequests') || '[]');
+            
+            document.getElementById('totalMembers').textContent = members.length;
+            document.getElementById('approvedMembers').textContent = members.filter(m => m.status === 'active').length;
+            document.getElementById('pendingApplications').textContent = applications.filter(a => a.status === 'pending').length;
+            document.getElementById('rejectedApplications').textContent = applications.filter(a => a.status === 'rejected').length;
+            document.getElementById('renewalRequests').textContent = renewalRequests.filter(r => r.status === 'pending').length;
+        }
+
+        // تحميل الأعضاء
+        function loadMembers() {
+            const members = JSON.parse(localStorage.getItem('members') || '[]');
+            const tbody = document.getElementById('membersTableBody');
+            const emptyState = document.getElementById('membersEmptyState');
+            
+            if (members.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            tbody.innerHTML = members.map(member => `
+                <tr>
+                    <td>${member.membershipNumber}</td>
+                    <td>${member.firstNameAr} ${member.middleNameAr} ${member.lastNameAr}</td>
+                    <td>${member.email}</td>
+                    <td>${member.phone}</td>
+                    <td>${member.membershipType}</td>
+                    <td><span class="status-badge status-${member.status === 'active' ? 'active' : 'pending'}">${member.status === 'active' ? 'نشط' : 'غير نشط'}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn edit" onclick="editMember('${member.id}')">تعديل</button>
+                            <button class="action-btn delete" onclick="deleteMember('${member.id}')">حذف</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // فلترة الأعضاء
+        function filterMembers(filter) {
+            // تحديث التبويبات النشطة
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            const members = JSON.parse(localStorage.getItem('members') || '[]');
+            let filteredMembers = members;
+
+            if (filter === 'active') {
+                filteredMembers = members.filter(m => m.status === 'active');
+            } else if (filter === 'منتسب') {
+                filteredMembers = members.filter(m => m.membershipType === 'عضو منتسب');
+            } else if (filter === 'غير منتسب') {
+                filteredMembers = members.filter(m => m.membershipType === 'عضو غير منتسب');
+            }
+
+            displayFilteredMembers(filteredMembers);
+        }
+
+        // عرض الأعضاء المفلترين
+        function displayFilteredMembers(members) {
+            const tbody = document.getElementById('membersTableBody');
+            const emptyState = document.getElementById('membersEmptyState');
+            
+            if (members.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            tbody.innerHTML = members.map(member => `
+                <tr>
+                    <td>${member.membershipNumber}</td>
+                    <td>${member.firstNameAr} ${member.middleNameAr} ${member.lastNameAr}</td>
+                    <td>${member.email}</td>
+                    <td>${member.phone}</td>
+                    <td>${member.membershipType}</td>
+                    <td><span class="status-badge status-${member.status === 'active' ? 'active' : 'pending'}">${member.status === 'active' ? 'نشط' : 'غير نشط'}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn edit" onclick="editMember('${member.id}')">تعديل</button>
+                            <button class="action-btn delete" onclick="deleteMember('${member.id}')">حذف</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // البحث في الأعضاء
+        function searchMembers(query) {
+            const members = JSON.parse(localStorage.getItem('members') || '[]');
+            const filteredMembers = members.filter(member => 
+                member.firstNameAr.includes(query) ||
+                member.lastNameAr.includes(query) ||
+                member.email.includes(query) ||
+                member.membershipNumber.includes(query) ||
+                member.phone.includes(query)
+            );
+            
+            displayFilteredMembers(filteredMembers);
+        }
+
+        // تعديل العضو - الانتقال لصفحة التعديل الشاملة
+        function editMember(memberId) {
+            window.location.href = `edit-member.html?id=${memberId}`;
+        }
+
+        // حذف العضو
+        function deleteMember(memberId) {
+            const members = JSON.parse(localStorage.getItem('members') || '[]');
+            const member = members.find(m => m.id === memberId);
+            
+            if (!member) {
+                alert('لم يتم العثور على العضو');
+                return;
+            }
+            
+            const confirmMessage = `هل أنت متأكد من حذف العضو؟\n\nالاسم: ${member.firstNameAr} ${member.middleNameAr} ${member.lastNameAr}\nرقم العضوية: ${member.membershipNumber}\n\nتحذير: هذا الإجراء لا يمكن التراجع عنه!`;
+            
+            if (!confirm(confirmMessage)) return;
+            
+            const filteredMembers = members.filter(m => m.id !== memberId);
+            localStorage.setItem('members', JSON.stringify(filteredMembers));
+            
+            loadMembers();
+            loadStats();
+            
+            alert(`تم حذف العضو "${member.firstNameAr} ${member.middleNameAr} ${member.lastNameAr}" بنجاح`);
+        }
+
+        // تصدير البيانات الشامل
+        async function exportMembers() {
+            const members = JSON.parse(localStorage.getItem('members') || '[]');
+            
+            if (members.length === 0) {
+                alert('لا توجد بيانات أعضاء للتصدير');
+                return;
+            }
+
+            // إظهار رسالة التحميل
+            const loadingDiv = document.createElement('div');
+            loadingDiv.innerHTML = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+                    <div style="background: white; padding: 30px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 18px; margin-bottom: 15px;">جاري تحضير ملف التصدير الشامل...</div>
+                        <div style="width: 300px; height: 20px; background: #f0f0f0; border-radius: 10px; overflow: hidden;">
+                            <div id="progressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #4CAF50, #45a049); transition: width 0.3s;"></div>
+                        </div>
+                        <div id="progressText" style="margin-top: 10px; font-size: 14px; color: #666;">0%</div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(loadingDiv);
+
+            try {
+                // إنشاء JSZip instance
+                const zip = new JSZip();
+                let progress = 0;
+                const totalSteps = members.length * 3 + 2; // (بيانات + بطاقة + مرفقات) لكل عضو + ملف Excel + إنهاء
+
+                function updateProgress(step) {
+                    progress = Math.round((step / totalSteps) * 100);
+                    document.getElementById('progressBar').style.width = progress + '%';
+                    document.getElementById('progressText').textContent = progress + '%';
+                }
+
+                // إنشاء ملف Excel
+                updateProgress(1);
+                const headers = ['رقم العضوية', 'الاسم الكامل (عربي)', 'الاسم الكامل (إنجليزي)', 'البريد الإلكتروني', 'الهاتف', 'الرقم المدني', 'نوع العضوية', 'الحالة', 'تاريخ الانضمام', 'تاريخ انتهاء العضوية', 'العنوان'];
+                const csvContent = [
+                    headers.join(','),
+                    ...members.map(member => [
+                        member.membershipNumber,
+                        `"${member.firstNameAr || ''} ${member.middleNameAr || ''} ${member.lastNameAr || ''}"`.trim(),
+                        `"${member.firstNameEn || ''} ${member.middleNameEn || ''} ${member.lastNameEn || ''}"`.trim(),
+                        member.email || '',
+                        member.phone || '',
+                        member.civilId || '',
+                        `"${member.membershipType || ''}"`,
+                        member.status === 'active' ? 'نشط' : 'غير نشط',
+                        member.joinDate || '',
+                        member.expiryDate || '',
+                        `"${member.address || ''}"`
+                    ].join(','))
+                ].join('\n');
+                
+                zip.file('بيانات_الأعضاء.csv', '\ufeff' + csvContent);
+                updateProgress(2);
+
+                // معالجة كل عضو
+                for (let i = 0; i < members.length; i++) {
+                    const member = members[i];
+                    const memberFolder = zip.folder(`عضو_${member.membershipNumber}_${member.firstNameAr}_${member.lastNameAr}`);
+                    
+                    // إنشاء بطاقة العضوية
+                    const membershipCardImage = await generateMembershipCardImage(member);
+                    if (membershipCardImage) {
+                        memberFolder.file(`بطاقة_العضوية_${member.membershipNumber}.png`, membershipCardImage, {base64: true});
+                    }
+                    updateProgress(2 + (i * 3) + 1);
+
+                    // إضافة المرفقات (إذا كانت متوفرة)
+                    const attachmentsFolder = memberFolder.folder('المرفقات');
+                    
+                    // إضافة الصورة الشخصية
+                    if (member.personalPhoto && member.personalPhoto.startsWith('data:')) {
+                        const photoData = member.personalPhoto.split(',')[1];
+                        attachmentsFolder.file('الصورة_الشخصية.png', photoData, {base64: true});
+                    }
+
+                    // إضافة المرفقات الأخرى (محاكاة - في التطبيق الحقيقي ستكون من البيانات المحفوظة)
+                    const sampleAttachments = [
+                        { name: 'البطاقة_المدنية_الأمامية.pdf', content: 'JVBERi0xLjQKJcOkw7zDtsO4DQo=' },
+                        { name: 'البطاقة_المدنية_الخلفية.pdf', content: 'JVBERi0xLjQKJcOkw7zDtsO4DQo=' },
+                        { name: 'الشهادة_الجامعية.pdf', content: 'JVBERi0xLjQKJcOkw7zDtsO4DQo=' },
+                        { name: 'الصحيفة_الجنائية.pdf', content: 'JVBERi0xLjQKJcOkw7zDtsO4DQo=' },
+                        { name: 'ترخيص_مزاولة_المهنة.pdf', content: 'JVBERi0xLjQKJcOkw7zDtsO4DQo=' }
+                    ];
+
+                    sampleAttachments.forEach(attachment => {
+                        attachmentsFolder.file(attachment.name, attachment.content, {base64: true});
+                    });
+                    
+                    updateProgress(2 + (i * 3) + 2);
+
+                    // إنشاء ملف معلومات العضو
+                    const memberInfo = `
+معلومات العضو
+================
+
+رقم العضوية: ${member.membershipNumber}
+الاسم الكامل (عربي): ${member.firstNameAr || ''} ${member.middleNameAr || ''} ${member.lastNameAr || ''}
+الاسم الكامل (إنجليزي): ${member.firstNameEn || ''} ${member.middleNameEn || ''} ${member.lastNameEn || ''}
+البريد الإلكتروني: ${member.email || ''}
+رقم الهاتف: ${member.phone || ''}
+الرقم المدني: ${member.civilId || ''}
+العنوان: ${member.address || ''}
+نوع العضوية: ${member.membershipType || ''}
+حالة العضوية: ${member.status === 'active' ? 'نشط' : 'غير نشط'}
+تاريخ الانضمام: ${member.joinDate || ''}
+تاريخ انتهاء العضوية: ${member.expiryDate || ''}
+اسم المستخدم: ${member.username || ''}
+
+تاريخ التصدير: ${new Date().toLocaleDateString('ar-SA')}
+                    `.trim();
+                    
+                    memberFolder.file('معلومات_العضو.txt', memberInfo);
+                    updateProgress(2 + (i * 3) + 3);
+                }
+
+                // إنشاء الملف المضغوط
+                updateProgress(totalSteps - 1);
+                const zipBlob = await zip.generateAsync({type: 'blob'});
+                
+                // تحميل الملف
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(zipBlob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `تصدير_شامل_أعضاء_الجمعية_${new Date().toISOString().split('T')[0]}.zip`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+
+                updateProgress(totalSteps);
+                
+                // إزالة رسالة التحميل بعد ثانيتين
+                setTimeout(() => {
+                    document.body.removeChild(loadingDiv);
+                    alert('تم تصدير جميع بيانات الأعضاء والمرفقات بنجاح!');
+                }, 2000);
+
+            } catch (error) {
+                console.error('خطأ في التصدير:', error);
+                document.body.removeChild(loadingDiv);
+                alert('حدث خطأ أثناء التصدير. يرجى المحاولة مرة أخرى.');
+            }
+        }
+
+        // دالة إنشاء صورة بطاقة العضوية (مطابقة للأصل)
+        async function generateMembershipCardImage(member) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 450;
+                canvas.height = 280;
+                const ctx = canvas.getContext('2d');
+
+                // خلفية البطاقة (تدرج أبيض)
+                const bgGradient = ctx.createLinearGradient(0, 0, 450, 280);
+                bgGradient.addColorStop(0, '#ffffff');
+                bgGradient.addColorStop(1, '#f8fafc');
+                ctx.fillStyle = bgGradient;
+                ctx.fillRect(0, 0, 450, 280);
+
+                // إطار البطاقة
+                ctx.strokeStyle = '#e5e7eb';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(0, 0, 450, 280);
+
+                // رأس البطاقة (التدرج الأزرق)
+                const headerGradient = ctx.createLinearGradient(0, 0, 450, 80);
+                headerGradient.addColorStop(0, '#1e3a8a');
+                headerGradient.addColorStop(1, '#3b82f6');
+                ctx.fillStyle = headerGradient;
+                ctx.fillRect(0, 0, 450, 80);
+
+                // شعار الجمعية (دائرة بيضاء مع نص)
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(40, 40, 25, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                ctx.fillStyle = '#1e3a8a';
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('KAML', 40, 45);
+
+                // نص الجمعية في الرأس
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 16px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText('Kuwait Association for Medical Laboratories', 80, 35);
+                
+                ctx.font = 'bold 14px Arial';
+                ctx.fillText('الجمعية الكويتية للمختبرات الطبية', 80, 55);
+
+                // اسم العضو (بالإنجليزية)
+                ctx.fillStyle = '#1e3a8a';
+                ctx.font = 'bold 20px Arial';
+                ctx.textAlign = 'left';
+                const fullNameEn = `${member.firstNameEn || ''} ${member.middleNameEn || ''} ${member.lastNameEn || ''}`.trim();
+                ctx.fillText(fullNameEn, 25, 120);
+
+                // تفاصيل العضوية
+                ctx.fillStyle = '#6b7280';
+                ctx.font = '12px Arial';
+                ctx.fillText('Membership No:', 25, 145);
+                ctx.fillStyle = '#1f2937';
+                ctx.font = 'bold 14px Arial';
+                ctx.fillText(member.membershipNumber || '018', 130, 145);
+
+                ctx.fillStyle = '#6b7280';
+                ctx.font = '12px Arial';
+                ctx.fillText('Issue Date:', 25, 165);
+                ctx.fillStyle = '#1f2937';
+                ctx.font = 'bold 12px Arial';
+                ctx.fillText(member.joinDate || '15/01/2024', 90, 165);
+
+                ctx.fillStyle = '#6b7280';
+                ctx.font = '12px Arial';
+                ctx.fillText('Expiry Date:', 25, 185);
+                ctx.fillStyle = '#1f2937';
+                ctx.font = 'bold 12px Arial';
+                ctx.fillText(member.expiryDate || '15/01/2025', 95, 185);
+
+                // QR Code (نمط واقعي)
+                const qrSize = 80;
+                const qrX = 350;
+                const qrY = 100;
+                
+                // إطار QR
+                ctx.fillStyle = '#e5e7eb';
+                ctx.fillRect(qrX - 2, qrY - 2, qrSize + 4, qrSize + 4);
+                ctx.fillStyle = 'white';
+                ctx.fillRect(qrX, qrY, qrSize, qrSize);
+                
+                // نمط QR واقعي
+                ctx.fillStyle = '#000';
+                const cellSize = 4;
+                const pattern = [
+                    [1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,1],
+                    [1,0,0,0,0,0,1,0,0,1,1,0,1,0,0,0,0,0,1],
+                    [1,0,1,1,1,0,1,0,1,0,0,1,1,0,1,1,1,0,1],
+                    [1,0,1,1,1,0,1,0,0,1,1,0,1,0,1,1,1,0,1],
+                    [1,0,1,1,1,0,1,0,1,0,0,1,1,0,1,1,1,0,1],
+                    [1,0,0,0,0,0,1,0,1,1,0,0,1,0,0,0,0,0,1],
+                    [1,1,1,1,1,1,1,0,1,0,1,0,1,1,1,1,1,1,1],
+                    [0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0],
+                    [1,0,1,1,0,1,1,1,0,0,1,0,1,1,0,1,1,0,1],
+                    [0,1,0,0,1,0,0,0,1,1,0,1,0,0,1,0,0,1,0],
+                    [1,1,1,0,0,1,1,1,0,0,1,0,1,1,0,1,1,1,1],
+                    [0,0,0,1,1,0,0,0,1,1,0,1,0,0,1,0,0,0,0],
+                    [1,1,1,0,0,1,1,1,0,0,1,0,1,1,0,1,1,1,1],
+                    [0,0,0,0,0,0,0,0,1,1,0,1,0,0,1,0,0,0,0],
+                    [1,1,1,1,1,1,1,0,0,0,1,0,1,1,0,1,1,1,1],
+                    [1,0,0,0,0,0,1,0,1,1,0,1,0,0,1,0,0,0,1],
+                    [1,0,1,1,1,0,1,0,0,0,1,0,1,1,0,1,1,0,1],
+                    [1,0,1,1,1,0,1,0,1,1,0,1,0,0,1,0,0,1,1],
+                    [1,0,1,1,1,0,1,0,0,0,1,0,1,1,0,1,1,1,1],
+                    [1,0,0,0,0,0,1,0,1,1,0,1,0,0,1,0,0,0,1]
+                ];
+                
+                for (let i = 0; i < Math.min(pattern.length, 20); i++) {
+                    for (let j = 0; j < Math.min(pattern[i].length, 20); j++) {
+                        if (pattern[i][j] === 1) {
+                            ctx.fillRect(qrX + j * cellSize, qrY + i * cellSize, cellSize, cellSize);
+                        }
+                    }
+                }
+
+                // نص "Scan for verification"
+                ctx.fillStyle = '#6b7280';
+                ctx.font = '10px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Scan for verification', qrX + qrSize/2, qrY + qrSize + 15);
+
+                // تذييل البطاقة
+                ctx.fillStyle = '#f8fafc';
+                ctx.fillRect(0, 220, 450, 60);
+                
+                // خط فاصل
+                ctx.strokeStyle = '#e5e7eb';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(0, 220);
+                ctx.lineTo(450, 220);
+                ctx.stroke();
+
+                // معلومات الصلاحية
+                ctx.fillStyle = '#6b7280';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText('Valid Member', 25, 245);
+                
+                // مؤشر الحالة
+                ctx.fillStyle = member.status === 'active' ? '#10b981' : '#ef4444';
+                ctx.font = 'bold 16px Arial';
+                ctx.textAlign = 'right';
+                ctx.fillText('●', 425, 245);
+
+                // تحويل إلى base64
+                const imageData = canvas.toDataURL('image/png').split(',')[1];
+                resolve(imageData);
+            });
+        }
+
+        // تحميل طلبات العضوية
+        function loadApplications() {
+            const applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+            
+            const tbody = document.getElementById('applicationsTableBody');
+            const emptyState = document.getElementById('applicationsEmptyState');
+            
+            if (applications.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            tbody.innerHTML = applications.map(app => `
+                <tr>
+                    <td>${app.firstNameAr} ${app.middleNameAr} ${app.lastNameAr}</td>
+                    <td>${app.email}</td>
+                    <td>${app.phone}</td>
+                    <td>${app.membershipType || 'غير محدد'}</td>
+                    <td>${new Date(app.submissionDate).toLocaleDateString('en-GB')}</td>
+                    <td><span class="status-badge status-${app.status}">${getStatusText(app.status)}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn view" onclick="viewApplicationDetails('${app.id}')">عرض</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // فلترة طلبات العضوية
+        function filterApplications(filter) {
+            // تحديث التبويبات النشطة
+            const filterTabs = document.querySelectorAll('.section:nth-of-type(3) .filter-tabs .filter-tab');
+            filterTabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // تحديد التبويب النشط الجديد
+            for (let i = 0; i < filterTabs.length; i++) {
+                if (filterTabs[i].textContent.includes(getFilterButtonText(filter))) {
+                    filterTabs[i].classList.add('active');
+                    break;
+                }
+            }
+            
+            const applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+            let filteredApplications = applications;
+            
+            if (filter !== 'all') {
+                filteredApplications = applications.filter(app => app.status === filter);
+            }
+            
+            displayFilteredApplications(filteredApplications);
+        }
+        
+        // الحصول على نص زر التصفية
+        function getFilterButtonText(filter) {
+            switch(filter) {
+                case 'all': return 'الكل';
+                case 'pending': return 'في الانتظار';
+                case 'approved': return 'موافق عليها';
+                case 'rejected': return 'مرفوضة';
+                default: return 'الكل';
+            }
+        }
+
+        // عرض طلبات العضوية المفلترة
+        function displayFilteredApplications(applications) {
+            const tbody = document.getElementById('applicationsTableBody');
+            const emptyState = document.getElementById('applicationsEmptyState');
+            
+            if (applications.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            tbody.innerHTML = applications.map(app => `
+                <tr>
+                    <td>${app.firstNameAr} ${app.middleNameAr} ${app.lastNameAr}</td>
+                    <td>${app.email}</td>
+                    <td>${app.phone}</td>
+                    <td>${app.membershipType || 'غير محدد'}</td>
+                    <td>${new Date(app.submissionDate).toLocaleDateString('en-GB')}</td>
+                    <td><span class="status-badge status-${app.status}">${getStatusText(app.status)}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn view" onclick="viewApplicationDetails('${app.id}')">عرض</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // تحميل طلبات التجديد
+        function loadRenewalRequests() {
+            const renewalRequests = JSON.parse(localStorage.getItem('renewalRequests') || '[]');
+            const tbody = document.getElementById('renewalsTableBody');
+            
+            if (renewalRequests.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #64748b;">لا توجد طلبات تجديد</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = renewalRequests.map(request => `
+                <tr>
+                    <td>${request.id}</td>
+                    <td>${request.memberName}</td>
+                    <td>${request.membershipNumber}</td>
+                    <td>${new Date(request.requestDate).toLocaleDateString('en-GB')}</td>
+                    <td>${new Date(request.currentExpiryDate).toLocaleDateString('en-GB')}</td>
+                    <td><span class="status-badge status-${request.status}">${getStatusText(request.status)}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            ${request.status === 'pending' ? `
+                                <button class="action-btn edit" onclick="approveRenewal('${request.id}')">موافقة</button>
+                                <button class="action-btn delete" onclick="rejectRenewal('${request.id}')">رفض</button>
+                            ` : ''}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // الحصول على نص الحالة
+        function getStatusText(status) {
+            switch(status) {
+                case 'pending': return 'في الانتظار';
+                case 'approved': return 'موافق عليها';
+                case 'rejected': return 'مرفوضة';
+                default: return status;
+            }
+        }
+
+        // عرض تفاصيل طلب العضوية في نافذة منبثقة
+        function viewApplicationDetails(applicationId) {
+            // الحصول على بيانات الطلب
+            const applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+            const application = applications.find(app => app.id === applicationId);
+            
+            if (!application) {
+                alert('لم يتم العثور على الطلب');
+                return;
+            }
+            
+            // إنشاء النافذة المنبثقة إذا لم تكن موجودة
+            let modalContainer = document.getElementById('applicationModal');
+            if (!modalContainer) {
+                modalContainer = document.createElement('div');
+                modalContainer.id = 'applicationModal';
+                modalContainer.className = 'modal-container';
+                modalContainer.innerHTML = `
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>مراجعة طلب العضوية</h2>
+                            <span class="close-modal" onclick="closeApplicationModal()">&times;</span>
+                        </div>
+                        <div class="modal-body">
+                            <div class="application-info">
+                                <h3>📋 معلومات الطلب</h3>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <span class="info-label">رقم الطلب:</span>
+                                        <span class="info-value" id="modal-app-id"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">تاريخ التقديم:</span>
+                                        <span class="info-value" id="modal-app-date"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">الحالة:</span>
+                                        <span class="info-value" id="modal-app-status"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="applicant-info">
+                                <h3>👤 بيانات المتقدم</h3>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <span class="info-label">الاسم (عربي):</span>
+                                        <span class="info-value" id="modal-name-ar"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">الاسم (إنجليزي):</span>
+                                        <span class="info-value" id="modal-name-en"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">البريد الإلكتروني:</span>
+                                        <span class="info-value" id="modal-email"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">رقم الهاتف:</span>
+                                        <span class="info-value" id="modal-phone"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">نوع العضوية المطلوبة:</span>
+                                        <span class="info-value" id="modal-membership-type"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="decision-section">
+                                <h3>⚖️ اتخاذ القرار</h3>
+                                <form id="modal-decision-form">
+                                    <div class="form-group">
+                                        <label class="form-label">رقم العضوية:</label>
+                                        <input type="text" class="form-input" id="modal-membership-number" placeholder="مثال: 018">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">نوع العضوية:</label>
+                                        <select class="form-select" id="modal-final-membership-type">
+                                            <option value="">اختر نوع العضوية</option>
+                                            <option value="عضو منتسب">عضو منتسب</option>
+                                            <option value="عضو غير منتسب">عضو غير منتسب</option>
+                                            <option value="عضو فخري">عضو فخري</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">ملاحظات القرار:</label>
+                                        <textarea class="form-textarea" id="modal-decision-notes" placeholder="أدخل أي ملاحظات أو تعليقات حول القرار..."></textarea>
+                                    </div>
+                                    <div class="action-buttons">
+                                        <button type="button" class="btn btn-approve" onclick="approveApplicationFromModal()">
+                                            ✅ الموافقة على الطلب
+                                        </button>
+                                        <button type="button" class="btn btn-reject" onclick="rejectApplicationFromModal()">
+                                            ❌ رفض الطلب
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" onclick="closeApplicationModal()">
+                                            🔙 إغلاق
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // إضافة النافذة المنبثقة إلى الصفحة
+                document.body.appendChild(modalContainer);
+                
+                // إضافة الأنماط للنافذة المنبثقة
+                const modalStyle = document.createElement('style');
+                modalStyle.textContent = `
+                    .modal-container {
+                        display: none;
+                        position: fixed;
+                        z-index: 1000;
+                        left: 0;
+                        top: 0;
+                        width: 100%;
+                        height: 100%;
+                        background-color: rgba(0,0,0,0.5);
+                        overflow-y: auto;
+                    }
+                    .modal-content {
+                        background-color: white;
+                        margin: 5% auto;
+                        padding: 0;
+                        width: 80%;
+                        max-width: 900px;
+                        border-radius: 10px;
+                        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                        position: relative;
+                    }
+                    .modal-header {
+                        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+                        color: white;
+                        padding: 20px;
+                        border-radius: 10px 10px 0 0;
+                        position: relative;
+                    }
+                    .modal-header h2 {
+                        margin: 0;
+                        font-size: 24px;
+                    }
+                    .close-modal {
+                        position: absolute;
+                        right: 20px;
+                        top: 20px;
+                        font-size: 28px;
+                        font-weight: bold;
+                        color: white;
+                        cursor: pointer;
+                    }
+                    .modal-body {
+                        padding: 20px;
+                    }
+                    .application-info, .applicant-info, .decision-section {
+                        background: #f8fafc;
+                        border-radius: 8px;
+                        padding: 15px;
+                        margin-bottom: 20px;
+                    }
+                    .info-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                        gap: 10px;
+                    }
+                    .info-item {
+                        padding: 8px 0;
+                        border-bottom: 1px solid #e5e7eb;
+                    }
+                    .info-label {
+                        font-weight: 600;
+                        color: #6b7280;
+                    }
+                    .info-value {
+                        color: #1f2937;
+                        font-weight: 500;
+                        margin-right: 10px;
+                    }
+                    .form-group {
+                        margin-bottom: 15px;
+                    }
+                    .form-label {
+                        display: block;
+                        margin-bottom: 5px;
+                        font-weight: 600;
+                    }
+                    .form-input, .form-select, .form-textarea {
+                        width: 100%;
+                        padding: 10px;
+                        border: 1px solid #d1d5db;
+                        border-radius: 5px;
+                        font-size: 16px;
+                    }
+                    .form-textarea {
+                        min-height: 100px;
+                        resize: vertical;
+                    }
+                    .action-buttons {
+                        display: flex;
+                        gap: 10px;
+                        justify-content: center;
+                        margin-top: 20px;
+                    }
+                    .btn {
+                        padding: 10px 20px;
+                        border: none;
+                        border-radius: 5px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.3s;
+                    }
+                    .btn-approve {
+                        background: #10b981;
+                        color: white;
+                    }
+                    .btn-reject {
+                        background: #ef4444;
+                        color: white;
+                    }
+                    .btn-secondary {
+                        background: #6b7280;
+                        color: white;
+                    }
+                    @media (max-width: 768px) {
+                        .modal-content {
+                            width: 95%;
+                            margin: 10% auto;
+                        }
+                        .action-buttons {
+                            flex-direction: column;
+                        }
+                        .btn {
+                            width: 100%;
+                        }
+                    }
+                `;
+                document.head.appendChild(modalStyle);
+            }
+            
+            // تعبئة بيانات الطلب في النافذة المنبثقة
+            document.getElementById('modal-app-id').textContent = application.id;
+            document.getElementById('modal-app-date').textContent = formatDate(application.submissionDate);
+            document.getElementById('modal-app-status').textContent = getStatusText(application.status);
+            document.getElementById('modal-app-status').className = `status-badge status-${application.status}`;
+            
+            document.getElementById('modal-name-ar').textContent = `${application.firstNameAr || ''} ${application.middleNameAr || ''} ${application.lastNameAr || ''}`;
+            document.getElementById('modal-name-en').textContent = `${application.firstNameEn || ''} ${application.middleNameEn || ''} ${application.lastNameEn || ''}`;
+            document.getElementById('modal-email').textContent = application.email || '';
+            document.getElementById('modal-phone').textContent = application.phone || '';
+            document.getElementById('modal-membership-type').textContent = application.membershipType || '';
+            
+            // تخزين معرف الطلب الحالي
+            modalContainer.dataset.applicationId = applicationId;
+            
+            // عرض النافذة المنبثقة
+            modalContainer.style.display = 'block';
+        }
+        
+        // إغلاق النافذة المنبثقة
+        function closeApplicationModal() {
+            const modalContainer = document.getElementById('applicationModal');
+            if (modalContainer) {
+                modalContainer.style.display = 'none';
+            }
+        }
+        
+        // الموافقة على الطلب من النافذة المنبثقة
+        async function approveApplicationFromModal() {
+            const modalContainer = document.getElementById('applicationModal');
+            const applicationId = modalContainer.dataset.applicationId;
+            
+            const membershipNumber = document.getElementById('modal-membership-number').value;
+            const finalMembershipType = document.getElementById('modal-final-membership-type').value;
+            const decisionNotes = document.getElementById('modal-decision-notes').value;
+            
+            if (!membershipNumber.trim()) {
+                alert('يرجى إدخال رقم العضوية');
+                return;
+            }
+            
+            if (!finalMembershipType) {
+                alert('يرجى اختيار نوع العضوية');
+                return;
+            }
+            
+            // التحقق من صحة نوع العضوية
+            const validTypes = ['عضو منتسب', 'عضو غير منتسب', 'عضو فخري'];
+            if (!validTypes.includes(finalMembershipType)) {
+                alert('نوع العضوية غير صحيح. الأنواع المتاحة: منتسب، غير منتسب، فخري');
+                return;
+            }
+            
+            // التحقق من تفرد رقم العضوية
+            try {
+                const members = JSON.parse(localStorage.getItem('members') || '[]');
+                const existingMember = members.find(m => m.membershipNumber === membershipNumber);
+                if (existingMember) {
+                    alert('رقم العضوية مستخدم بالفعل. الرجاء استخدام رقم آخر.');
+                    return;
+                }
+            } catch (e) {
+                console.error('خطأ في التحقق من رقم العضوية:', e);
+            }
+            
+            // الحصول على بيانات الطلب
+            const applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+            const application = applications.find(app => app.id === applicationId);
+            
+            if (!application) {
+                alert('لم يتم العثور على الطلب');
+                return;
+            }
+            
+            // إنشاء العضو الجديد
+            const newMember = {
+                id: 'member_' + Date.now(),
+                membershipNumber: membershipNumber,
+                firstNameAr: application.firstNameAr,
+                middleNameAr: application.middleNameAr,
+                lastNameAr: application.lastNameAr,
+                firstNameEn: application.firstNameEn,
+                middleNameEn: application.middleNameEn,
+                lastNameEn: application.lastNameEn,
+                email: application.email,
+                phone: application.phone,
+                address: application.address,
+                birthDate: application.birthDate,
+                nationality: application.nationality,
+                qualification: application.qualification,
+                specialization: application.specialization,
+                workplace: application.workplace,
+                position: application.position,
+                experience: application.experience,
+                membershipType: finalMembershipType,
+                status: 'active',
+                joinDate: new Date().toISOString().split('T')[0],
+                expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                username: application.email.split('@')[0],
+                password: 'temp123',
+                personalPhoto: application.attachments ? (application.attachments.find(a => a.type === 'photo')?.url || '') : '',
+                attachments: application.attachments || [],
+                membershipCard: {
+                    template: 'standard',
+                    logo: '/logo.png',
+                    qrData: JSON.stringify({
+                        membershipNumber: membershipNumber,
+                        name: `${application.firstNameEn} ${application.lastNameEn}`,
+                        type: finalMembershipType
+                    })
+                }
+            };
+            
+            // حفظ العضو الجديد في Firebase و localStorage
+            await firebaseManager.saveData('members', newMember);
+            
+            // تحديث حالة الطلب
+            const appIndex = applications.findIndex(app => app.id === applicationId);
+            if (appIndex !== -1) {
+                applications[appIndex].status = 'approved';
+                applications[appIndex].membershipNumber = membershipNumber;
+                applications[appIndex].membershipType = finalMembershipType;
+                applications[appIndex].approvedDate = new Date().toISOString();
+                applications[appIndex].approvedBy = 'admin';
+                applications[appIndex].notes = decisionNotes;
+                
+                // حفظ الطلب المحدث في Firebase و localStorage
+                await firebaseManager.saveData('membershipApplications', applications[appIndex]);
+            }
+            
+            // إغلاق النافذة المنبثقة
+            closeApplicationModal();
+            
+            // تحديث الجدول
+            loadApplications();
+            loadStats();
+            
+            alert('تم الموافقة على الطلب بنجاح!\nرقم العضوية: ' + membershipNumber);
+        }
+        
+        // رفض الطلب من النافذة المنبثقة
+        async function rejectApplicationFromModal() {
+            const modalContainer = document.getElementById('applicationModal');
+            const applicationId = modalContainer.dataset.applicationId;
+            
+            const decisionNotes = document.getElementById('modal-decision-notes').value;
+            
+            if (!decisionNotes.trim()) {
+                alert('يرجى إدخال سبب الرفض في ملاحظات القرار');
+                return;
+            }
+            
+            // تحديث حالة الطلب
+            const applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+            const appIndex = applications.findIndex(app => app.id === applicationId);
+            if (appIndex !== -1) {
+                applications[appIndex].status = 'rejected';
+                applications[appIndex].rejectedDate = new Date().toISOString();
+                applications[appIndex].rejectedBy = 'admin';
+                applications[appIndex].rejectionReason = decisionNotes;
+                
+                // حفظ الطلب المحدث في Firebase و localStorage
+                await firebaseManager.saveData('membershipApplications', applications[appIndex]);
+            }
+            
+            // إغلاق النافذة المنبثقة
+            closeApplicationModal();
+            
+            // تحديث الجدول
+            loadApplications();
+            loadStats();
+            
+            alert('تم رفض الطلب.\nسبب الرفض: ' + decisionNotes);
+        }
+
+        // تسجيل الخروج
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('username');
+            localStorage.removeItem('loginTime');
+            window.location.href = 'index.html';
+        }
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBKvr6ZI_M_s_hk3Ch2ivWBuY5jSI9QxDo",
+            authDomain: "kaml-membership-system.firebaseapp.com",
+            projectId: "kaml-membership-system",
+            storageBucket: "kaml-membership-system.firebasestorage.app",
+            messagingSenderId: "1083658943439",
+            appId: "1:1083658943439:web:f6a17e3bbdb6cd8feab0ba",
+            measurementId: "G-ZZSZF3X7WC"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Firebase Data Manager
+        class FirebaseDataManager {
+            constructor() {
+                this.isOnline = navigator.onLine;
+                this.setupConnectionListener();
+            }
+
+            setupConnectionListener() {
+                window.addEventListener('online', () => {
+                    this.isOnline = true;
+                    this.syncLocalDataToFirebase();
+                });
+                
+                window.addEventListener('offline', () => {
+                    this.isOnline = false;
+                });
+            }
+
+            async saveData(collection, data) {
+                try {
+                    if (this.isOnline) {
+                        await db.collection(collection).doc(data.id || data.membershipNumber).set(data);
+                    }
+                    // Always save to localStorage as backup
+                    const localData = JSON.parse(localStorage.getItem(collection) || '[]');
+                    const existingIndex = localData.findIndex(item => 
+                        item.id === data.id || item.membershipNumber === data.membershipNumber
+                    );
+                    
+                    if (existingIndex !== -1) {
+                        localData[existingIndex] = data;
+                    } else {
+                        localData.push(data);
+                    }
+                    
+                    localStorage.setItem(collection, JSON.stringify(localData));
+                    return true;
+                } catch (error) {
+                    console.error('Error saving to Firebase:', error);
+                    // Fallback to localStorage
+                    const localData = JSON.parse(localStorage.getItem(collection) || '[]');
+                    localData.push(data);
+                    localStorage.setItem(collection, JSON.stringify(localData));
+                    return false;
+                }
+            }
+
+            async loadData(collection) {
+                try {
+                    if (this.isOnline) {
+                        const snapshot = await db.collection(collection).get();
+                        const firebaseData = [];
+                        snapshot.forEach(doc => {
+                            firebaseData.push({ id: doc.id, ...doc.data() });
+                        });
+                        
+                        // Update localStorage with Firebase data
+                        localStorage.setItem(collection, JSON.stringify(firebaseData));
+                        return firebaseData;
+                    } else {
+                        // Load from localStorage when offline
+                        return JSON.parse(localStorage.getItem(collection) || '[]');
+                    }
+                } catch (error) {
+                    console.error('Error loading from Firebase:', error);
+                    // Fallback to localStorage
+                    return JSON.parse(localStorage.getItem(collection) || '[]');
+                }
+            }
+
+            async syncLocalDataToFirebase() {
+                if (!this.isOnline) return;
+
+                try {
+                    const collections = ['members', 'membershipApplications', 'renewalRequests'];
+                    
+                    for (const collection of collections) {
+                        const localData = JSON.parse(localStorage.getItem(collection) || '[]');
+                        
+                        for (const item of localData) {
+                            await this.saveData(collection, item);
+                        }
+                    }
+                    
+                    console.log('Local data synced to Firebase successfully');
+                } catch (error) {
+                    console.error('Error syncing to Firebase:', error);
+                }
+            }
+        }
+
+        // Initialize Firebase Data Manager
+        const firebaseManager = new FirebaseDataManager();
+
+        // دالة مسح جميع البيانات التجريبية
+        async function clearAllData() {
+            try {
+                // مسح البيانات من localStorage
+                localStorage.removeItem('members');
+                localStorage.removeItem('membershipApplications');
+                localStorage.removeItem('renewalRequests');
+                
+                // مسح البيانات من Firebase إذا كان متصلاً
+                if (firebaseManager.isOnline) {
+                    const collections = ['members', 'membershipApplications', 'renewalRequests'];
+                    
+                    for (const collection of collections) {
+                        try {
+                            const collectionRef = firebaseManager.db.collection(collection);
+                            const snapshot = await collectionRef.get();
+                            
+                            const batch = firebaseManager.db.batch();
+                            snapshot.docs.forEach(doc => {
+                                batch.delete(doc.ref);
+                            });
+                            
+                            await batch.commit();
+                            console.log(`Cleared ${collection} from Firebase`);
+                        } catch (error) {
+                            console.log(`Error clearing ${collection}:`, error);
+                        }
+                    }
+                }
+                
+                console.log('جميع البيانات التجريبية تم مسحها بنجاح');
+                return true;
+            } catch (error) {
+                console.error('خطأ في مسح البيانات:', error);
+                return false;
+            }
+        }
+
+        // تحميل البيانات عند فتح الصفحة
+        document.addEventListener('DOMContentLoaded', async function() {
+            // مسح البيانات التجريبية في أول مرة فقط
+            const dataCleared = localStorage.getItem('dataCleared');
+            if (!dataCleared) {
+                try {
+                    console.log('بدء مسح البيانات التجريبية...');
+                    
+                    // مسح البيانات من localStorage
+                    localStorage.removeItem('members');
+                    localStorage.removeItem('membershipApplications');
+                    localStorage.removeItem('renewalRequests');
+                    
+                    // مسح البيانات من Firebase
+                    if (firebaseManager.isOnline) {
+                        await firebaseManager.clearCollection('members');
+                        await firebaseManager.clearCollection('membershipApplications');
+                        await firebaseManager.clearCollection('renewalRequests');
+                    }
+                    
+                    // وضع علامة أن البيانات تم مسحها
+                    localStorage.setItem('dataCleared', 'true');
+                    console.log('تم مسح جميع البيانات التجريبية بنجاح');
+                } catch (error) {
+                    console.error('خطأ في مسح البيانات:', error);
+                }
+            }
+            
+            // تحميل البيانات من Firebase أولاً
+            try {
+                if (firebaseManager.isOnline) {
+                    console.log('Loading data from Firebase...');
+                    await firebaseManager.loadData('members');
+                    await firebaseManager.loadData('membershipApplications');
+                    await firebaseManager.loadData('renewalRequests');
+                    console.log('Data loaded from Firebase successfully');
+                }
+            } catch (error) {
+                console.log('Using local data only:', error);
+            }
+            
+            // تحميل البيانات (بدون بيانات تجريبية)
+            loadStats();
+            loadMembers();
+            loadApplications();
+            loadRenewalRequests();
+            
+            console.log('Dashboard loaded successfully');
+        });
+    </script>
+</body>
+</html>
+

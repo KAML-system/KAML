@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الجمعية الكويتية للمختبرات الطبية - اختر نوع الدخول</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .main-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            max-width: 1000px;
+            width: 100%;
+            min-height: 650px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3c72 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .logo-container {
+            margin-bottom: 20px;
+        }
+
+        .logo-container img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid white;
+            background: white;
+            padding: 5px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .header h2 {
+            font-size: 18px;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+
+        .login-options {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            min-height: 450px;
+        }
+
+        .members-main-section {
+            padding: 30px;
+            border-left: 2px solid #e9ecef;
+        }
+
+        .admin-section {
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: #f8f9fa;
+        }
+
+        .members-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c5aa0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .members-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            height: 100%;
+        }
+
+        .member-option {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .member-option:hover {
+            border-color: #28a745;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(40, 167, 69, 0.15);
+        }
+
+        .member-option .icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .member-option h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2c5aa0;
+        }
+
+        .member-option p {
+            font-size: 14px;
+            color: #6c757d;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .member-option .btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .member-option .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .admin-section .section-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .admin-section .section-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #dc3545;
+        }
+
+        .admin-section .section-description {
+            font-size: 15px;
+            color: #6c757d;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .admin-count {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .login-button {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 14px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        @media (max-width: 768px) {
+            .login-options {
+                grid-template-columns: 1fr;
+            }
+
+            .members-main-section {
+                border-left: none;
+                border-bottom: 2px solid #e9ecef;
+            }
+
+            .members-options {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .header h2 {
+                font-size: 16px;
+            }
+
+            .members-main-section {
+                padding: 20px;
+            }
+
+            .admin-section {
+                padding: 30px 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .member-option {
+                padding: 20px 15px;
+            }
+
+            .member-option .icon {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+
+            .member-option h3 {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <div class="logo-container">
+                <img src="logo.jpeg" alt="شعار الجمعية الكويتية للمختبرات الطبية">
+            </div>
+            <h1>الجمعية الكويتية للمختبرات الطبية</h1>
+            <h2>Kuwait Association for Medical Laboratories</h2>
+            <p>نظام إدارة العضوية</p>
+        </div>
+
+        <div class="login-options">
+            <!-- قسم الأعضاء -->
+            <div class="members-main-section">
+                <h2 class="members-title">منطقة الأعضاء</h2>
+                
+                <div class="members-options">
+                    <!-- تسجيل عضوية جديدة -->
+                    <div class="member-option" onclick="window.location.href='register.html'">
+                        <div class="icon">
+                            ➕
+                        </div>
+                        <h3>تسجيل عضوية جديدة</h3>
+                        <p>للراغبين في الانضمام للجمعية<br>تقديم طلب عضوية جديد</p>
+                        <a href="register.html" class="btn">سجل الآن</a>
+                    </div>
+
+                    <!-- دخول عضو مسجل -->
+                    <div class="member-option" onclick="window.location.href='member-login.html'">
+                        <div class="icon">
+                            👤
+                        </div>
+                        <h3>دخول عضو مسجل</h3>
+                        <p>للأعضاء المسجلين بالفعل<br>عرض البيانات وبطاقة العضوية</p>
+                        <a href="member-login.html" class="btn">دخول</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قسم الإدارة -->
+            <div class="admin-section">
+                <h3 class="section-title">دخول مصرح لهم</h3>
+                <p class="section-description">
+                    للمسؤولين عن تسجيل وإدارة العضوية<br>
+                    لوحة التحكم الإدارية
+                </p>
+                <a href="admin-login.html" class="login-button">
+                    دخول الإدارة
+                </a>
+            </div>
+        </div>
+
+        <div class="footer">
+            © 2025 الجمعية الكويتية للمختبرات الطبية - جميع الحقوق محفوظة
+        </div>
+    </div>
+</body>
+</html>
+
