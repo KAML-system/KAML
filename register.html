@@ -1012,42 +1012,40 @@
                     attachments: attachments
                 };
                 
-                // حفظ البيانات باستخدام Firebase Manager
-                firebaseManager.saveApplication(memberData).then(success => {
-                    if (success) {
-                        // إضافة البريد للقائمة المسجلة
-                        registeredEmails.push(email.toLowerCase());
-                        localStorage.setItem('registeredEmails', JSON.stringify(registeredEmails));
-                        
-                        // عرض رسالة النجاح
-                        setTimeout(() => {
-                            document.getElementById('successMessage').innerHTML = `
-                                <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; max-width: 500px; margin: 0 auto;">
-                                    <div style="color: #059669; font-size: 48px; margin-bottom: 20px;">✅</div>
-                                    <h3 style="color: #059669; margin-bottom: 20px;">تم تسجيل العضوية بنجاح!</h3>
-                                    <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #0369a1;">
-                                        <h4 style="color: #0369a1; margin-bottom: 15px;">بيانات الدخول:</h4>
-                                        <p style="margin: 8px 0;"><strong>اسم المستخدم:</strong> ${username}</p>
-                                        <p style="margin: 8px 0;"><strong>كلمة المرور:</strong> ${password}</p>
-                                        <p style="color: #0369a1; font-weight: bold;">احفظ هذه البيانات للدخول لاحقاً</p>
-                                    </div>
-                                    <p style="color: #dc2626; font-weight: bold;">طلبك قيد المراجعة من قبل الإدارة</p>
-                                    <p>تم رفع جميع المرفقات المطلوبة بنجاح</p>
-                                    <p style="color: #059669; font-weight: bold;">تم حفظ البيانات في السحابة بنجاح ✅</p>
-                                    <a href="member-login.html" style="display: inline-block; background: #059669; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; margin-top: 15px;">دخول العضو</a>
-                                </div>
-                            `;
-                            document.getElementById('successMessage').style.display = 'block';
-                            form.reset();
-                            document.getElementById('emailValidation').style.display = 'none';
-                            
-                            // التمرير إلى أعلى الصفحة
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                        }, 1000);
-                    } else {
-                        throw new Error('فشل في حفظ البيانات');
-                    }
-                });
+                // حفظ البيانات محلياً أولاً
+                let applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+                applications.push(memberData);
+                localStorage.setItem('membershipApplications', JSON.stringify(applications));
+                
+                // إضافة البريد للقائمة المسجلة
+                registeredEmails.push(email.toLowerCase());
+                localStorage.setItem('registeredEmails', JSON.stringify(registeredEmails));
+                
+                // عرض رسالة النجاح
+                setTimeout(() => {
+                    document.getElementById('successMessage').innerHTML = `
+                        <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; max-width: 500px; margin: 0 auto;">
+                            <div style="color: #059669; font-size: 48px; margin-bottom: 20px;">✅</div>
+                            <h3 style="color: #059669; margin-bottom: 20px;">تم تسجيل العضوية بنجاح!</h3>
+                            <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #0369a1;">
+                                <h4 style="color: #0369a1; margin-bottom: 15px;">بيانات الدخول:</h4>
+                                <p style="margin: 8px 0;"><strong>اسم المستخدم:</strong> ${username}</p>
+                                <p style="margin: 8px 0;"><strong>كلمة المرور:</strong> ${password}</p>
+                                <p style="color: #0369a1; font-weight: bold;">احفظ هذه البيانات للدخول لاحقاً</p>
+                            </div>
+                            <p style="color: #dc2626; font-weight: bold;">طلبك قيد المراجعة من قبل الإدارة</p>
+                            <p>تم رفع جميع المرفقات المطلوبة بنجاح</p>
+                            <p style="color: #059669; font-weight: bold;">تم حفظ البيانات بنجاح ✅</p>
+                            <a href="member-login.html" style="display: inline-block; background: #059669; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; margin-top: 15px;">دخول العضو</a>
+                        </div>
+                    `;
+                    document.getElementById('successMessage').style.display = 'block';
+                    form.reset();
+                    document.getElementById('emailValidation').style.display = 'none';
+                    
+                    // التمرير إلى أعلى الصفحة
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 1000);
                 
             }).catch(error => {
                 document.getElementById('errorMessage').style.display = 'block';
