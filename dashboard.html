@@ -1009,23 +1009,30 @@
                 }
 
                 const fullName = `${item.first_name_ar || ''} ${item.middle_name_ar || ''} ${item.last_name_ar || ''}`.trim();
-                const submissionDate = item.submissionDate ? new Date(item.submissionDate).toLocaleDateString('ar-SA') : 'غير محدد';
                 
+                // تحويل التاريخ إلى ميلادي
+                let submissionDate = 'غير محدد';
+                if (item.submissionDate) {
+                    const date = new Date(item.submissionDate);
+                    submissionDate = date.toLocaleDateString('en-GB'); // تنسيق ميلادي DD/MM/YYYY
+                }
+                
+                // ترتيب الجدول من اليمين إلى اليسار (RTL)
                 row.innerHTML = `
+                    <td>${item.id ? String(item.id).substring(0, 8) : 'غير محدد'}</td>
+                    <td>${item.civil_id || 'غير محدد'}</td>
+                    <td>${fullName || 'غير محدد'}</td>
+                    <td>${item.email || 'غير محدد'}</td>
+                    <td>${item.phone || 'غير محدد'}</td>
+                    <td>${item.membership_number || 'غير محدد'}</td>
+                    <td>${item.membership_type || 'غير محدد'}</td>
+                    <td>${submissionDate}</td>
+                    <td>${statusBadge}</td>
                     <td>
                         <div class="action-buttons">
                             ${actionButtons}
                         </div>
                     </td>
-                    <td>${statusBadge}</td>
-                    <td>${submissionDate}</td>
-                    <td>${item.membership_type || 'غير محدد'}</td>
-                    <td>${item.membership_number || 'غير محدد'}</td>
-                    <td>${item.phone || 'غير محدد'}</td>
-                    <td>${item.email || 'غير محدد'}</td>
-                    <td>${fullName || 'غير محدد'}</td>
-                    <td>${item.civil_id || 'غير محدد'}</td>
-                    <td>${item.id ? String(item.id).substring(0, 8) : 'غير محدد'}</td>
                 `;
 
                 tableBody.appendChild(row);
@@ -1180,16 +1187,31 @@
                 'الحالة',
                 'تاريخ التقديم',
                 'تاريخ التفعيل',
-                'تاريخ الانتهاء'
+                'تاريخ الانتهاء',
+                'الجنسية',
+                'المؤهل العلمي',
+                'التخصص',
+                'جهة العمل',
+                'المنطقة',
+                'رقم الباركود',
+                'ملاحظات الموافقة',
+                'أسباب الرفض'
             ];
 
             const csvContent = [
                 headers.join(','),
                 ...data.map(item => {
                     const fullName = `${item.first_name_ar || ''} ${item.middle_name_ar || ''} ${item.last_name_ar || ''}`.trim();
-                    const submissionDate = item.submissionDate ? new Date(item.submissionDate).toLocaleDateString('ar-SA') : '';
+                    const submissionDate = item.submissionDate ? new Date(item.submissionDate).toLocaleDateString('en-GB') : '';
                     const activationDate = item.activation_date || '';
                     const expiryDate = item.expiry_date || '';
+                    const statusText = getStatusText(item.status);
+                    
+                    // إنشاء رقم باركود للأعضاء المعتمدين
+                    let barcodeNumber = '';
+                    if (item.status === 'approved' && item.membership_number) {
+                        barcodeNumber = `KAML${item.membership_number}${new Date().getFullYear()}`;
+                    }
                     
                     return [
                         item.id || '',
@@ -1199,10 +1221,18 @@
                         item.phone || '',
                         item.membership_number || '',
                         item.membership_type || '',
-                        item.status || '',
+                        `"${statusText}"`,
                         submissionDate,
                         activationDate,
-                        expiryDate
+                        expiryDate,
+                        `"${item.nationality || ''}"`,
+                        `"${item.qualification || ''}"`,
+                        `"${item.specialization || ''}"`,
+                        `"${item.workplace || ''}"`,
+                        `"${item.region || ''}"`,
+                        barcodeNumber,
+                        `"${item.approval_notes || ''}"`,
+                        `"${item.rejection_reasons || ''}"`
                     ].join(',');
                 })
             ].join('\n');
@@ -1216,6 +1246,20 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            
+            // إظهار رسالة نجاح
+            alert(`تم تصدير ${data.length} سجل بنجاح إلى ملف CSV`);
+        }
+        
+        // دالة مساعدة للحصول على نص الحالة
+        function getStatusText(status) {
+            switch(status) {
+                case 'pending': return 'في انتظار المراجعة';
+                case 'approved': return 'معتمد';
+                case 'rejected': return 'مرفوض';
+                case 'renewal_requested': return 'طلب تجديد';
+                default: return 'غير محدد';
+            }
         }
 
         // البحث بالضغط على Enter
