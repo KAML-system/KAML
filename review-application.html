@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مراجعة طلب العضوية - الجمعية الكويتية للمختبرات الطبية</title>
+    <title>مراجعة طلب العضوية</title>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -18,121 +18,88 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f8fafc;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             direction: rtl;
             min-height: 100vh;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            color: white;
-            padding: 20px 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .logo-placeholder {
-            width: 50px;
-            height: 50px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            overflow: hidden;
-        }
-
-        .logo-placeholder img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        .header-title h1 {
-            font-size: 20px;
-            margin-bottom: 5px;
-        }
-
-        .header-title p {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        .back-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
+            padding: 20px;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 30px 20px;
         }
 
-        .review-card {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            margin-bottom: 30px;
-        }
-
-        .card-header {
-            background: linear-gradient(135deg, #3b82f6 0%, #1e3a8a 100%);
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
             color: white;
-            padding: 30px;
-            text-align: center;
+            padding: 20px 30px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .card-title {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 10px;
+        .header h1 {
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .card-subtitle {
-            font-size: 16px;
+        .header p {
+            margin-top: 5px;
             opacity: 0.9;
+            font-size: 14px;
         }
 
-        .card-content {
-            padding: 40px;
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 15px;
+            margin: 20px;
+            border-radius: 8px;
+            display: none;
         }
 
         .loading {
             text-align: center;
-            padding: 60px;
+            padding: 60px 20px;
             color: #6b7280;
         }
 
-        .loading-spinner {
+        .spinner {
             border: 3px solid #f3f3f3;
             border-top: 3px solid #3b82f6;
             border-radius: 50%;
@@ -147,477 +114,439 @@
             100% { transform: rotate(360deg); }
         }
 
-        .error-message {
-            background: #fee2e2;
-            border: 1px solid #fecaca;
-            color: #991b1b;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .info-grid {
+        .content-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 30px;
-            margin-bottom: 40px;
+            padding: 30px;
         }
 
-        .info-section {
+        .section {
             background: #f8fafc;
+            border-radius: 12px;
             padding: 25px;
-            border-radius: 15px;
-            border: 1px solid #e5e7eb;
+            border: 1px solid #e2e8f0;
         }
 
         .section-title {
             font-size: 18px;
-            font-weight: 600;
-            color: #1e3a8a;
+            font-weight: bold;
+            color: #1f2937;
             margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
-        }
-
-        .info-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 2px solid #e2e8f0;
         }
 
-        .info-item:last-child {
-            margin-bottom: 0;
-            border-bottom: none;
+        .field-group {
+            margin-bottom: 15px;
         }
 
-        .info-label {
-            font-weight: 500;
-            color: #6b7280;
-            font-size: 14px;
-        }
-
-        .info-value {
+        .field-label {
             font-weight: 600;
-            color: #1f2937;
+            color: #374151;
+            margin-bottom: 5px;
             font-size: 14px;
-            text-align: left;
         }
 
-        /* المرفقات */
+        .field-value {
+            color: #4b5563;
+            font-size: 14px;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            min-height: 20px;
+        }
+
         .attachments-section {
-            margin-bottom: 40px;
+            grid-column: 1 / -1;
+            margin-top: 20px;
         }
 
         .attachments-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
+            gap: 15px;
+            margin-top: 15px;
         }
 
         .attachment-card {
             background: white;
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
-            padding: 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
             text-align: center;
             transition: all 0.3s ease;
-            cursor: pointer;
         }
 
         .attachment-card:hover {
-            border-color: #3b82f6;
-            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .attachment-icon {
-            font-size: 40px;
+            font-size: 32px;
             margin-bottom: 10px;
             color: #3b82f6;
         }
 
         .attachment-name {
-            font-size: 14px;
             font-weight: 600;
-            color: #1f2937;
+            color: #374151;
             margin-bottom: 5px;
+            font-size: 14px;
         }
 
         .attachment-size {
-            font-size: 12px;
             color: #6b7280;
+            font-size: 12px;
         }
 
-        /* قسم اتخاذ القرار */
         .decision-section {
-            background: #f8fafc;
-            padding: 30px;
-            border-radius: 15px;
-            border: 2px solid #e5e7eb;
-        }
-
-        .decision-header {
-            text-align: center;
-            margin-bottom: 30px;
+            grid-column: 1 / -1;
+            background: #f0f9ff;
+            border: 2px solid #bae6fd;
+            margin-top: 20px;
         }
 
         .decision-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #1e3a8a;
-            margin-bottom: 10px;
-        }
-
-        .decision-subtitle {
-            font-size: 16px;
-            color: #6b7280;
+            color: #0c4a6e;
+            border-bottom-color: #bae6fd;
         }
 
         .decision-buttons {
             display: flex;
-            gap: 20px;
-            justify-content: center;
-            margin-bottom: 30px;
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
         .decision-btn {
-            padding: 15px 30px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
+            flex: 1;
+            padding: 15px;
+            border: 2px solid transparent;
+            border-radius: 8px;
             cursor: pointer;
+            font-weight: 600;
+            text-align: center;
             transition: all 0.3s ease;
-            min-width: 120px;
         }
 
-        .approve-btn {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        .decision-btn.approve {
+            background: #dcfce7;
+            color: #166534;
+            border-color: #bbf7d0;
+        }
+
+        .decision-btn.approve:hover,
+        .decision-btn.approve.active {
+            background: #16a34a;
             color: white;
         }
 
-        .approve-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        .decision-btn.reject {
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #fecaca;
         }
 
-        .reject-btn {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        .decision-btn.reject:hover,
+        .decision-btn.reject.active {
+            background: #dc2626;
             color: white;
         }
 
-        .reject-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
-        }
-
-        /* نموذج الموافقة */
-        .approval-form {
-            display: none;
-            background: #ecfdf5;
-            padding: 25px;
-            border-radius: 10px;
-            border: 2px solid #10b981;
-            margin-top: 20px;
-        }
-
-        .approval-form.active {
-            display: block;
-            animation: slideDown 0.3s ease;
-        }
-
-        /* نموذج الرفض */
+        .approval-form,
         .rejection-form {
             display: none;
-            background: #fef2f2;
-            padding: 25px;
-            border-radius: 10px;
-            border: 2px solid #ef4444;
             margin-top: 20px;
-        }
-
-        .rejection-form.active {
-            display: block;
-            animation: slideDown 0.3s ease;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .form-label {
             display: block;
             font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 8px;
+            color: #374151;
+            margin-bottom: 5px;
             font-size: 14px;
         }
 
-        .form-input {
+        .form-input,
+        .form-select,
+        .form-textarea {
             width: 100%;
-            padding: 12px 15px;
+            padding: 10px 15px;
             border: 2px solid #e5e7eb;
             border-radius: 8px;
             font-size: 14px;
             transition: border-color 0.3s ease;
         }
 
-        .form-input:focus {
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
             outline: none;
             border-color: #3b82f6;
         }
 
-        .form-select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 14px;
-            background: white;
-            cursor: pointer;
-        }
-
         .form-textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 14px;
             resize: vertical;
             min-height: 100px;
-            font-family: inherit;
         }
 
-        .form-row {
+        .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 15px;
         }
 
         .submit-btn {
-            background: linear-gradient(135deg, #3b82f6 0%, #1e3a8a 100%);
+            background: #3b82f6;
             color: white;
+            padding: 12px 30px;
             border: none;
-            padding: 15px 30px;
             border-radius: 8px;
-            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            width: 100%;
+            font-size: 16px;
         }
 
         .submit-btn:hover {
+            background: #2563eb;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
         }
 
         .submit-btn:disabled {
             background: #9ca3af;
             cursor: not-allowed;
             transform: none;
-            box-shadow: none;
         }
 
-        /* التجاوب */
+        .success-message {
+            background: #d1fae5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+            padding: 15px;
+            margin: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
         @media (max-width: 768px) {
-            .info-grid {
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .form-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .decision-buttons {
                 flex-direction: column;
             }
-            
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            
-            .attachments-grid {
-                grid-template-columns: 1fr;
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
             }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="header-content">
-            <div class="logo-section">
-                <div class="logo-placeholder">
-                    <img src="logo.jpeg" alt="شعار الجمعية" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjMUUzQThBIiByeD0iMjUiLz4KPHN2ZyB4PSIxMCIgeT0iMTAiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+CjxwYXRoIGQ9Ik0xOS40MyA5LjU2Yy0uNTMtLjUzLTEuMjUtLjgzLTItLjgzSDYuNTdjLS43NSAwLTEuNDcuMy0yIC44M3MtLjgzIDEuMjUtLjgzIDJWMTljMCAuNzUuMyAxLjQ3LjgzIDJzMS4yNS44MyAyIC44M2gxMC44NmMuNzUgMCAxLjQ3LS4zIDItLjgzcy44My0xLjI1LjgzLTJWMTEuNTZjMC0uNzUtLjMtMS40Ny0uODMtMnoiLz4KPC9zdmc+Cjwvc3ZnPgo='">
-                </div>
-                <div class="header-title">
-                    <h1>الجمعية الكويتية للمختبرات الطبية</h1>
-                    <p>مراجعة طلب العضوية</p>
-                </div>
-            </div>
-            <a href="dashboard.html" class="back-btn">🔙 العودة للوحة التحكم</a>
-        </div>
-    </div>
-
     <div class="container">
-        <div class="review-card">
-            <div class="card-header">
-                <div class="card-title">مراجعة طلب العضوية</div>
-                <div class="card-subtitle">مراجعة تفصيلية لطلب العضوية واتخاذ القرار المناسب</div>
+        <div class="header">
+            <div>
+                <h1>📋 مراجعة طلب العضوية</h1>
+                <p>مراجعة تفصيلية لطلب العضوية واتخاذ القرار المناسب</p>
+            </div>
+            <a href="dashboard.html" class="btn btn-secondary">
+                🔙 العودة للوحة التحكم
+            </a>
+        </div>
+
+        <div class="main-content">
+            <div class="error-message" id="errorMessage">
+                ❌ <strong>خطأ في تحميل البيانات</strong><br>
+                <span id="errorText">لم يتم العثور على الطلب المطلوب</span>
             </div>
 
-            <div class="card-content">
-                <!-- حالة التحميل -->
-                <div class="loading" id="loadingDiv">
-                    <div class="loading-spinner"></div>
-                    <p>جاري تحميل بيانات الطلب...</p>
-                </div>
+            <div class="success-message" id="successMessage">
+                ✅ <strong>تم حفظ القرار بنجاح!</strong><br>
+                <span id="successText">تم تحديث حالة الطلب</span>
+            </div>
 
-                <!-- رسالة الخطأ -->
-                <div class="error-message" id="errorDiv" style="display: none;">
-                    <h3>❌ خطأ في تحميل البيانات</h3>
-                    <p id="errorMessage">لم يتم العثور على الطلب المطلوب</p>
-                </div>
+            <div class="loading" id="loadingIndicator">
+                <div class="spinner"></div>
+                <p>جاري تحميل بيانات الطلب...</p>
+            </div>
 
-                <!-- محتوى الطلب -->
-                <div id="applicationContent" style="display: none;">
-                    <!-- البيانات الأساسية -->
-                    <div class="info-grid">
-                        <div class="info-section">
-                            <div class="section-title">
-                                👤 البيانات الشخصية
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">الاسم بالعربية:</span>
-                                <span class="info-value" id="nameAr">-</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">الاسم بالإنجليزية:</span>
-                                <span class="info-value" id="nameEn">-</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">البريد الإلكتروني:</span>
-                                <span class="info-value" id="email">-</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">رقم الهاتف:</span>
-                                <span class="info-value" id="phone">-</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">الرقم المدني:</span>
-                                <span class="info-value" id="civilId">-</span>
-                            </div>
+            <div id="applicationContent" style="display: none;">
+                <div class="content-grid">
+                    <!-- البيانات الشخصية -->
+                    <div class="section">
+                        <div class="section-title">
+                            👤 البيانات الشخصية
                         </div>
-
-                        <div class="info-section">
-                            <div class="section-title">
-                                💼 بيانات العمل
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">المسمى الوظيفي:</span>
-                                <span class="info-value" id="jobTitle">-</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">جهة العمل:</span>
-                                <span class="info-value" id="workplace">-</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">المنطقة:</span>
-                                <span class="info-value" id="area">-</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">العنوان:</span>
-                                <span class="info-value" id="address">-</span>
-                            </div>
+                        <div class="field-group">
+                            <div class="field-label">الاسم بالعربية:</div>
+                            <div class="field-value" id="nameArabic">-</div>
                         </div>
-
-                        <div class="info-section">
-                            <div class="section-title">
-                                📅 بيانات الطلب
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">تاريخ التقديم:</span>
-                                <span class="info-value" id="submissionDate">-</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">اسم المستخدم:</span>
-                                <span class="info-value" id="username">-</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">الحالة الحالية:</span>
-                                <span class="info-value" id="currentStatus">-</span>
-                            </div>
+                        <div class="field-group">
+                            <div class="field-label">الاسم بالإنجليزية:</div>
+                            <div class="field-value" id="nameEnglish">-</div>
+                        </div>
+                        <div class="field-group">
+                            <div class="field-label">الجنسية:</div>
+                            <div class="field-value" id="nationality">-</div>
+                        </div>
+                        <div class="field-group">
+                            <div class="field-label">الرقم المدني:</div>
+                            <div class="field-value" id="civilId">-</div>
+                        </div>
+                        <div class="field-group">
+                            <div class="field-label">تاريخ الميلاد:</div>
+                            <div class="field-value" id="birthDate">-</div>
+                        </div>
+                        <div class="field-group">
+                            <div class="field-label">الجنس:</div>
+                            <div class="field-value" id="gender">-</div>
+                        </div>
+                        <div class="field-group">
+                            <div class="field-label">البريد الإلكتروني:</div>
+                            <div class="field-value" id="email">-</div>
+                        </div>
+                        <div class="field-group">
+                            <div class="field-label">رقم الهاتف:</div>
+                            <div class="field-value" id="phone">-</div>
+                        </div>
+                        <div class="field-group">
+                            <div class="field-label">المنطقة:</div>
+                            <div class="field-value" id="area">-</div>
                         </div>
                     </div>
 
-                    <!-- المرفقات -->
-                    <div class="attachments-section">
+                    <!-- بيانات العمل -->
+                    <div class="section">
+                        <div class="section-title">
+                            💼 بيانات العمل
+                        </div>
+                        <div class="field-group">
+                            <div class="field-label">المؤهل العلمي:</div>
+                            <div class="field-value" id="qualification">-</div>
+                        </div>
+                        <div class="field-group">
+                            <div class="field-label">التخصص:</div>
+                            <div class="field-value" id="specialization">-</div>
+                        </div>
+                        <div class="field-group">
+                            <div class="field-label">جهة العمل:</div>
+                            <div class="field-value" id="workplace">-</div>
+                        </div>
+                        <div class="field-group">
+                            <div class="field-label">المسمى الوظيفي:</div>
+                            <div class="field-value" id="jobTitle">-</div>
+                        </div>
+                    </div>
+
+                    <!-- بيانات الطلب -->
+                    <div class="section">
+                        <div class="section-title">
+                            📄 بيانات الطلب
+                        </div>
+                        <div class="field-group">
+                            <div class="field-label">رقم الطلب:</div>
+                            <div class="field-value" id="applicationId">-</div>
+                        </div>
+                        <div class="field-group">
+                            <div class="field-label">تاريخ التقديم:</div>
+                            <div class="field-value" id="submissionDate">-</div>
+                        </div>
+                        <div class="field-group">
+                            <div class="field-label">اسم المستخدم:</div>
+                            <div class="field-value" id="username">-</div>
+                        </div>
+                        <div class="field-group">
+                            <div class="field-label">الحالة الحالية:</div>
+                            <div class="field-value" id="currentStatus">في انتظار المراجعة</div>
+                        </div>
+                    </div>
+
+                    <!-- المرفقات والوثائق -->
+                    <div class="section attachments-section">
                         <div class="section-title">
                             📎 المرفقات والوثائق
                         </div>
                         <div class="attachments-grid" id="attachmentsGrid">
-                            <!-- سيتم ملؤها ديناميكياً -->
+                            <!-- سيتم إضافة المرفقات هنا -->
                         </div>
                     </div>
 
-                    <!-- قسم اتخاذ القرار -->
-                    <div class="decision-section">
-                        <div class="decision-header">
-                            <div class="decision-title">اتخاذ القرار</div>
-                            <div class="decision-subtitle">يرجى مراجعة جميع البيانات والمرفقات قبل اتخاذ القرار</div>
+                    <!-- اتخاذ القرار -->
+                    <div class="section decision-section">
+                        <div class="section-title decision-title">
+                            ⚖️ اتخاذ القرار
                         </div>
-
+                        
                         <div class="decision-buttons">
-                            <button class="decision-btn approve-btn" onclick="showApprovalForm()">
-                                ✅ موافقة
-                            </button>
-                            <button class="decision-btn reject-btn" onclick="showRejectionForm()">
-                                ❌ رفض
-                            </button>
+                            <div class="decision-btn approve" onclick="selectDecision('approve')">
+                                ✅ الموافقة على طلب العضوية
+                            </div>
+                            <div class="decision-btn reject" onclick="selectDecision('reject')">
+                                ❌ رفض طلب العضوية
+                            </div>
                         </div>
 
                         <!-- نموذج الموافقة -->
                         <div class="approval-form" id="approvalForm">
-                            <h4 style="color: #059669; margin-bottom: 20px;">✅ الموافقة على طلب العضوية</h4>
-                            <div class="form-row">
+                            <h3 style="color: #166534; margin-bottom: 15px;">✅ الموافقة على طلب العضوية</h3>
+                            <div class="form-grid">
                                 <div class="form-group">
-                                    <label class="form-label">رقم العضوية (3 أرقام)</label>
+                                    <label class="form-label">رقم العضوية (3 أرقام):</label>
                                     <input type="text" class="form-input" id="membershipNumber" placeholder="مثال: 001" maxlength="3" pattern="[0-9]{3}">
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label">نوع العضوية</label>
+                                    <label class="form-label">نوع العضوية:</label>
                                     <select class="form-select" id="membershipType">
                                         <option value="">اختر نوع العضوية</option>
-                                        <option value="affiliated">عضو منتسب</option>
-                                        <option value="non-affiliated">عضو غير منتسب</option>
-                                        <option value="honorary">عضو فخري</option>
+                                        <option value="عضو منتسب">عضو منتسب</option>
+                                        <option value="عضو غير منتسب">عضو غير منتسب</option>
+                                        <option value="عضو فخري">عضو فخري</option>
                                     </select>
                                 </div>
                             </div>
-                            <button class="submit-btn" onclick="approveApplication()">
+                            <div class="form-group">
+                                <label class="form-label">ملاحظات (اختياري):</label>
+                                <textarea class="form-textarea" id="approvalNotes" placeholder="أي ملاحظات إضافية..."></textarea>
+                            </div>
+                            <button class="submit-btn" onclick="submitDecision('approve')">
                                 ✅ تأكيد الموافقة وحفظ
                             </button>
                         </div>
 
                         <!-- نموذج الرفض -->
                         <div class="rejection-form" id="rejectionForm">
-                            <h4 style="color: #dc2626; margin-bottom: 20px;">❌ رفض طلب العضوية</h4>
+                            <h3 style="color: #991b1b; margin-bottom: 15px;">❌ رفض طلب العضوية</h3>
                             <div class="form-group">
-                                <label class="form-label">أسباب الرفض (للإدارة فقط - لن تظهر للعضو)</label>
-                                <textarea class="form-textarea" id="rejectionReason" placeholder="يرجى كتابة أسباب الرفض بالتفصيل..."></textarea>
+                                <label class="form-label">أسباب الرفض (مطلوب):</label>
+                                <textarea class="form-textarea" id="rejectionReasons" placeholder="اكتب أسباب الرفض بالتفصيل..." required></textarea>
                             </div>
-                            <button class="submit-btn" onclick="rejectApplication()" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                            <div class="form-group">
+                                <label class="form-label">ملاحظات إضافية (اختياري):</label>
+                                <textarea class="form-textarea" id="rejectionNotes" placeholder="أي ملاحظات إضافية..."></textarea>
+                            </div>
+                            <button class="submit-btn" onclick="submitDecision('reject')" style="background: #dc2626;">
                                 ❌ تأكيد الرفض وحفظ
                             </button>
                         </div>
@@ -630,12 +559,13 @@
     <script>
         // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyBL5Ej4VvdJJDl_8vG5KqF8eJ9X8yF4Abc",
+            apiKey: "AIzaSyBKvr6ZI_M_s_hk3Ch2ivWBuY5jSI9QxDo",
             authDomain: "kaml-membership-system.firebaseapp.com",
             projectId: "kaml-membership-system",
-            storageBucket: "kaml-membership-system.appspot.com",
-            messagingSenderId: "123456789012",
-            appId: "1:123456789012:web:abcdef123456789"
+            storageBucket: "kaml-membership-system.firebasestorage.app",
+            messagingSenderId: "1083658943439",
+            appId: "1:1083658943439:web:f6a17e3bbdb6cd8feab0ba",
+            measurementId: "G-ZZSZF3X7WC"
         };
 
         // Initialize Firebase
@@ -646,297 +576,353 @@
         let currentApplication = null;
         let applicationId = null;
 
-        // التحقق من تسجيل الدخول
-        if (sessionStorage.getItem('adminLoggedIn') !== 'true') {
-            window.location.href = 'admin-login.html';
-        }
-
-        // الحصول على معرف الطلب من URL
-        function getApplicationId() {
+        // تحميل البيانات عند بدء الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            // الحصول على معرف الطلب من URL
             const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('id');
-        }
-
-        // تحميل بيانات الطلب
-        async function loadApplication() {
-            applicationId = getApplicationId();
+            applicationId = urlParams.get('id');
             
             if (!applicationId) {
                 showError('لم يتم تحديد معرف الطلب');
                 return;
             }
 
+            loadApplicationData();
+        });
+
+        // تحميل بيانات الطلب
+        async function loadApplicationData() {
             try {
-                // محاولة تحميل من Firebase أولاً
-                const doc = await db.collection('membershipApplications').doc(applicationId).get();
-                
-                if (doc.exists) {
-                    currentApplication = { id: doc.id, ...doc.data() };
-                } else {
-                    // التحميل من التخزين المحلي كبديل
-                    const applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
-                    currentApplication = applications.find(app => app.id == applicationId);
+                showLoading(true);
+
+                // محاولة التحميل من Firebase أولاً
+                try {
+                    const doc = await db.collection('membershipApplications').doc(applicationId).get();
+                    if (doc.exists) {
+                        currentApplication = { id: doc.id, ...doc.data() };
+                    }
+                } catch (firebaseError) {
+                    console.warn('خطأ في Firebase:', firebaseError);
+                }
+
+                // إذا لم توجد في Firebase، ابحث في التخزين المحلي
+                if (!currentApplication) {
+                    const localData = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+                    const localApp = localData.find(app => app.id === applicationId);
+                    if (localApp) {
+                        currentApplication = localApp;
+                    }
                 }
 
                 if (!currentApplication) {
-                    throw new Error('لم يتم العثور على الطلب المحدد');
+                    showError('لم يتم العثور على الطلب المحدد');
+                    return;
                 }
 
-                // عرض البيانات
                 displayApplicationData();
-
+                
             } catch (error) {
-                console.error('خطأ في تحميل الطلب:', error);
-                showError('حدث خطأ في تحميل بيانات الطلب: ' + error.message);
+                console.error('خطأ في تحميل البيانات:', error);
+                showError('حدث خطأ أثناء تحميل بيانات الطلب');
+            } finally {
+                showLoading(false);
             }
         }
 
-        // عرض البيانات
+        // عرض بيانات الطلب
         function displayApplicationData() {
-            // إخفاء التحميل وإظهار المحتوى
-            document.getElementById('loadingDiv').style.display = 'none';
-            document.getElementById('applicationContent').style.display = 'block';
+            if (!currentApplication) return;
 
-            // البيانات الشخصية مع التحقق من وجودها
-            document.getElementById('nameAr').textContent = `${currentApplication.firstNameAr || ''} ${currentApplication.middleNameAr || ''} ${currentApplication.lastNameAr || ''}`.trim() || 'غير محدد';
-            document.getElementById('nameEn').textContent = `${currentApplication.firstNameEn || ''} ${currentApplication.middleNameEn || ''} ${currentApplication.lastNameEn || ''}`.trim() || 'غير محدد';
+            // البيانات الشخصية
+            const nameArabic = `${currentApplication.first_name_ar || ''} ${currentApplication.middle_name_ar || ''} ${currentApplication.last_name_ar || ''}`.trim();
+            const nameEnglish = `${currentApplication.first_name_en || ''} ${currentApplication.middle_name_en || ''} ${currentApplication.last_name_en || ''}`.trim();
+
+            document.getElementById('nameArabic').textContent = nameArabic || 'غير محدد';
+            document.getElementById('nameEnglish').textContent = nameEnglish || 'غير محدد';
+            document.getElementById('nationality').textContent = currentApplication.nationality || 'غير محدد';
+            document.getElementById('civilId').textContent = currentApplication.civil_id || 'غير محدد';
+            document.getElementById('birthDate').textContent = currentApplication.birth_date || 'غير محدد';
+            document.getElementById('gender').textContent = currentApplication.gender || 'غير محدد';
             document.getElementById('email').textContent = currentApplication.email || 'غير محدد';
             document.getElementById('phone').textContent = currentApplication.phone || 'غير محدد';
-            document.getElementById('civilId').textContent = currentApplication.civilId || 'غير محدد';
+            document.getElementById('area').textContent = currentApplication.area || 'غير محدد';
 
             // بيانات العمل
-            document.getElementById('jobTitle').textContent = currentApplication.jobTitle || 'غير محدد';
+            document.getElementById('qualification').textContent = currentApplication.qualification || 'غير محدد';
+            document.getElementById('specialization').textContent = currentApplication.specialization || 'غير محدد';
             document.getElementById('workplace').textContent = currentApplication.workplace || 'غير محدد';
-            document.getElementById('area').textContent = currentApplication.area || 'غير محدد';
-            document.getElementById('address').textContent = currentApplication.address || 'غير محدد';
+            document.getElementById('jobTitle').textContent = currentApplication.job_title || 'غير محدد';
 
             // بيانات الطلب
-            document.getElementById('submissionDate').textContent = formatDate(currentApplication.submissionDate);
+            document.getElementById('applicationId').textContent = currentApplication.id || 'غير محدد';
+            document.getElementById('submissionDate').textContent = currentApplication.submissionDate ? 
+                new Date(currentApplication.submissionDate).toLocaleDateString('ar-SA') : 'غير محدد';
             document.getElementById('username').textContent = currentApplication.username || 'غير محدد';
-            document.getElementById('currentStatus').textContent = getStatusArabic(currentApplication.status);
+            
+            // الحالة الحالية
+            const statusText = getStatusText(currentApplication.status);
+            document.getElementById('currentStatus').textContent = statusText;
 
             // عرض المرفقات
             displayAttachments();
+
+            // إظهار المحتوى
+            document.getElementById('applicationContent').style.display = 'block';
         }
 
         // عرض المرفقات
         function displayAttachments() {
             const attachmentsGrid = document.getElementById('attachmentsGrid');
-            
-            // التحقق من وجود المرفقات وأنها array
-            if (!currentApplication.attachments || !Array.isArray(currentApplication.attachments) || currentApplication.attachments.length === 0) {
-                attachmentsGrid.innerHTML = '<p style="text-align: center; color: #6b7280; grid-column: 1/-1;">لا توجد مرفقات</p>';
-                return;
-            }
-
             attachmentsGrid.innerHTML = '';
-            
-            currentApplication.attachments.forEach(attachment => {
+
+            // قائمة المرفقات المتوقعة
+            const expectedAttachments = [
+                { key: 'civil_id_copy', name: 'صورة الرقم المدني', icon: '🆔' },
+                { key: 'passport_photo', name: 'الصورة الشخصية', icon: '📷' },
+                { key: 'qualification_certificate', name: 'شهادة المؤهل', icon: '🎓' },
+                { key: 'work_certificate', name: 'شهادة العمل', icon: '💼' },
+                { key: 'cv', name: 'السيرة الذاتية', icon: '📄' }
+            ];
+
+            expectedAttachments.forEach(attachment => {
                 const attachmentCard = document.createElement('div');
                 attachmentCard.className = 'attachment-card';
-                attachmentCard.onclick = () => viewAttachment(attachment);
                 
-                const icon = getFileIcon(attachment.type);
-                
+                const hasFile = currentApplication[attachment.key];
+                const status = hasFile ? 'متوفر' : 'غير متوفر';
+                const statusColor = hasFile ? '#10b981' : '#ef4444';
+
                 attachmentCard.innerHTML = `
-                    <div class="attachment-icon">${icon}</div>
-                    <div class="attachment-name">${attachment.name || 'مرفق'}</div>
-                    <div class="attachment-size">${attachment.size || 'غير محدد'}</div>
+                    <div class="attachment-icon">${attachment.icon}</div>
+                    <div class="attachment-name">${attachment.name}</div>
+                    <div class="attachment-size" style="color: ${statusColor};">${status}</div>
                 `;
-                
+
+                if (hasFile) {
+                    attachmentCard.style.cursor = 'pointer';
+                    attachmentCard.onclick = () => viewAttachment(currentApplication[attachment.key], attachment.name);
+                }
+
                 attachmentsGrid.appendChild(attachmentCard);
             });
+
+            // إذا لم توجد مرفقات
+            if (attachmentsGrid.children.length === 0) {
+                attachmentsGrid.innerHTML = '<p style="text-align: center; color: #6b7280; grid-column: 1 / -1;">لا توجد مرفقات</p>';
+            }
         }
 
         // عرض المرفق
-        function viewAttachment(attachment) {
-            if (attachment.url) {
-                window.open(attachment.url, '_blank');
+        function viewAttachment(fileData, fileName) {
+            if (fileData && fileData.startsWith('data:')) {
+                // فتح في نافذة جديدة
+                const newWindow = window.open();
+                newWindow.document.write(`
+                    <html>
+                        <head><title>${fileName}</title></head>
+                        <body style="margin:0; display:flex; justify-content:center; align-items:center; min-height:100vh; background:#f3f4f6;">
+                            <img src="${fileData}" style="max-width:100%; max-height:100%; object-fit:contain;" alt="${fileName}">
+                        </body>
+                    </html>
+                `);
             } else {
-                alert('رابط المرفق غير متاح');
+                alert('لا يمكن عرض هذا المرفق');
             }
         }
 
-        // الحصول على أيقونة الملف
-        function getFileIcon(type) {
-            const icons = {
-                'civil_id': '🆔',
-                'personal_photo': '📷',
-                'certificate': '📜',
-                'cv': '📄',
-                'other': '📎'
-            };
-            return icons[type] || '📎';
+        // اختيار القرار
+        function selectDecision(decision) {
+            // إزالة التحديد من جميع الأزرار
+            document.querySelectorAll('.decision-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // إخفاء جميع النماذج
+            document.getElementById('approvalForm').style.display = 'none';
+            document.getElementById('rejectionForm').style.display = 'none';
+
+            // تحديد الزر المختار وإظهار النموذج المناسب
+            if (decision === 'approve') {
+                document.querySelector('.decision-btn.approve').classList.add('active');
+                document.getElementById('approvalForm').style.display = 'block';
+            } else if (decision === 'reject') {
+                document.querySelector('.decision-btn.reject').classList.add('active');
+                document.getElementById('rejectionForm').style.display = 'block';
+            }
         }
 
-        // إظهار نموذج الموافقة
-        function showApprovalForm() {
-            document.getElementById('approvalForm').classList.add('active');
-            document.getElementById('rejectionForm').classList.remove('active');
-            
-            // إنشاء رقم عضوية تلقائي
-            generateMembershipNumber();
-        }
-
-        // إظهار نموذج الرفض
-        function showRejectionForm() {
-            document.getElementById('rejectionForm').classList.add('active');
-            document.getElementById('approvalForm').classList.remove('active');
-        }
-
-        // إنشاء رقم عضوية تلقائي
-        async function generateMembershipNumber() {
+        // تقديم القرار
+        async function submitDecision(decision) {
             try {
-                // الحصول على آخر رقم عضوية
+                let updatedData = { ...currentApplication };
+
+                if (decision === 'approve') {
+                    // التحقق من البيانات المطلوبة
+                    const membershipNumber = document.getElementById('membershipNumber').value.trim();
+                    const membershipType = document.getElementById('membershipType').value;
+
+                    if (!membershipNumber || membershipNumber.length !== 3 || !/^\d{3}$/.test(membershipNumber)) {
+                        alert('يرجى إدخال رقم عضوية صحيح (3 أرقام)');
+                        return;
+                    }
+
+                    if (!membershipType) {
+                        alert('يرجى اختيار نوع العضوية');
+                        return;
+                    }
+
+                    // التحقق من عدم تكرار رقم العضوية
+                    if (await checkMembershipNumberExists(membershipNumber)) {
+                        alert('رقم العضوية مستخدم بالفعل، يرجى اختيار رقم آخر');
+                        return;
+                    }
+
+                    // تحديث البيانات للموافقة
+                    const today = new Date();
+                    const expiryDate = new Date(today);
+                    expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+
+                    updatedData.status = 'approved';
+                    updatedData.membership_number = membershipNumber;
+                    updatedData.membership_type = membershipType;
+                    updatedData.activation_date = today.toISOString().split('T')[0];
+                    updatedData.expiry_date = expiryDate.toISOString().split('T')[0];
+                    updatedData.approval_notes = document.getElementById('approvalNotes').value.trim();
+                    updatedData.decision_date = today.toISOString();
+
+                } else if (decision === 'reject') {
+                    // التحقق من أسباب الرفض
+                    const rejectionReasons = document.getElementById('rejectionReasons').value.trim();
+
+                    if (!rejectionReasons) {
+                        alert('يرجى كتابة أسباب الرفض');
+                        return;
+                    }
+
+                    // تحديث البيانات للرفض
+                    updatedData.status = 'rejected';
+                    updatedData.rejection_reasons = rejectionReasons;
+                    updatedData.rejection_notes = document.getElementById('rejectionNotes').value.trim();
+                    updatedData.decision_date = new Date().toISOString();
+                }
+
+                // حفظ في Firebase
+                try {
+                    await db.collection('membershipApplications').doc(applicationId).update(updatedData);
+                } catch (firebaseError) {
+                    console.warn('خطأ في حفظ Firebase:', firebaseError);
+                }
+
+                // حفظ في التخزين المحلي
+                const localData = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+                const index = localData.findIndex(app => app.id === applicationId);
+                if (index !== -1) {
+                    localData[index] = updatedData;
+                } else {
+                    localData.push(updatedData);
+                }
+                localStorage.setItem('membershipApplications', JSON.stringify(localData));
+
+                // إظهار رسالة النجاح
+                const successText = decision === 'approve' ? 
+                    'تم قبول الطلب وإنشاء العضوية بنجاح' : 
+                    'تم رفض الطلب وحفظ الأسباب';
+                
+                showSuccess(successText);
+
+                // إعادة التوجيه بعد 3 ثوان
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 3000);
+
+            } catch (error) {
+                console.error('خطأ في حفظ القرار:', error);
+                alert('حدث خطأ أثناء حفظ القرار، يرجى المحاولة مرة أخرى');
+            }
+        }
+
+        // التحقق من وجود رقم العضوية
+        async function checkMembershipNumberExists(membershipNumber) {
+            try {
+                // البحث في Firebase
                 const snapshot = await db.collection('membershipApplications')
-                    .where('status', '==', 'approved')
-                    .orderBy('membershipNumber', 'desc')
-                    .limit(1)
+                    .where('membership_number', '==', membershipNumber)
                     .get();
                 
-                let nextNumber = 1;
-                
                 if (!snapshot.empty) {
-                    const lastMember = snapshot.docs[0].data();
-                    const lastNumber = parseInt(lastMember.membershipNumber);
-                    if (!isNaN(lastNumber)) {
-                        nextNumber = lastNumber + 1;
-                    }
+                    return true;
                 }
-                
-                // تنسيق الرقم بثلاثة أرقام
-                const formattedNumber = nextNumber.toString().padStart(3, '0');
-                document.getElementById('membershipNumber').value = formattedNumber;
-                
+
+                // البحث في التخزين المحلي
+                const localData = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+                return localData.some(app => app.membership_number === membershipNumber);
+
             } catch (error) {
-                console.error('خطأ في إنشاء رقم العضوية:', error);
-                // استخدام رقم عشوائي كبديل
-                const randomNumber = Math.floor(Math.random() * 900) + 100;
-                document.getElementById('membershipNumber').value = randomNumber.toString();
+                console.warn('خطأ في التحقق من رقم العضوية:', error);
+                
+                // الاعتماد على التخزين المحلي فقط
+                const localData = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+                return localData.some(app => app.membership_number === membershipNumber);
             }
         }
 
-        // الموافقة على الطلب
-        async function approveApplication() {
-            const membershipNumber = document.getElementById('membershipNumber').value.trim();
-            const membershipType = document.getElementById('membershipType').value;
-            
-            // التحقق من صحة البيانات
-            if (!membershipNumber || membershipNumber.length !== 3 || !/^\d{3}$/.test(membershipNumber)) {
-                alert('يرجى إدخال رقم عضوية صحيح مكون من 3 أرقام');
-                return;
-            }
-            
-            if (!membershipType) {
-                alert('يرجى اختيار نوع العضوية');
-                return;
-            }
-            
-            if (!confirm('هل أنت متأكد من الموافقة على هذا الطلب؟')) {
-                return;
-            }
-            
-            try {
-                const approvalDate = new Date();
-                const expiryDate = new Date(approvalDate.getFullYear() + 1, approvalDate.getMonth(), approvalDate.getDate());
-                
-                const updateData = {
-                    status: 'approved',
-                    membershipNumber: membershipNumber,
-                    membershipType: membershipType,
-                    approvalDate: approvalDate.toISOString(),
-                    expiryDate: expiryDate.toISOString(),
-                    approvedBy: 'admin', // يمكن تحديث هذا ليكون اسم المدير الفعلي
-                    approvedAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                
-                // تحديث في Firebase
-                await db.collection('membershipApplications').doc(applicationId).update(updateData);
-                
-                // تحديث التخزين المحلي أيضاً
-                const applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
-                const index = applications.findIndex(app => app.id == applicationId);
-                if (index !== -1) {
-                    applications[index] = { ...applications[index], ...updateData };
-                    localStorage.setItem('membershipApplications', JSON.stringify(applications));
-                }
-                
-                alert('تم الموافقة على الطلب بنجاح! سيتم إشعار العضو بالموافقة.');
-                window.location.href = 'dashboard.html';
-                
-            } catch (error) {
-                console.error('خطأ في الموافقة على الطلب:', error);
-                alert('حدث خطأ أثناء معالجة الموافقة. يرجى المحاولة مرة أخرى.');
+        // الحصول على نص الحالة
+        function getStatusText(status) {
+            switch(status) {
+                case 'pending': return 'في انتظار المراجعة';
+                case 'approved': return 'معتمد';
+                case 'rejected': return 'مرفوض';
+                case 'renewal_requested': return 'طلب تجديد';
+                default: return 'غير محدد';
             }
         }
 
-        // رفض الطلب
-        async function rejectApplication() {
-            const rejectionReason = document.getElementById('rejectionReason').value.trim();
-            
-            if (!rejectionReason) {
-                alert('يرجى كتابة أسباب الرفض');
-                return;
-            }
-            
-            if (!confirm('هل أنت متأكد من رفض هذا الطلب؟')) {
-                return;
-            }
-            
-            try {
-                const updateData = {
-                    status: 'rejected',
-                    rejectionReason: rejectionReason,
-                    rejectedBy: 'admin', // يمكن تحديث هذا ليكون اسم المدير الفعلي
-                    rejectedAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                
-                // تحديث في Firebase
-                await db.collection('membershipApplications').doc(applicationId).update(updateData);
-                
-                // تحديث التخزين المحلي أيضاً
-                const applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
-                const index = applications.findIndex(app => app.id == applicationId);
-                if (index !== -1) {
-                    applications[index] = { ...applications[index], ...updateData };
-                    localStorage.setItem('membershipApplications', JSON.stringify(applications));
-                }
-                
-                alert('تم رفض الطلب. سيتم إشعار المتقدم بالرفض (بدون ذكر الأسباب).');
-                window.location.href = 'dashboard.html';
-                
-            } catch (error) {
-                console.error('خطأ في رفض الطلب:', error);
-                alert('حدث خطأ أثناء معالجة الرفض. يرجى المحاولة مرة أخرى.');
+        // إظهار/إخفاء مؤشر التحميل
+        function showLoading(show) {
+            const loading = document.getElementById('loadingIndicator');
+            const content = document.getElementById('applicationContent');
+            const error = document.getElementById('errorMessage');
+
+            if (show) {
+                loading.style.display = 'block';
+                content.style.display = 'none';
+                error.style.display = 'none';
+            } else {
+                loading.style.display = 'none';
             }
         }
 
-        // عرض رسالة خطأ
+        // إظهار رسالة خطأ
         function showError(message) {
-            document.getElementById('loadingDiv').style.display = 'none';
-            document.getElementById('errorDiv').style.display = 'block';
-            document.getElementById('errorMessage').textContent = message;
+            const errorDiv = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            
+            errorText.textContent = message;
+            errorDiv.style.display = 'block';
+            
+            document.getElementById('loadingIndicator').style.display = 'none';
+            document.getElementById('applicationContent').style.display = 'none';
         }
 
-        // وظائف مساعدة
-        function formatDate(dateString) {
-            if (!dateString) return '-';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('en-GB');
+        // إظهار رسالة نجاح
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            const successText = document.getElementById('successText');
+            
+            successText.textContent = message;
+            successDiv.style.display = 'block';
+            
+            // إخفاء قسم اتخاذ القرار
+            document.querySelector('.decision-section').style.display = 'none';
         }
 
-        function getStatusArabic(status) {
-            const statuses = {
-                'pending': 'في انتظار المراجعة',
-                'approved': 'معتمد',
-                'rejected': 'مرفوض'
-            };
-            return statuses[status] || status;
-        }
-
-        // تحميل البيانات عند تحميل الصفحة
-        document.addEventListener('DOMContentLoaded', function() {
-            loadApplication();
+        // التحقق من صحة رقم العضوية أثناء الكتابة
+        document.getElementById('membershipNumber').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, ''); // إزالة أي شيء غير رقمي
+            if (value.length > 3) {
+                value = value.substring(0, 3);
+            }
+            e.target.value = value;
         });
     </script>
 </body>
