@@ -602,44 +602,108 @@
         async function loadData() {
             try {
                 showLoading(true);
+                console.log('🔄 بدء تحميل البيانات...');
                 
-                // تحميل من Firebase
-                const snapshot = await db.collection('membershipApplications').get();
-                const firebaseData = [];
+                let firebaseData = [];
                 
-                snapshot.forEach(doc => {
-                    firebaseData.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
-                });
+                // محاولة تحميل من مجموعات مختلفة في Firebase
+                const possibleCollections = [
+                    'membershipApplications',
+                    'members',
+                    'applications',
+                    'registrations'
+                ];
+
+                for (const collectionName of possibleCollections) {
+                    try {
+                        console.log(`🔍 البحث في مجموعة: ${collectionName}`);
+                        const snapshot = await db.collection(collectionName).get();
+                        
+                        if (!snapshot.empty) {
+                            console.log(`✅ تم العثور على ${snapshot.size} سجل في ${collectionName}`);
+                            snapshot.forEach(doc => {
+                                const data = doc.data();
+                                firebaseData.push({
+                                    id: doc.id,
+                                    ...data,
+                                    source: collectionName
+                                });
+                            });
+                            break; // توقف عند العثور على بيانات
+                        } else {
+                            console.log(`⚠️ مجموعة ${collectionName} فارغة`);
+                        }
+                    } catch (collectionError) {
+                        console.warn(`❌ خطأ في الوصول لمجموعة ${collectionName}:`, collectionError);
+                    }
+                }
 
                 // تحميل من التخزين المحلي كنسخة احتياطية
                 const localData = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+                console.log(`💾 تم العثور على ${localData.length} سجل في التخزين المحلي`);
                 
                 // دمج البيانات (Firebase له الأولوية)
                 const combinedData = [...firebaseData];
                 localData.forEach(localItem => {
                     if (!combinedData.find(item => item.id === localItem.id)) {
-                        combinedData.push(localItem);
+                        combinedData.push({
+                            ...localItem,
+                            source: 'localStorage'
+                        });
                     }
                 });
+
+                console.log(`📊 إجمالي البيانات المحملة: ${combinedData.length}`);
+                console.log('البيانات:', combinedData);
 
                 allData = combinedData;
                 updateStatistics();
                 filterData(currentFilter);
+
+                // عرض رسالة إذا لم توجد بيانات
+                if (combinedData.length === 0) {
+                    console.log('⚠️ لم يتم العثور على أي بيانات');
+                    showNoDataMessage();
+                }
                 
             } catch (error) {
-                console.error('خطأ في تحميل البيانات:', error);
+                console.error('❌ خطأ عام في تحميل البيانات:', error);
                 
                 // الاعتماد على التخزين المحلي فقط
                 const localData = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
-                allData = localData;
+                console.log(`🔄 الاعتماد على التخزين المحلي: ${localData.length} سجل`);
+                
+                allData = localData.map(item => ({
+                    ...item,
+                    source: 'localStorage'
+                }));
                 updateStatistics();
                 filterData(currentFilter);
+
+                if (localData.length === 0) {
+                    showNoDataMessage();
+                }
             } finally {
                 showLoading(false);
             }
+        }
+
+        // عرض رسالة عدم وجود بيانات
+        function showNoDataMessage() {
+            const emptyState = document.getElementById('emptyState');
+            emptyState.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #6b7280;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">📭</div>
+                    <h3 style="margin-bottom: 10px;">لا توجد بيانات</h3>
+                    <p style="margin-bottom: 20px;">لم يتم العثور على أي طلبات عضوية في النظام</p>
+                    <div style="font-size: 14px; color: #9ca3af;">
+                        <p>للاختبار:</p>
+                        <p>1. سجل عضو جديد من صفحة التسجيل</p>
+                        <p>2. أو أضف عضو قديم من الأزرار أعلاه</p>
+                    </div>
+                </div>
+            `;
+            emptyState.style.display = 'block';
         }
 
         // تحديث الإحصائيات
