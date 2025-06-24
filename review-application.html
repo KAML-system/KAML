@@ -697,22 +697,22 @@
             document.getElementById('loadingDiv').style.display = 'none';
             document.getElementById('applicationContent').style.display = 'block';
 
-            // البيانات الشخصية
-            document.getElementById('nameAr').textContent = `${currentApplication.firstNameAr} ${currentApplication.middleNameAr} ${currentApplication.lastNameAr}`;
-            document.getElementById('nameEn').textContent = `${currentApplication.firstNameEn} ${currentApplication.middleNameEn} ${currentApplication.lastNameEn}`;
-            document.getElementById('email').textContent = currentApplication.email;
-            document.getElementById('phone').textContent = currentApplication.phone;
-            document.getElementById('civilId').textContent = currentApplication.civilId;
+            // البيانات الشخصية مع التحقق من وجودها
+            document.getElementById('nameAr').textContent = `${currentApplication.firstNameAr || ''} ${currentApplication.middleNameAr || ''} ${currentApplication.lastNameAr || ''}`.trim() || 'غير محدد';
+            document.getElementById('nameEn').textContent = `${currentApplication.firstNameEn || ''} ${currentApplication.middleNameEn || ''} ${currentApplication.lastNameEn || ''}`.trim() || 'غير محدد';
+            document.getElementById('email').textContent = currentApplication.email || 'غير محدد';
+            document.getElementById('phone').textContent = currentApplication.phone || 'غير محدد';
+            document.getElementById('civilId').textContent = currentApplication.civilId || 'غير محدد';
 
             // بيانات العمل
-            document.getElementById('jobTitle').textContent = currentApplication.jobTitle;
-            document.getElementById('workplace').textContent = currentApplication.workplace;
-            document.getElementById('area').textContent = currentApplication.area || '-';
-            document.getElementById('address').textContent = currentApplication.address;
+            document.getElementById('jobTitle').textContent = currentApplication.jobTitle || 'غير محدد';
+            document.getElementById('workplace').textContent = currentApplication.workplace || 'غير محدد';
+            document.getElementById('area').textContent = currentApplication.area || 'غير محدد';
+            document.getElementById('address').textContent = currentApplication.address || 'غير محدد';
 
             // بيانات الطلب
             document.getElementById('submissionDate').textContent = formatDate(currentApplication.submissionDate);
-            document.getElementById('username').textContent = currentApplication.username;
+            document.getElementById('username').textContent = currentApplication.username || 'غير محدد';
             document.getElementById('currentStatus').textContent = getStatusArabic(currentApplication.status);
 
             // عرض المرفقات
@@ -723,7 +723,8 @@
         function displayAttachments() {
             const attachmentsGrid = document.getElementById('attachmentsGrid');
             
-            if (!currentApplication.attachments || currentApplication.attachments.length === 0) {
+            // التحقق من وجود المرفقات وأنها array
+            if (!currentApplication.attachments || !Array.isArray(currentApplication.attachments) || currentApplication.attachments.length === 0) {
                 attachmentsGrid.innerHTML = '<p style="text-align: center; color: #6b7280; grid-column: 1/-1;">لا توجد مرفقات</p>';
                 return;
             }
@@ -739,7 +740,7 @@
                 
                 attachmentCard.innerHTML = `
                     <div class="attachment-icon">${icon}</div>
-                    <div class="attachment-name">${attachment.name}</div>
+                    <div class="attachment-name">${attachment.name || 'مرفق'}</div>
                     <div class="attachment-size">${attachment.size || 'غير محدد'}</div>
                 `;
                 
