@@ -1173,9 +1173,60 @@
             });
         }
 
+        // تحميل طلبات التجديد
+        function loadRenewalRequests() {
+            console.log('Loading renewal requests...');
+            const renewalRequests = JSON.parse(localStorage.getItem('renewalRequests') || '[]');
+            console.log('Found renewal requests:', renewalRequests.length);
+            
+            const tbody = document.getElementById('renewalsTableBody');
+            
+            if (renewalRequests.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px; color: #666;">لا توجد طلبات تجديد</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = renewalRequests.map(request => `
+                <tr>
+                    <td>${request.id || 'غير محدد'}</td>
+                    <td>${request.memberName || 'غير محدد'}</td>
+                    <td>${request.membershipNumber || 'غير محدد'}</td>
+                    <td>${new Date(request.requestDate || Date.now()).toLocaleDateString('en-GB')}</td>
+                    <td>${new Date(request.currentExpiryDate || Date.now()).toLocaleDateString('en-GB')}</td>
+                    <td><span class="status-badge status-${request.status || 'pending'}">${getStatusText(request.status || 'pending')}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn view" onclick="viewRenewalRequest('${request.id}')">عرض</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+            
+            console.log('Renewal requests loaded successfully');
+        }
+
+        // عرض طلب التجديد
+        function viewRenewalRequest(requestId) {
+            alert('عرض طلب التجديد: ' + requestId);
+        }
+
+        // دالة الحصول على نص الحالة
+        function getStatusText(status) {
+            switch(status) {
+                case 'pending': return 'في الانتظار';
+                case 'approved': return 'موافق عليه';
+                case 'rejected': return 'مرفوض';
+                case 'active': return 'نشط';
+                case 'inactive': return 'غير نشط';
+                default: return 'غير محدد';
+            }
+        }
+
         // تحميل طلبات العضوية
         function loadApplications() {
+            console.log('Loading applications...');
             const applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+            console.log('Found applications:', applications.length);
             
             const tbody = document.getElementById('applicationsTableBody');
             const emptyState = document.getElementById('applicationsEmptyState');
@@ -1183,25 +1234,41 @@
             if (applications.length === 0) {
                 tbody.innerHTML = '';
                 emptyState.style.display = 'block';
+                console.log('No applications found - showing empty state');
                 return;
             }
             
             emptyState.style.display = 'none';
-            tbody.innerHTML = applications.map(app => `
-                <tr>
-                    <td>${app.firstNameAr} ${app.middleNameAr} ${app.lastNameAr}</td>
-                    <td>${app.email}</td>
-                    <td>${app.phone}</td>
-                    <td>${app.membershipType || 'غير محدد'}</td>
-                    <td>${new Date(app.submissionDate).toLocaleDateString('en-GB')}</td>
-                    <td><span class="status-badge status-${app.status}">${getStatusText(app.status)}</span></td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="action-btn view" onclick="viewApplicationDetails('${app.id}')">عرض</button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = applications.map(app => {
+                // التأكد من وجود البيانات المطلوبة
+                const firstName = app.firstNameAr || app.first_name_ar || 'غير محدد';
+                const middleName = app.middleNameAr || app.middle_name_ar || '';
+                const lastName = app.lastNameAr || app.last_name_ar || 'غير محدد';
+                const email = app.email || 'غير محدد';
+                const phone = app.phone || 'غير محدد';
+                const membershipType = app.membershipType || app.membership_type || 'غير محدد';
+                const submissionDate = app.submissionDate || app.submission_date || new Date().toISOString();
+                const status = app.status || 'pending';
+                const appId = app.id || app.applicationId || Date.now().toString();
+                
+                return `
+                    <tr>
+                        <td>${firstName} ${middleName} ${lastName}</td>
+                        <td>${email}</td>
+                        <td>${phone}</td>
+                        <td>${membershipType}</td>
+                        <td>${new Date(submissionDate).toLocaleDateString('en-GB')}</td>
+                        <td><span class="status-badge status-${status}">${getStatusText(status)}</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn view" onclick="viewApplicationDetails('${appId}')">عرض</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            console.log('Applications loaded successfully');
         }
 
         // فلترة طلبات العضوية
