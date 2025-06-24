@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم - إدارة العضوية</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -14,987 +20,1055 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
             direction: rtl;
+            min-height: 100vh;
         }
 
-        .dashboard-container {
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
-        }
-
-        .dashboard-header {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 0 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .dashboard-title {
-            color: #333;
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .user-info {
+        .logo-section {
             display: flex;
             align-items: center;
             gap: 15px;
         }
 
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            background: #667eea;
+        .logo-placeholder {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: bold;
+            font-size: 20px;
+            overflow: hidden;
+        }
+
+        .logo-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .header-title h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header-title p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .admin-info {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
         }
 
         .logout-btn {
-            background: #dc3545;
+            background: #ef4444;
             color: white;
             border: none;
             padding: 8px 16px;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
+            transition: all 0.3s ease;
             font-size: 14px;
-            transition: background 0.3s;
         }
 
         .logout-btn:hover {
-            background: #c82333;
+            background: #dc2626;
         }
 
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* إحصائيات */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
 
         .stat-card {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             border-radius: 15px;
             padding: 25px;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
         }
 
         .stat-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card.active {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
         }
 
         .stat-number {
-            font-size: 36px;
-            font-weight: bold;
-            color: #667eea;
+            font-size: 48px;
+            font-weight: 700;
             margin-bottom: 10px;
+            color: #1e3a8a;
         }
 
         .stat-label {
-            color: #666;
             font-size: 16px;
+            font-weight: 600;
+            color: #374151;
         }
 
-        .section {
-            background: white;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            overflow: hidden;
+        .stat-card.total .stat-number { color: #3b82f6; }
+        .stat-card.pending .stat-number { color: #f59e0b; }
+        .stat-card.rejected .stat-number { color: #ef4444; }
+        .stat-card.renewal .stat-number { color: #10b981; }
+
+        /* الأزرار العلوية */
+        .top-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
-        .section-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
             color: white;
-            padding: 20px;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .action-btn.secondary {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        }
+
+        .action-btn.secondary:hover {
+            box-shadow: 0 5px 15px rgba(107, 114, 128, 0.3);
+        }
+
+        /* البحث */
+        .search-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-title {
             font-size: 18px;
-            font-weight: bold;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .section-content {
-            padding: 20px;
+        .search-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: end;
         }
 
-        .tabs {
+        .search-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .search-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .search-input {
+            padding: 12px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .qr-scanner-btn {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .qr-scanner-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        /* الجدول الموحد */
+        .unified-table-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .table-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e3a8a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-info {
+            background: #f0f9ff;
+            color: #1e40af;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .table-actions {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
             flex-wrap: wrap;
-        }
-
-        .tab {
-            padding: 10px 20px;
-            border: 2px solid #667eea;
-            border-radius: 25px;
-            background: white;
-            color: #667eea;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 14px;
-        }
-
-        .tab.active {
-            background: #667eea;
-            color: white;
-        }
-
-        .search-bar {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            margin-bottom: 20px;
         }
 
         .table-container {
             overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
         }
 
-        table {
+        .data-table {
             width: 100%;
             border-collapse: collapse;
             background: white;
         }
 
-        th, td {
-            padding: 12px;
-            text-align: right;
-            border-bottom: 1px solid #e0e0e0;
+        .data-table th {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 15px 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            border-bottom: 2px solid #1e40af;
         }
 
-        th {
-            background: #f8f9fa;
-            font-weight: bold;
-            color: #333;
+        .data-table td {
+            padding: 15px 12px;
+            text-align: center;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 14px;
+        }
+
+        .data-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .data-table tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .data-table tr:nth-child(even):hover {
+            background: #f1f5f9;
         }
 
         .status-badge {
-            padding: 4px 12px;
+            padding: 6px 12px;
             border-radius: 20px;
             font-size: 12px;
-            font-weight: bold;
+            font-weight: 600;
+            text-align: center;
+            display: inline-block;
+            min-width: 80px;
         }
 
         .status-pending {
-            background: #fff3cd;
-            color: #856404;
+            background: #fef3c7;
+            color: #92400e;
         }
 
         .status-approved {
-            background: #d4edda;
-            color: #155724;
+            background: #d1fae5;
+            color: #065f46;
         }
 
         .status-rejected {
-            background: #f8d7da;
-            color: #721c24;
+            background: #fee2e2;
+            color: #991b1b;
         }
 
-        .action-buttons {
+        .status-renewal {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .action-buttons-cell {
             display: flex;
-            gap: 5px;
+            gap: 8px;
+            justify-content: center;
             flex-wrap: wrap;
         }
 
-        .action-btn {
-            padding: 6px 12px;
+        .btn-view {
+            background: #3b82f6;
+            color: white;
             border: none;
+            padding: 6px 12px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 12px;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
 
-        .action-btn.view {
-            background: #17a2b8;
+        .btn-view:hover {
+            background: #2563eb;
+        }
+
+        .btn-approve {
+            background: #10b981;
             color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
         }
 
-        .action-btn.edit {
-            background: #28a745;
+        .btn-approve:hover {
+            background: #059669;
+        }
+
+        .btn-reject {
+            background: #ef4444;
             color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
         }
 
-        .action-btn.delete {
-            background: #dc3545;
-            color: white;
-        }
-
-        .action-btn:hover {
-            opacity: 0.8;
-            transform: translateY(-1px);
+        .btn-reject:hover {
+            background: #dc2626;
         }
 
         .empty-state {
             text-align: center;
-            padding: 40px;
-            color: #666;
+            padding: 60px 20px;
+            color: #6b7280;
         }
 
-        .empty-state img {
-            width: 100px;
-            height: 100px;
-            margin-bottom: 20px;
-            opacity: 0.5;
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
         }
 
-        .add-member-btn {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-bottom: 20px;
-            transition: background 0.3s;
+        .empty-state-text {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
         }
 
-        .add-member-btn:hover {
-            background: #218838;
-        }
-
-        .refresh-btn {
-            background: #17a2b8;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
+        .empty-state-subtext {
             font-size: 14px;
-            margin-left: 10px;
-            transition: background 0.3s;
         }
 
-        .refresh-btn:hover {
-            background: #138496;
+        /* Loading */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
         }
 
-        .refresh-btn:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
+        .loading-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
         }
 
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
-            .dashboard-container {
-                padding: 10px;
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
             
-            .dashboard-header {
+            .search-controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-header {
                 flex-direction: column;
-                gap: 15px;
-                text-align: center;
+                align-items: stretch;
             }
             
+            .action-buttons-cell {
+                flex-direction: column;
+            }
+            
+            .container {
+                padding: 20px 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
             .stats-grid {
                 grid-template-columns: 1fr;
             }
             
-            .tabs {
-                justify-content: center;
-            }
-            
-            .action-buttons {
-                justify-content: center;
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- Header -->
-        <div class="dashboard-header">
-            <h1 class="dashboard-title">لوحة التحكم - إدارة العضوية</h1>
-            <div class="user-info">
-                <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">🔄 تحديث البيانات</button>
-                <div class="user-avatar">A</div>
-                <span>مرحباً، admin</span>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo-placeholder">
+                    <img src="logo.jpeg" alt="شعار الجمعية" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjMUUzQThBIiByeD0iMjUiLz4KPHN2ZyB4PSIxMCIgeT0iMTAiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+CjxwYXRoIGQ9Ik0xOS40MyA5LjU2Yy0uNTMtLjUzLTEuMjUtLjgzLTItLjgzSDYuNTdjLS43NSAwLTEuNDcuMy0yIC44M3MtLjgzIDEuMjUtLjgzIDJWMTljMCAuNzUuMyAxLjQ3LjgzIDJzMS4yNS44MyAyIC44M2gxMC44NmMuNzUgMCAxLjQ3LS4zIDItLjgzcy44My0xLjI1LjgzLTJWMTEuNTZjMC0uNzUtLjMtMS40Ny0uODMtMnoiLz4KPC9zdmc+Cjwvc3ZnPgo='">
+                </div>
+                <div class="header-title">
+                    <h1>لوحة التحكم - إدارة العضوية</h1>
+                    <p>الجمعية الكويتية للمختبرات الطبية</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="admin-info">
+                    👤 مرحباً، admin
+                </div>
                 <button class="logout-btn" onclick="logout()">تسجيل الخروج</button>
-            </div>
-        </div>
-
-        <!-- Statistics -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number" id="totalMembers">0</div>
-                <div class="stat-label">إجمالي الأعضاء</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="pendingApplications">0</div>
-                <div class="stat-label">في انتظار المراجعة</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="approvedApplications">0</div>
-                <div class="stat-label">تم الموافقة عليها</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="rejectedApplications">0</div>
-                <div class="stat-label">تم الرفض</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="renewalRequests">0</div>
-                <div class="stat-label">طلبات التجديد</div>
-            </div>
-        </div>
-
-        <!-- Renewal Requests Section -->
-        <div class="section">
-            <div class="section-header">
-                📋 إدارة طلبات التجديد
-            </div>
-            <div class="section-content">
-                <div class="tabs">
-                    <div class="tab active" onclick="filterRenewalRequests('all')">الكل</div>
-                    <div class="tab" onclick="filterRenewalRequests('pending')">في الانتظار</div>
-                    <div class="tab" onclick="filterRenewalRequests('approved')">موافق عليها</div>
-                    <div class="tab" onclick="filterRenewalRequests('rejected')">مرفوضة</div>
-                </div>
-                
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>رقم الطلب</th>
-                                <th>اسم العضو</th>
-                                <th>رقم العضوية</th>
-                                <th>تاريخ الطلب</th>
-                                <th>تاريخ الانتهاء الحالي</th>
-                                <th>الحالة</th>
-                                <th>الإجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="renewalRequestsTableBody">
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div id="renewalRequestsEmptyState" class="empty-state" style="display: none;">
-                    📋<br>
-                    لا توجد طلبات تجديد<br>
-                    ستظهر الطلبات هنا عند توفرها
-                </div>
-            </div>
-        </div>
-
-        <!-- Members Management Section -->
-        <div class="section">
-            <div class="section-header">
-                👥 إدارة الأعضاء
-            </div>
-            <div class="section-content">
-                <div class="tabs">
-                    <div class="tab" onclick="exportData()">تصدير البيانات</div>
-                    <div class="tab active" onclick="window.location.href='admin-add-member.html'">إضافة عضو قديم</div>
-                </div>
-                
-                <input type="text" class="search-bar" placeholder="البحث في الأعضاء..." onkeyup="searchMembers(this.value)">
-                
-                <div class="tabs">
-                    <div class="tab active" onclick="filterMembers('all')">الكل</div>
-                    <div class="tab" onclick="filterMembers('active')">نشط</div>
-                    <div class="tab" onclick="filterMembers('affiliated')">عضو منتسب</div>
-                    <div class="tab" onclick="filterMembers('non-affiliated')">عضو غير منتسب</div>
-                </div>
-                
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>رقم العضوية</th>
-                                <th>الاسم</th>
-                                <th>البريد الالكتروني</th>
-                                <th>الهاتف</th>
-                                <th>نوع العضوية</th>
-                                <th>تاريخ التقديم</th>
-                                <th>الحالة</th>
-                                <th>الإجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="membersTableBody">
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div id="membersEmptyState" class="empty-state" style="display: none;">
-                    👥<br>
-                    لا توجد أعضاء<br>
-                    ستظهر الأعضاء هنا عند توفرهم
-                </div>
-            </div>
-        </div>
-
-        <!-- Applications Section -->
-        <div class="section">
-            <div class="section-header">
-                📋 طلبات العضوية
-            </div>
-            <div class="section-content">
-                <div class="tabs">
-                    <div class="tab active" onclick="filterApplications('all')">الكل</div>
-                    <div class="tab" onclick="filterApplications('pending')">في الانتظار</div>
-                    <div class="tab" onclick="filterApplications('approved')">موافق عليها</div>
-                    <div class="tab" onclick="filterApplications('rejected')">مرفوضة</div>
-                </div>
-                
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>الاسم</th>
-                                <th>البريد الالكتروني</th>
-                                <th>الهاتف</th>
-                                <th>نوع العضوية</th>
-                                <th>تاريخ التقديم</th>
-                                <th>الحالة</th>
-                                <th>الإجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="applicationsTableBody">
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div id="applicationsEmptyState" class="empty-state" style="display: none;">
-                    📋<br>
-                    لا توجد طلبات<br>
-                    ستظهر الطلبات هنا عند توفرها
-                </div>
             </div>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <div class="container">
+        <!-- الإحصائيات -->
+        <div class="stats-grid">
+            <div class="stat-card total active" onclick="filterTable('all')" id="totalCard">
+                <div class="stat-number" id="totalCount">0</div>
+                <div class="stat-label">إجمالي الأعضاء</div>
+            </div>
+            <div class="stat-card pending" onclick="filterTable('pending')" id="pendingCard">
+                <div class="stat-number" id="pendingCount">0</div>
+                <div class="stat-label">في انتظار المراجعة</div>
+            </div>
+            <div class="stat-card rejected" onclick="filterTable('rejected')" id="rejectedCard">
+                <div class="stat-number" id="rejectedCount">0</div>
+                <div class="stat-label">تم الرفض</div>
+            </div>
+            <div class="stat-card renewal" onclick="filterTable('renewal')" id="renewalCard">
+                <div class="stat-number" id="renewalCount">0</div>
+                <div class="stat-label">طلبات التجديد</div>
+            </div>
+        </div>
+
+        <!-- الأزرار العلوية -->
+        <div class="top-actions">
+            <div class="action-buttons">
+                <a href="add-old-member.html" class="action-btn">➕ إضافة عضو قديم</a>
+                <button class="action-btn secondary" onclick="exportData()">📊 تصدير البيانات</button>
+                <button class="action-btn secondary" onclick="refreshData()">🔄 تحديث البيانات</button>
+            </div>
+        </div>
+
+        <!-- البحث -->
+        <div class="search-section">
+            <div class="search-title">
+                🔍 البحث المتقدم
+            </div>
+            <div class="search-controls">
+                <div class="search-group">
+                    <label class="search-label">نوع البحث</label>
+                    <select class="search-input" id="searchType">
+                        <option value="all">بحث عام</option>
+                        <option value="membershipNumber">رقم العضوية</option>
+                        <option value="civilId">الرقم المدني</option>
+                        <option value="name">الاسم</option>
+                        <option value="email">البريد الإلكتروني</option>
+                    </select>
+                </div>
+                <div class="search-group">
+                    <label class="search-label">كلمة البحث</label>
+                    <input type="text" class="search-input" id="searchQuery" placeholder="ادخل كلمة البحث...">
+                </div>
+                <div class="search-group">
+                    <button class="search-btn" onclick="performSearch()">🔍 بحث</button>
+                </div>
+                <div class="search-group">
+                    <button class="qr-scanner-btn" onclick="openQRScanner()">📱 مسح الباركود</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- الجدول الموحد -->
+        <div class="unified-table-section">
+            <div class="table-header">
+                <div class="table-title">
+                    📋 <span id="tableTitle">جميع السجلات</span>
+                </div>
+                <div class="filter-info" id="filterInfo">
+                    عرض جميع البيانات
+                </div>
+                <div class="table-actions">
+                    <button class="action-btn secondary" onclick="clearFilters()">🗑️ مسح الفلاتر</button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>رقم الطلب</th>
+                            <th>الاسم</th>
+                            <th>البريد الإلكتروني</th>
+                            <th>الهاتف</th>
+                            <th>رقم العضوية</th>
+                            <th>نوع العضوية</th>
+                            <th>تاريخ التقديم</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <!-- البيانات ستُحمل هنا -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-state-icon">📭</div>
+                <div class="empty-state-text">لا توجد بيانات</div>
+                <div class="empty-state-subtext">لم يتم العثور على أي سجلات تطابق المعايير المحددة</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p>جاري تحميل البيانات...</p>
+        </div>
+    </div>
 
     <script>
         // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyBjGGNvJKvBXQBYWV5R7Ck8yF2QvJKvBXQ",
+            apiKey: "AIzaSyBL5Ej4VvdJJDl_8vG5KqF8eJ9X8yF4Abc",
             authDomain: "kaml-membership-system.firebaseapp.com",
             projectId: "kaml-membership-system",
             storageBucket: "kaml-membership-system.appspot.com",
             messagingSenderId: "123456789012",
-            appId: "1:123456789012:web:abcdef123456789012345"
+            appId: "1:123456789012:web:abcdef123456789"
         };
 
         // Initialize Firebase
-        let db;
-        let isFirebaseConnected = false;
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.firestore();
-            isFirebaseConnected = true;
-            console.log('✅ Firebase connected successfully');
-        } catch (error) {
-            console.error('❌ Firebase connection failed:', error);
-            isFirebaseConnected = false;
-        }
+        // متغيرات عامة
+        let allApplications = [];
+        let filteredApplications = [];
+        let currentFilter = 'all';
 
-        // Firebase Data Manager
-        class FirebaseDataManager {
-            constructor() {
-                this.isOnline = isFirebaseConnected;
-                console.log('Firebase Manager initialized. Online:', this.isOnline);
-            }
-
-            async saveData(collection, data) {
-                if (!this.isOnline) {
-                    console.log('Firebase offline - saving to localStorage only');
-                    this.saveToLocalStorage(collection, data);
-                    return;
-                }
-
-                try {
-                    const docRef = await db.collection(collection).add(data);
-                    console.log('✅ Data saved to Firebase:', docRef.id);
-                    
-                    // Also save to localStorage as backup
-                    this.saveToLocalStorage(collection, { ...data, id: docRef.id });
-                    return docRef.id;
-                } catch (error) {
-                    console.error('❌ Firebase save error:', error);
-                    // Fallback to localStorage
-                    this.saveToLocalStorage(collection, data);
-                }
-            }
-
-            async loadData(collection) {
-                console.log(`🔄 Loading data from collection: ${collection}`);
-                
-                if (!this.isOnline) {
-                    console.log('Firebase offline - loading from localStorage');
-                    return this.loadFromLocalStorage(collection);
-                }
-
-                try {
-                    // Try multiple collection names
-                    const possibleNames = [
-                        collection,
-                        'applications',
-                        'membershipApplications',
-                        'membership_requests',
-                        'members',
-                        'renewalRequests'
-                    ];
-
-                    let data = [];
-                    
-                    for (const name of possibleNames) {
-                        try {
-                            console.log(`🔍 Trying collection: ${name}`);
-                            const snapshot = await db.collection(name).get();
-                            
-                            if (!snapshot.empty) {
-                                console.log(`✅ Found data in collection: ${name} (${snapshot.size} documents)`);
-                                snapshot.forEach(doc => {
-                                    data.push({ id: doc.id, ...doc.data() });
-                                });
-                                
-                                // Update localStorage with Firebase data
-                                localStorage.setItem(collection, JSON.stringify(data));
-                                console.log(`💾 Updated localStorage for ${collection} with ${data.length} items`);
-                                return data;
-                            }
-                        } catch (collectionError) {
-                            console.log(`⚠️ Collection ${name} not accessible:`, collectionError.message);
-                        }
-                    }
-                    
-                    console.log('⚠️ No data found in any collection, using localStorage');
-                    return this.loadFromLocalStorage(collection);
-                    
-                } catch (error) {
-                    console.error('❌ Firebase load error:', error);
-                    return this.loadFromLocalStorage(collection);
-                }
-            }
-
-            saveToLocalStorage(collection, data) {
-                try {
-                    const existingData = JSON.parse(localStorage.getItem(collection) || '[]');
-                    const newData = Array.isArray(data) ? data : [data];
-                    const updatedData = [...existingData, ...newData];
-                    localStorage.setItem(collection, JSON.stringify(updatedData));
-                    console.log(`💾 Saved to localStorage: ${collection}`);
-                } catch (error) {
-                    console.error('❌ localStorage save error:', error);
-                }
-            }
-
-            loadFromLocalStorage(collection) {
-                try {
-                    const data = JSON.parse(localStorage.getItem(collection) || '[]');
-                    console.log(`💾 Loaded from localStorage: ${collection} (${data.length} items)`);
-                    return data;
-                } catch (error) {
-                    console.error('❌ localStorage load error:', error);
-                    return [];
-                }
-            }
-        }
-
-        // Initialize Firebase Data Manager
-        const firebaseManager = new FirebaseDataManager();
-
-        // Logout function
-        function logout() {
-            console.log('🚪 Logging out...');
-            
-            // Clear session data
-            sessionStorage.clear();
-            localStorage.removeItem('adminLoggedIn');
-            localStorage.removeItem('currentUser');
-            
-            // Show confirmation
-            alert('تم تسجيل الخروج بنجاح');
-            
-            // Redirect to login page
+        // التحقق من تسجيل الدخول
+        if (sessionStorage.getItem('adminLoggedIn') !== 'true') {
             window.location.href = 'admin-login.html';
         }
 
-        // Get status text in Arabic
+        // تحميل البيانات عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAllData();
+        });
+
+        // تحميل جميع البيانات
+        async function loadAllData() {
+            showLoading(true);
+            try {
+                // تحميل من Firebase
+                const snapshot = await db.collection('membershipApplications').get();
+                const firebaseData = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                // تحميل من التخزين المحلي
+                const localData = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+
+                // دمج البيانات
+                allApplications = [...firebaseData, ...localData];
+                
+                // إزالة التكرارات
+                allApplications = allApplications.filter((app, index, self) => 
+                    index === self.findIndex(a => a.id === app.id || a.civilId === app.civilId)
+                );
+
+                updateStatistics();
+                filterTable(currentFilter);
+                
+            } catch (error) {
+                console.error('خطأ في تحميل البيانات:', error);
+                // في حالة فشل Firebase، استخدم البيانات المحلية
+                allApplications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+                updateStatistics();
+                filterTable(currentFilter);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // تحديث الإحصائيات
+        function updateStatistics() {
+            const total = allApplications.filter(app => app.status === 'approved').length;
+            const pending = allApplications.filter(app => app.status === 'pending' || !app.status).length;
+            const rejected = allApplications.filter(app => app.status === 'rejected').length;
+            const renewal = allApplications.filter(app => app.status === 'renewal_requested').length;
+
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('rejectedCount').textContent = rejected;
+            document.getElementById('renewalCount').textContent = renewal;
+        }
+
+        // فلترة الجدول
+        function filterTable(filterType) {
+            currentFilter = filterType;
+            
+            // تحديث حالة البطاقات
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            let filteredData = [];
+            let title = '';
+            let info = '';
+            
+            switch(filterType) {
+                case 'all':
+                    filteredData = allApplications.filter(app => app.status === 'approved');
+                    title = 'جميع الأعضاء';
+                    info = 'عرض جميع الأعضاء المعتمدين';
+                    document.getElementById('totalCard').classList.add('active');
+                    break;
+                case 'pending':
+                    filteredData = allApplications.filter(app => app.status === 'pending' || !app.status);
+                    title = 'طلبات في انتظار المراجعة';
+                    info = 'عرض الطلبات التي تحتاج مراجعة';
+                    document.getElementById('pendingCard').classList.add('active');
+                    break;
+                case 'rejected':
+                    filteredData = allApplications.filter(app => app.status === 'rejected');
+                    title = 'الطلبات المرفوضة';
+                    info = 'عرض الطلبات المرفوضة';
+                    document.getElementById('rejectedCard').classList.add('active');
+                    break;
+                case 'renewal':
+                    filteredData = allApplications.filter(app => app.status === 'renewal_requested');
+                    title = 'طلبات التجديد';
+                    info = 'عرض طلبات تجديد العضوية';
+                    document.getElementById('renewalCard').classList.add('active');
+                    break;
+            }
+            
+            filteredApplications = filteredData;
+            document.getElementById('tableTitle').textContent = title;
+            document.getElementById('filterInfo').textContent = info;
+            
+            renderTable(filteredApplications);
+        }
+
+        // عرض الجدول
+        function renderTable(data) {
+            const tbody = document.getElementById('dataTableBody');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (data.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            tbody.innerHTML = data.map(app => {
+                const fullName = `${app.firstNameAr || ''} ${app.middleNameAr || ''} ${app.lastNameAr || ''}`.trim();
+                const statusClass = getStatusClass(app.status);
+                const statusText = getStatusText(app.status);
+                const submissionDate = app.submissionDate ? new Date(app.submissionDate).toLocaleDateString('ar-SA') : 'غير محدد';
+                
+                return `
+                    <tr>
+                        <td>${app.id || 'غير محدد'}</td>
+                        <td>${fullName || 'غير محدد'}</td>
+                        <td>${app.email || 'غير محدد'}</td>
+                        <td>${app.phone || 'غير محدد'}</td>
+                        <td>${app.membershipNumber || 'غير محدد'}</td>
+                        <td>${getMembershipTypeText(app.membershipType)}</td>
+                        <td>${submissionDate}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>
+                            <div class="action-buttons-cell">
+                                <button class="btn-view" onclick="viewApplication('${app.id}')">عرض</button>
+                                ${getActionButtons(app)}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // الحصول على فئة الحالة
+        function getStatusClass(status) {
+            switch(status) {
+                case 'approved': return 'status-approved';
+                case 'rejected': return 'status-rejected';
+                case 'renewal_requested': return 'status-renewal';
+                default: return 'status-pending';
+            }
+        }
+
+        // الحصول على نص الحالة
         function getStatusText(status) {
-            switch (status) {
-                case 'pending': return 'في الانتظار';
-                case 'approved': return 'موافق عليه';
+            switch(status) {
+                case 'approved': return 'معتمد';
                 case 'rejected': return 'مرفوض';
-                case 'active': return 'نشط';
-                case 'inactive': return 'غير نشط';
+                case 'renewal_requested': return 'طلب تجديد';
+                default: return 'في الانتظار';
+            }
+        }
+
+        // الحصول على نص نوع العضوية
+        function getMembershipTypeText(type) {
+            switch(type) {
+                case 'affiliated': return 'عضو منتسب';
+                case 'non-affiliated': return 'عضو غير منتسب';
+                case 'honorary': return 'عضو فخري';
                 default: return 'غير محدد';
             }
         }
 
-        // Load statistics
-        async function loadStats() {
-            console.log('📊 Loading statistics...');
-            
-            try {
-                const applications = await firebaseManager.loadData('membershipApplications');
-                const members = await firebaseManager.loadData('members');
-                const renewals = await firebaseManager.loadData('renewalRequests');
-                
-                const pending = applications.filter(app => app.status === 'pending').length;
-                const approved = applications.filter(app => app.status === 'approved').length;
-                const rejected = applications.filter(app => app.status === 'rejected').length;
-                
-                document.getElementById('totalMembers').textContent = members.length;
-                document.getElementById('pendingApplications').textContent = pending;
-                document.getElementById('approvedApplications').textContent = approved;
-                document.getElementById('rejectedApplications').textContent = rejected;
-                document.getElementById('renewalRequests').textContent = renewals.length;
-                
-                console.log('📊 Statistics updated:', { 
-                    total: members.length, 
-                    pending, 
-                    approved, 
-                    rejected, 
-                    renewals: renewals.length 
-                });
-                
-            } catch (error) {
-                console.error('❌ Error loading statistics:', error);
-            }
-        }
-
-        // Load applications
-        async function loadApplications() {
-            console.log('📋 Loading applications...');
-            
-            try {
-                const applications = await firebaseManager.loadData('membershipApplications');
-                console.log('📋 Applications loaded:', applications.length);
-                
-                const tbody = document.getElementById('applicationsTableBody');
-                const emptyState = document.getElementById('applicationsEmptyState');
-                
-                if (applications.length === 0) {
-                    tbody.innerHTML = '';
-                    emptyState.style.display = 'block';
-                    console.log('📋 No applications found - showing empty state');
-                    return;
-                }
-                
-                emptyState.style.display = 'none';
-                tbody.innerHTML = applications.map(app => {
-                    const firstName = app.firstNameAr || app.first_name_ar || app.firstName || 'غير محدد';
-                    const middleName = app.middleNameAr || app.middle_name_ar || app.middleName || '';
-                    const lastName = app.lastNameAr || app.last_name_ar || app.lastName || 'غير محدد';
-                    const email = app.email || 'غير محدد';
-                    const phone = app.phone || 'غير محدد';
-                    const membershipType = app.membershipType || app.membership_type || 'غير محدد';
-                    const submissionDate = app.submissionDate || app.submission_date || app.createdAt || new Date().toISOString();
-                    const status = app.status || 'pending';
-                    const appId = app.id || app.applicationId || Date.now().toString();
-                    
-                    console.log('📋 Processing application:', { firstName, lastName, email, status });
-                    
-                    return `
-                        <tr>
-                            <td>${firstName} ${middleName} ${lastName}</td>
-                            <td>${email}</td>
-                            <td>${phone}</td>
-                            <td>${membershipType}</td>
-                            <td>${new Date(submissionDate).toLocaleDateString('en-GB')}</td>
-                            <td><span class="status-badge status-${status}">${getStatusText(status)}</span></td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="action-btn view" onclick="viewApplicationDetails('${appId}')">عرض</button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-                
-                console.log('✅ Applications table updated');
-                
-            } catch (error) {
-                console.error('❌ Error loading applications:', error);
-                
-                // Show error message to user
-                const tbody = document.getElementById('applicationsTableBody');
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" style="text-align: center; color: #dc3545; padding: 20px;">
-                            ❌ خطأ في تحميل البيانات: ${error.message}<br>
-                            <button onclick="refreshData()" style="margin-top: 10px; padding: 5px 10px; background: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                                🔄 إعادة المحاولة
-                            </button>
-                        </td>
-                    </tr>
+        // الحصول على أزرار الإجراءات
+        function getActionButtons(app) {
+            if (app.status === 'pending' || !app.status) {
+                return `
+                    <button class="btn-approve" onclick="approveApplication('${app.id}')">موافقة</button>
+                    <button class="btn-reject" onclick="rejectApplication('${app.id}')">رفض</button>
                 `;
+            } else if (app.status === 'renewal_requested') {
+                return `<button class="btn-approve" onclick="approveRenewal('${app.id}')">قبول التجديد</button>`;
             }
+            return '';
         }
 
-        // Load members
-        async function loadMembers() {
-            console.log('👥 Loading members...');
-            
-            try {
-                const members = await firebaseManager.loadData('members');
-                console.log('👥 Members loaded:', members.length);
-                
-                const tbody = document.getElementById('membersTableBody');
-                const emptyState = document.getElementById('membersEmptyState');
-                
-                if (members.length === 0) {
-                    tbody.innerHTML = '';
-                    emptyState.style.display = 'block';
-                    return;
-                }
-                
-                emptyState.style.display = 'none';
-                tbody.innerHTML = members.map(member => {
-                    const membershipNumber = member.membershipNumber || member.membership_number || 'غير محدد';
-                    const name = member.name || `${member.firstName || ''} ${member.lastName || ''}`.trim() || 'غير محدد';
-                    const email = member.email || 'غير محدد';
-                    const phone = member.phone || 'غير محدد';
-                    const membershipType = member.membershipType || member.membership_type || 'غير محدد';
-                    const joinDate = member.joinDate || member.join_date || member.createdAt || new Date().toISOString();
-                    const status = member.status || 'active';
-                    const memberId = member.id || member.memberId || Date.now().toString();
-                    
-                    return `
-                        <tr>
-                            <td>${membershipNumber}</td>
-                            <td>${name}</td>
-                            <td>${email}</td>
-                            <td>${phone}</td>
-                            <td>${membershipType}</td>
-                            <td>${new Date(joinDate).toLocaleDateString('en-GB')}</td>
-                            <td><span class="status-badge status-${status}">${getStatusText(status)}</span></td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="action-btn view" onclick="viewMemberDetails('${memberId}')">عرض</button>
-                                    <button class="action-btn edit" onclick="editMember('${memberId}')">تعديل</button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-                
-                console.log('✅ Members table updated');
-                
-            } catch (error) {
-                console.error('❌ Error loading members:', error);
-            }
+        // عرض تفاصيل الطلب
+        function viewApplication(id) {
+            window.location.href = `review-application.html?id=${id}`;
         }
 
-        // Load renewal requests
-        async function loadRenewalRequests() {
-            console.log('🔄 Loading renewal requests...');
-            
-            try {
-                const renewals = await firebaseManager.loadData('renewalRequests');
-                console.log('🔄 Renewal requests loaded:', renewals.length);
-                
-                const tbody = document.getElementById('renewalRequestsTableBody');
-                const emptyState = document.getElementById('renewalRequestsEmptyState');
-                
-                if (renewals.length === 0) {
-                    tbody.innerHTML = '';
-                    emptyState.style.display = 'block';
-                    return;
-                }
-                
-                emptyState.style.display = 'none';
-                tbody.innerHTML = renewals.map(renewal => {
-                    const requestId = renewal.id || renewal.requestId || Date.now().toString();
-                    const memberName = renewal.memberName || renewal.member_name || 'غير محدد';
-                    const membershipNumber = renewal.membershipNumber || renewal.membership_number || 'غير محدد';
-                    const requestDate = renewal.requestDate || renewal.request_date || new Date().toISOString();
-                    const currentExpiry = renewal.currentExpiry || renewal.current_expiry || 'غير محدد';
-                    const status = renewal.status || 'pending';
-                    
-                    return `
-                        <tr>
-                            <td>${requestId}</td>
-                            <td>${memberName}</td>
-                            <td>${membershipNumber}</td>
-                            <td>${new Date(requestDate).toLocaleDateString('en-GB')}</td>
-                            <td>${new Date(currentExpiry).toLocaleDateString('en-GB')}</td>
-                            <td><span class="status-badge status-${status}">${getStatusText(status)}</span></td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="action-btn view" onclick="viewRenewalDetails('${requestId}')">عرض</button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-                
-                console.log('✅ Renewal requests table updated');
-                
-            } catch (error) {
-                console.error('❌ Error loading renewal requests:', error);
-            }
+        // الموافقة على الطلب
+        function approveApplication(id) {
+            window.location.href = `review-application.html?id=${id}&action=approve`;
         }
 
-        // Refresh data function
-        async function refreshData() {
-            console.log('🔄 Manual refresh triggered...');
-            
-            const refreshBtn = document.getElementById('refreshBtn');
-            const originalText = refreshBtn.innerHTML;
-            
-            refreshBtn.innerHTML = '⏳ جاري التحديث...';
-            refreshBtn.disabled = true;
-            
-            try {
-                // Force reload from Firebase
-                if (firebaseManager.isOnline) {
-                    console.log('🔄 Refreshing from Firebase...');
-                    await firebaseManager.loadData('membershipApplications');
-                    await firebaseManager.loadData('members');
-                    await firebaseManager.loadData('renewalRequests');
-                }
-                
-                // Reload all sections
-                await loadStats();
-                await loadApplications();
-                await loadMembers();
-                await loadRenewalRequests();
-                
-                console.log('✅ Refresh completed successfully');
-                alert('تم تحديث البيانات بنجاح!');
-                
-            } catch (error) {
-                console.error('❌ Refresh error:', error);
-                alert('حدث خطأ أثناء التحديث: ' + error.message);
-            }
-            
-            refreshBtn.innerHTML = originalText;
-            refreshBtn.disabled = false;
+        // رفض الطلب
+        function rejectApplication(id) {
+            window.location.href = `review-application.html?id=${id}&action=reject`;
         }
 
-        // View application details
-        function viewApplicationDetails(applicationId) {
-            console.log('👁️ Viewing application:', applicationId);
-            window.open(`review-application.html?id=${applicationId}`, '_blank');
-        }
-
-        // View member details
-        function viewMemberDetails(memberId) {
-            console.log('👁️ Viewing member:', memberId);
-            window.open(`member-profile.html?id=${memberId}`, '_blank');
-        }
-
-        // Edit member
-        function editMember(memberId) {
-            console.log('✏️ Editing member:', memberId);
-            window.open(`edit-member.html?id=${memberId}`, '_blank');
-        }
-
-        // View renewal details
-        function viewRenewalDetails(renewalId) {
-            console.log('👁️ Viewing renewal:', renewalId);
-            // Implement renewal details view
-            alert('عرض تفاصيل طلب التجديد: ' + renewalId);
-        }
-
-        // Filter functions
-        function filterApplications(filter) {
-            console.log('🔍 Filtering applications:', filter);
-            // Update active tab
-            document.querySelectorAll('.section:last-child .tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            // Implement filtering logic
-            loadApplications();
-        }
-
-        function filterMembers(filter) {
-            console.log('🔍 Filtering members:', filter);
-            // Update active tab
-            document.querySelectorAll('.section:nth-child(4) .tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            // Implement filtering logic
-            loadMembers();
-        }
-
-        function filterRenewalRequests(filter) {
-            console.log('🔍 Filtering renewal requests:', filter);
-            // Update active tab
-            document.querySelectorAll('.section:nth-child(3) .tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            // Implement filtering logic
-            loadRenewalRequests();
-        }
-
-        // Search function
-        function searchMembers(query) {
-            console.log('🔍 Searching members:', query);
-            // Implement search logic
-        }
-
-        // Export data function
-        function exportData() {
-            console.log('📤 Exporting data...');
-            alert('تصدير البيانات - قريباً');
-        }
-
-        // Initialize dashboard when page loads
-        document.addEventListener('DOMContentLoaded', async function() {
-            console.log('🚀 Dashboard loading started...');
-            
-            // Check if user is logged in
-            const isLoggedIn = sessionStorage.getItem('adminLoggedIn') || localStorage.getItem('adminLoggedIn');
-            if (!isLoggedIn) {
-                console.log('❌ User not logged in, redirecting...');
-                window.location.href = 'admin-login.html';
+        // الموافقة على التجديد
+        async function approveRenewal(id) {
+            if (!confirm('هل أنت متأكد من الموافقة على تجديد العضوية؟')) {
                 return;
             }
             
+            showLoading(true);
             try {
-                console.log('📊 Loading dashboard data...');
-                
-                // Load all data
-                await loadStats();
-                await loadApplications();
-                await loadMembers();
-                await loadRenewalRequests();
-                
-                console.log('✅ Dashboard loaded successfully');
-                
+                const app = allApplications.find(a => a.id === id);
+                if (app) {
+                    const currentDate = new Date();
+                    const newExpiryDate = new Date(currentDate.getFullYear() + 1, currentDate.getMonth(), currentDate.getDate());
+                    
+                    app.status = 'approved';
+                    app.renewalDate = currentDate.toISOString();
+                    app.expiryDate = newExpiryDate.toISOString();
+                    
+                    // تحديث في Firebase
+                    await db.collection('membershipApplications').doc(id).update({
+                        status: 'approved',
+                        renewalDate: firebase.firestore.FieldValue.serverTimestamp(),
+                        expiryDate: newExpiryDate.toISOString()
+                    });
+                    
+                    // تحديث في التخزين المحلي
+                    const localData = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+                    const localIndex = localData.findIndex(a => a.id === id);
+                    if (localIndex !== -1) {
+                        localData[localIndex] = app;
+                        localStorage.setItem('membershipApplications', JSON.stringify(localData));
+                    }
+                    
+                    alert('تم تجديد العضوية بنجاح!');
+                    loadAllData();
+                }
             } catch (error) {
-                console.error('❌ Error loading dashboard:', error);
-                alert('حدث خطأ في تحميل لوحة التحكم: ' + error.message);
+                console.error('خطأ في تجديد العضوية:', error);
+                alert('حدث خطأ أثناء تجديد العضوية');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // البحث
+        function performSearch() {
+            const searchType = document.getElementById('searchType').value;
+            const searchQuery = document.getElementById('searchQuery').value.trim().toLowerCase();
+            
+            if (!searchQuery) {
+                filterTable(currentFilter);
+                return;
+            }
+            
+            let searchResults = filteredApplications.filter(app => {
+                switch(searchType) {
+                    case 'membershipNumber':
+                        return app.membershipNumber && app.membershipNumber.toLowerCase().includes(searchQuery);
+                    case 'civilId':
+                        return app.civilId && app.civilId.includes(searchQuery);
+                    case 'name':
+                        const fullName = `${app.firstNameAr || ''} ${app.middleNameAr || ''} ${app.lastNameAr || ''}`.toLowerCase();
+                        return fullName.includes(searchQuery);
+                    case 'email':
+                        return app.email && app.email.toLowerCase().includes(searchQuery);
+                    default:
+                        return Object.values(app).some(value => 
+                            value && value.toString().toLowerCase().includes(searchQuery)
+                        );
+                }
+            });
+            
+            renderTable(searchResults);
+            document.getElementById('filterInfo').textContent = `نتائج البحث: ${searchResults.length} سجل`;
+        }
+
+        // مسح الفلاتر
+        function clearFilters() {
+            document.getElementById('searchQuery').value = '';
+            document.getElementById('searchType').value = 'all';
+            filterTable(currentFilter);
+        }
+
+        // فتح ماسح الباركود
+        function openQRScanner() {
+            window.open('qr-scanner.html', '_blank');
+        }
+
+        // تصدير البيانات
+        function exportData() {
+            const dataToExport = filteredApplications.map(app => ({
+                'رقم الطلب': app.id || '',
+                'الاسم الكامل': `${app.firstNameAr || ''} ${app.middleNameAr || ''} ${app.lastNameAr || ''}`.trim(),
+                'البريد الإلكتروني': app.email || '',
+                'الهاتف': app.phone || '',
+                'الرقم المدني': app.civilId || '',
+                'رقم العضوية': app.membershipNumber || '',
+                'نوع العضوية': getMembershipTypeText(app.membershipType),
+                'تاريخ التقديم': app.submissionDate ? new Date(app.submissionDate).toLocaleDateString('ar-SA') : '',
+                'الحالة': getStatusText(app.status)
+            }));
+            
+            // تصدير CSV
+            const csvContent = convertToCSV(dataToExport);
+            downloadFile(csvContent, 'membership_data.csv', 'text/csv');
+        }
+
+        // تحويل إلى CSV
+        function convertToCSV(data) {
+            if (data.length === 0) return '';
+            
+            const headers = Object.keys(data[0]);
+            const csvRows = [headers.join(',')];
+            
+            data.forEach(row => {
+                const values = headers.map(header => {
+                    const value = row[header] || '';
+                    return `"${value.toString().replace(/"/g, '""')}"`;
+                });
+                csvRows.push(values.join(','));
+            });
+            
+            return csvRows.join('\n');
+        }
+
+        // تحميل الملف
+        function downloadFile(content, filename, contentType) {
+            const blob = new Blob([content], { type: contentType });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        // تحديث البيانات
+        function refreshData() {
+            loadAllData();
+        }
+
+        // إظهار/إخفاء شاشة التحميل
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+        }
+
+        // تسجيل الخروج
+        function logout() {
+            if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
+                sessionStorage.removeItem('adminLoggedIn');
+                window.location.href = 'admin-login.html';
+            }
+        }
+
+        // البحث أثناء الكتابة
+        document.getElementById('searchQuery').addEventListener('input', function() {
+            if (this.value.trim() === '') {
+                filterTable(currentFilter);
             }
         });
 
-        // Add keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.key === 'r') {
-                e.preventDefault();
-                refreshData();
+        // البحث عند الضغط على Enter
+        document.getElementById('searchQuery').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
             }
         });
-
-        console.log('📋 Dashboard script loaded successfully');
     </script>
 </body>
 </html>
