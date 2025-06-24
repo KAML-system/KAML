@@ -1223,52 +1223,111 @@
         }
 
         // تحميل طلبات العضوية
-        function loadApplications() {
+        async function loadApplications() {
             console.log('Loading applications...');
-            const applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
-            console.log('Found applications:', applications.length);
             
-            const tbody = document.getElementById('applicationsTableBody');
-            const emptyState = document.getElementById('applicationsEmptyState');
-            
-            if (applications.length === 0) {
-                tbody.innerHTML = '';
-                emptyState.style.display = 'block';
-                console.log('No applications found - showing empty state');
-                return;
-            }
-            
-            emptyState.style.display = 'none';
-            tbody.innerHTML = applications.map(app => {
-                // التأكد من وجود البيانات المطلوبة
-                const firstName = app.firstNameAr || app.first_name_ar || 'غير محدد';
-                const middleName = app.middleNameAr || app.middle_name_ar || '';
-                const lastName = app.lastNameAr || app.last_name_ar || 'غير محدد';
-                const email = app.email || 'غير محدد';
-                const phone = app.phone || 'غير محدد';
-                const membershipType = app.membershipType || app.membership_type || 'غير محدد';
-                const submissionDate = app.submissionDate || app.submission_date || new Date().toISOString();
-                const status = app.status || 'pending';
-                const appId = app.id || app.applicationId || Date.now().toString();
+            try {
+                // محاولة تحميل البيانات من Firebase أولاً
+                let applications = [];
                 
-                return `
-                    <tr>
-                        <td>${firstName} ${middleName} ${lastName}</td>
-                        <td>${email}</td>
-                        <td>${phone}</td>
-                        <td>${membershipType}</td>
-                        <td>${new Date(submissionDate).toLocaleDateString('en-GB')}</td>
-                        <td><span class="status-badge status-${status}">${getStatusText(status)}</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="action-btn view" onclick="viewApplicationDetails('${appId}')">عرض</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-            
-            console.log('Applications loaded successfully');
+                if (firebaseManager && firebaseManager.isOnline) {
+                    console.log('Attempting to load from Firebase...');
+                    applications = await firebaseManager.loadData('membershipApplications');
+                    console.log('Loaded from Firebase:', applications.length, 'applications');
+                } else {
+                    console.log('Loading from localStorage...');
+                    applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+                    console.log('Loaded from localStorage:', applications.length, 'applications');
+                }
+                
+                const tbody = document.getElementById('applicationsTableBody');
+                const emptyState = document.getElementById('applicationsEmptyState');
+                
+                if (applications.length === 0) {
+                    tbody.innerHTML = '';
+                    emptyState.style.display = 'block';
+                    console.log('No applications found - showing empty state');
+                    return;
+                }
+                
+                emptyState.style.display = 'none';
+                tbody.innerHTML = applications.map(app => {
+                    // التأكد من وجود البيانات المطلوبة
+                    const firstName = app.firstNameAr || app.first_name_ar || 'غير محدد';
+                    const middleName = app.middleNameAr || app.middle_name_ar || '';
+                    const lastName = app.lastNameAr || app.last_name_ar || 'غير محدد';
+                    const email = app.email || 'غير محدد';
+                    const phone = app.phone || 'غير محدد';
+                    const membershipType = app.membershipType || app.membership_type || 'غير محدد';
+                    const submissionDate = app.submissionDate || app.submission_date || new Date().toISOString();
+                    const status = app.status || 'pending';
+                    const appId = app.id || app.applicationId || Date.now().toString();
+                    
+                    console.log('Processing application:', { firstName, lastName, email, status });
+                    
+                    return `
+                        <tr>
+                            <td>${firstName} ${middleName} ${lastName}</td>
+                            <td>${email}</td>
+                            <td>${phone}</td>
+                            <td>${membershipType}</td>
+                            <td>${new Date(submissionDate).toLocaleDateString('en-GB')}</td>
+                            <td><span class="status-badge status-${status}">${getStatusText(status)}</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn view" onclick="viewApplicationDetails('${appId}')">عرض</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                
+                console.log('Applications loaded successfully');
+                
+            } catch (error) {
+                console.error('Error loading applications:', error);
+                // Fallback to localStorage
+                const applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+                console.log('Fallback to localStorage:', applications.length, 'applications');
+                
+                const tbody = document.getElementById('applicationsTableBody');
+                const emptyState = document.getElementById('applicationsEmptyState');
+                
+                if (applications.length === 0) {
+                    tbody.innerHTML = '';
+                    emptyState.style.display = 'block';
+                    return;
+                }
+                
+                emptyState.style.display = 'none';
+                tbody.innerHTML = applications.map(app => {
+                    const firstName = app.firstNameAr || app.first_name_ar || 'غير محدد';
+                    const middleName = app.middleNameAr || app.middle_name_ar || '';
+                    const lastName = app.lastNameAr || app.last_name_ar || 'غير محدد';
+                    const email = app.email || 'غير محدد';
+                    const phone = app.phone || 'غير محدد';
+                    const membershipType = app.membershipType || app.membership_type || 'غير محدد';
+                    const submissionDate = app.submissionDate || app.submission_date || new Date().toISOString();
+                    const status = app.status || 'pending';
+                    const appId = app.id || app.applicationId || Date.now().toString();
+                    
+                    return `
+                        <tr>
+                            <td>${firstName} ${middleName} ${lastName}</td>
+                            <td>${email}</td>
+                            <td>${phone}</td>
+                            <td>${membershipType}</td>
+                            <td>${new Date(submissionDate).toLocaleDateString('en-GB')}</td>
+                            <td><span class="status-badge status-${status}">${getStatusText(status)}</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn view" onclick="viewApplicationDetails('${appId}')">عرض</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
         }
 
         // فلترة طلبات العضوية
@@ -1714,6 +1773,8 @@
 
         // تحميل البيانات عند فتح الصفحة
         document.addEventListener('DOMContentLoaded', async function() {
+            console.log('Dashboard loading started...');
+            
             // تحميل البيانات من Firebase أولاً (إذا كان متوفراً)
             try {
                 if (firebaseManager && firebaseManager.isOnline) {
@@ -1722,19 +1783,64 @@
                     await firebaseManager.loadData('membershipApplications');
                     await firebaseManager.loadData('renewalRequests');
                     console.log('Data loaded from Firebase successfully');
+                } else {
+                    console.log('Firebase offline - using local data only');
                 }
             } catch (error) {
-                console.log('Using local data only:', error);
+                console.error('Firebase loading error:', error);
+                console.log('Using local data only');
             }
             
-            // تحميل البيانات
-            loadStats();
-            loadMembers();
-            loadApplications();
-            loadRenewalRequests();
+            // تحميل البيانات في الواجهة
+            try {
+                console.log('Loading dashboard components...');
+                await loadStats();
+                await loadMembers();
+                await loadApplications();
+                await loadRenewalRequests();
+                console.log('Dashboard loaded successfully');
+            } catch (error) {
+                console.error('Error loading dashboard components:', error);
+            }
             
-            console.log('Dashboard loaded successfully');
+            // إضافة زر تحديث يدوي
+            addRefreshButton();
         });
+        
+        // إضافة زر تحديث يدوي
+        function addRefreshButton() {
+            const header = document.querySelector('.dashboard-header .user-info');
+            if (header && !document.getElementById('refreshBtn')) {
+                const refreshBtn = document.createElement('button');
+                refreshBtn.id = 'refreshBtn';
+                refreshBtn.className = 'logout-btn';
+                refreshBtn.style.marginLeft = '10px';
+                refreshBtn.innerHTML = '🔄 تحديث البيانات';
+                refreshBtn.onclick = async function() {
+                    console.log('Manual refresh triggered...');
+                    refreshBtn.innerHTML = '⏳ جاري التحديث...';
+                    refreshBtn.disabled = true;
+                    
+                    try {
+                        if (firebaseManager && firebaseManager.isOnline) {
+                            await firebaseManager.loadData('membershipApplications');
+                            console.log('Data refreshed from Firebase');
+                        }
+                        await loadApplications();
+                        await loadStats();
+                        console.log('Dashboard refreshed successfully');
+                        alert('تم تحديث البيانات بنجاح!');
+                    } catch (error) {
+                        console.error('Refresh error:', error);
+                        alert('حدث خطأ أثناء التحديث: ' + error.message);
+                    }
+                    
+                    refreshBtn.innerHTML = '🔄 تحديث البيانات';
+                    refreshBtn.disabled = false;
+                };
+                header.insertBefore(refreshBtn, header.firstChild);
+            }
+        }
     </script>
 </body>
 </html>
