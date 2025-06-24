@@ -595,35 +595,81 @@
             try {
                 showLoading(true);
 
-                // محاولة التحميل من Firebase أولاً
-                try {
-                    const doc = await db.collection('membershipApplications').doc(applicationId).get();
-                    if (doc.exists) {
-                        currentApplication = { id: doc.id, ...doc.data() };
+                // محاولة التحميل من مجموعات مختلفة في Firebase
+                const possibleCollections = [
+                    'membershipApplications',
+                    'members',
+                    'applications',
+                    'registrations'
+                ];
+
+                for (const collectionName of possibleCollections) {
+                    try {
+                        console.log(`البحث في مجموعة: ${collectionName}`);
+                        const doc = await db.collection(collectionName).doc(applicationId).get();
+                        
+                        if (doc.exists) {
+                            console.log(`تم العثور على البيانات في: ${collectionName}`);
+                            currentApplication = { 
+                                id: doc.id, 
+                                ...doc.data(),
+                                source: collectionName
+                            };
+                            break;
+                        }
+                    } catch (collectionError) {
+                        console.warn(`خطأ في الوصول لمجموعة ${collectionName}:`, collectionError);
                     }
-                } catch (firebaseError) {
-                    console.warn('خطأ في Firebase:', firebaseError);
                 }
 
                 // إذا لم توجد في Firebase، ابحث في التخزين المحلي
                 if (!currentApplication) {
+                    console.log('البحث في التخزين المحلي...');
                     const localData = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
                     const localApp = localData.find(app => app.id === applicationId);
                     if (localApp) {
-                        currentApplication = localApp;
+                        console.log('تم العثور على البيانات في التخزين المحلي');
+                        currentApplication = {
+                            ...localApp,
+                            source: 'localStorage'
+                        };
+                    }
+                }
+
+                // البحث في جميع البيانات المحلية بمعرفات مختلفة
+                if (!currentApplication) {
+                    console.log('البحث الموسع في التخزين المحلي...');
+                    const localData = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+                    
+                    // البحث بمعرفات مختلفة
+                    const foundApp = localData.find(app => 
+                        app.id === applicationId || 
+                        app.civil_id === applicationId ||
+                        String(app.id).includes(applicationId) ||
+                        applicationId.includes(String(app.id))
+                    );
+                    
+                    if (foundApp) {
+                        console.log('تم العثور على البيانات بالبحث الموسع');
+                        currentApplication = {
+                            ...foundApp,
+                            source: 'localStorage_extended'
+                        };
                     }
                 }
 
                 if (!currentApplication) {
-                    showError('لم يتم العثور على الطلب المحدد');
+                    console.error('لم يتم العثور على الطلب:', applicationId);
+                    showError(`لم يتم العثور على الطلب المحدد (ID: ${applicationId})`);
                     return;
                 }
 
+                console.log('البيانات المحملة:', currentApplication);
                 displayApplicationData();
                 
             } catch (error) {
                 console.error('خطأ في تحميل البيانات:', error);
-                showError('حدث خطأ أثناء تحميل بيانات الطلب');
+                showError('حدث خطأ أثناء تحميل بيانات الطلب: ' + error.message);
             } finally {
                 showLoading(false);
             }
