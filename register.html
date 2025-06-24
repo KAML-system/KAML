@@ -484,17 +484,134 @@
 
                     <div class="form-group">
                         <label for="specialization">التخصص <span class="required">*</span></label>
-                        <input type="text" id="specialization" name="specialization" placeholder="أدخل التخصص" required>
+                        <select id="specialization" name="specialization" required>
+                            <option value="">أدخل التخصص</option>
+                            <option value="تقنية المختبرات الطبية">تقنية المختبرات الطبية</option>
+                            <option value="علوم المختبرات الإكلينيكية">علوم المختبرات الإكلينيكية</option>
+                            <option value="الأحياء الدقيقة الطبية">الأحياء الدقيقة الطبية</option>
+                            <option value="الكيمياء الحيوية الطبية">الكيمياء الحيوية الطبية</option>
+                            <option value="أمراض الدم">أمراض الدم</option>
+                            <option value="علم الأنسجة">علم الأنسجة</option>
+                            <option value="علم الخلايا">علم الخلايا</option>
+                            <option value="المناعة الطبية">المناعة الطبية</option>
+                            <option value="الطفيليات الطبية">الطفيليات الطبية</option>
+                            <option value="الوراثة الطبية">الوراثة الطبية</option>
+                            <option value="الطب النووي">الطب النووي</option>
+                            <option value="أخرى">أخرى</option>
+                        </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="workplace">مكان العمل <span class="required">*</span></label>
-                        <input type="text" id="workplace" name="workplace" placeholder="أدخل مكان العمل" required>
+                        <label for="workplace">جهة العمل <span class="required">*</span></label>
+                        <select id="workplace" name="workplace" required>
+                            <option value="">اختر جهة العمل</option>
+                            <option value="وزارة الصحة">وزارة الصحة</option>
+                            <option value="وزارة الدفاع">وزارة الدفاع</option>
+                            <option value="وزارة الداخلية">وزارة الداخلية</option>
+                            <option value="وزارة التربية">وزارة التربية</option>
+                            <option value="وزارة التعليم العالي">وزارة التعليم العالي</option>
+                            <option value="مؤسسة البترول الكويتية">مؤسسة البترول الكويتية</option>
+                            <option value="الهيئة العامة للتعليم التطبيقي">الهيئة العامة للتعليم التطبيقي</option>
+                            <option value="جامعة الكويت">جامعة الكويت</option>
+                            <option value="مستشفى الأميري">مستشفى الأميري</option>
+                            <option value="مستشفى مبارك الكبير">مستشفى مبارك الكبير</option>
+                            <option value="مستشفى الفروانية">مستشفى الفروانية</option>
+                            <option value="مستشفى الجهراء">مستشفى الجهراء</option>
+                            <option value="مستشفى الأحمدي">مستشفى الأحمدي</option>
+                            <option value="مستشفى الصباح">مستشفى الصباح</option>
+                            <option value="مستشفى دسمان للسكري">مستشفى دسمان للسكري</option>
+                            <option value="معهد الكويت للأبحاث العلمية">معهد الكويت للأبحاث العلمية</option>
+                            <option value="القطاع الخاص">القطاع الخاص</option>
+                            <option value="أخرى">أخرى</option>
+                        </select>
                     </div>
 
                     <div class="form-group">
                         <label for="job_title">المسمى الوظيفي <span class="required">*</span></label>
-                        <input type="text" id="job_title" name="job_title" placeholder="أدخل المسمى الوظيفي" required>
+                        <select id="job_title" name="job_title" required>
+                            <option value="">أدخل المسمى الوظيفي</option>
+                            
+                            <!-- فنيو المختبرات -->
+                            <optgroup label="فنيو المختبرات">
+                                <option value="فني مختبر">فني مختبر</option>
+                                <option value="فني مختبر أول">فني مختبر أول</option>
+                                <option value="فني مختبر رئيسي">فني مختبر رئيسي</option>
+                                <option value="فني مختبر متخصص">فني مختبر متخصص</option>
+                                <option value="فني مختبر خبير">فني مختبر خبير</option>
+                            </optgroup>
+                            
+                            <!-- أخصائيو المختبرات -->
+                            <optgroup label="أخصائيو المختبرات">
+                                <option value="أخصائي مختبرات">أخصائي مختبرات</option>
+                                <option value="أخصائي مختبرات أول">أخصائي مختبرات أول</option>
+                                <option value="أخصائي مختبرات رئيسي">أخصائي مختبرات رئيسي</option>
+                                <option value="أخصائي مختبرات استشاري">أخصائي مختبرات استشاري</option>
+                                <option value="أخصائي أحياء دقيقة">أخصائي أحياء دقيقة</option>
+                                <option value="أخصائي كيمياء حيوية">أخصائي كيمياء حيوية</option>
+                                <option value="أخصائي أمراض دم">أخصائي أمراض دم</option>
+                                <option value="أخصائي أنسجة">أخصائي أنسجة</option>
+                                <option value="أخصائي خلايا">أخصائي خلايا</option>
+                                <option value="أخصائي مناعة">أخصائي مناعة</option>
+                                <option value="أخصائي طفيليات">أخصائي طفيليات</option>
+                                <option value="أخصائي وراثة طبية">أخصائي وراثة طبية</option>
+                                <option value="أخصائي طب نووي">أخصائي طب نووي</option>
+                            </optgroup>
+                            
+                            <!-- فاصدو الدم -->
+                            <optgroup label="فاصدو الدم">
+                                <option value="فاصد دم">فاصد دم</option>
+                                <option value="فاصد دم أول">فاصد دم أول</option>
+                                <option value="فاصد دم رئيسي">فاصد دم رئيسي</option>
+                                <option value="فاصد دم متخصص">فاصد دم متخصص</option>
+                                <option value="فاصد دم خبير">فاصد دم خبير</option>
+                                <option value="مشرف فاصدي دم">مشرف فاصدي دم</option>
+                            </optgroup>
+                            
+                            <!-- الإدارة والإشراف -->
+                            <optgroup label="الإدارة والإشراف">
+                                <option value="مشرف مختبر">مشرف مختبر</option>
+                                <option value="رئيس قسم مختبرات">رئيس قسم مختبرات</option>
+                                <option value="مدير مختبر">مدير مختبر</option>
+                                <option value="مدير إدارة مختبرات">مدير إدارة مختبرات</option>
+                                <option value="مساعد مدير مختبرات">مساعد مدير مختبرات</option>
+                                <option value="منسق مختبرات">منسق مختبرات</option>
+                                <option value="مراقب جودة مختبرات">مراقب جودة مختبرات</option>
+                            </optgroup>
+                            
+                            <!-- الاستشاريون والأطباء -->
+                            <optgroup label="الاستشاريون والأطباء">
+                                <option value="استشاري مختبرات">استشاري مختبرات</option>
+                                <option value="استشاري أمراض دم">استشاري أمراض دم</option>
+                                <option value="استشاري أحياء دقيقة">استشاري أحياء دقيقة</option>
+                                <option value="استشاري كيمياء حيوية">استشاري كيمياء حيوية</option>
+                                <option value="استشاري علم الأمراض">استشاري علم الأمراض</option>
+                                <option value="طبيب مختبرات">طبيب مختبرات</option>
+                                <option value="طبيب أمراض دم">طبيب أمراض دم</option>
+                            </optgroup>
+                            
+                            <!-- الأكاديميون والباحثون -->
+                            <optgroup label="الأكاديميون والباحثون">
+                                <option value="باحث">باحث</option>
+                                <option value="باحث أول">باحث أول</option>
+                                <option value="باحث رئيسي">باحث رئيسي</option>
+                                <option value="مدرس">مدرس</option>
+                                <option value="أستاذ مساعد">أستاذ مساعد</option>
+                                <option value="أستاذ مشارك">أستاذ مشارك</option>
+                                <option value="أستاذ">أستاذ</option>
+                                <option value="محاضر">محاضر</option>
+                                <option value="معيد">معيد</option>
+                            </optgroup>
+                            
+                            <!-- فئات أخرى -->
+                            <optgroup label="فئات أخرى">
+                                <option value="طالب دراسات عليا">طالب دراسات عليا</option>
+                                <option value="طالب بكالوريوس">طالب بكالوريوس</option>
+                                <option value="متدرب">متدرب</option>
+                                <option value="متقاعد">متقاعد</option>
+                                <option value="عاطل عن العمل">عاطل عن العمل</option>
+                                <option value="أخرى">أخرى</option>
+                            </optgroup>
+                        </select>
                     </div>
 
                     <div class="form-group">
@@ -534,23 +651,39 @@
 
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="civil_id_file">صورة الرقم المدني <span class="required">*</span></label>
-                        <input type="file" id="civil_id_file" name="civil_id_file" accept="image/*,.pdf" required>
+                        <label for="civil_id_front_file">صورة البطاقة المدنية (الوجه الأمامي) <span class="required">*</span></label>
+                        <input type="file" id="civil_id_front_file" name="civil_id_front_file" accept="image/*,.pdf" required>
+                        <small style="color: #6b7280; font-size: 12px;">يُقبل: JPG, PNG, PDF (حد أقصى 5 ميجابايت)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="civil_id_back_file">صورة البطاقة المدنية (الوجه الخلفي) <span class="required">*</span></label>
+                        <input type="file" id="civil_id_back_file" name="civil_id_back_file" accept="image/*,.pdf" required>
+                        <small style="color: #6b7280; font-size: 12px;">يُقبل: JPG, PNG, PDF (حد أقصى 5 ميجابايت)</small>
                     </div>
 
                     <div class="form-group">
                         <label for="qualification_file">صورة المؤهل العلمي <span class="required">*</span></label>
                         <input type="file" id="qualification_file" name="qualification_file" accept="image/*,.pdf" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="experience_file">شهادة الخبرة</label>
-                        <input type="file" id="experience_file" name="experience_file" accept="image/*,.pdf">
+                        <small style="color: #6b7280; font-size: 12px;">يُقبل: JPG, PNG, PDF (حد أقصى 5 ميجابايت)</small>
                     </div>
 
                     <div class="form-group">
                         <label for="photo_file">الصورة الشخصية <span class="required">*</span></label>
                         <input type="file" id="photo_file" name="photo_file" accept="image/*" required>
+                        <small style="color: #6b7280; font-size: 12px;">يُقبل: JPG, PNG (حد أقصى 3 ميجابايت)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="criminal_record_file">الصحيفة الجنائية <span class="required">*</span></label>
+                        <input type="file" id="criminal_record_file" name="criminal_record_file" accept="image/*,.pdf" required>
+                        <small style="color: #6b7280; font-size: 12px;">يُقبل: JPG, PNG, PDF (حد أقصى 5 ميجابايت)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="license_file">صورة ترخيص مزاولة المهنة <span class="required">*</span></label>
+                        <input type="file" id="license_file" name="license_file" accept="image/*,.pdf" required>
+                        <small style="color: #6b7280; font-size: 12px;">يُقبل: JPG, PNG, PDF (حد أقصى 5 ميجابايت)</small>
                     </div>
                 </div>
 
