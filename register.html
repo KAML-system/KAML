@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل عضوية جديدة - الجمعية الكويتية للمختبرات الطبية</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -199,6 +205,13 @@
             box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
         }
 
+        .submit-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
         .back-link {
             text-align: center;
             margin-top: 25px;
@@ -236,6 +249,27 @@
             border-radius: 8px;
             margin-bottom: 20px;
             display: none;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #28a745;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         @media (max-width: 768px) {
@@ -280,6 +314,11 @@
 
             <div class="error-message" id="errorMessage">
                 ❌ يرجى التأكد من ملء جميع الحقول المطلوبة بشكل صحيح.
+            </div>
+
+            <div class="loading-spinner" id="loadingSpinner">
+                <div class="spinner"></div>
+                <p>جاري حفظ البيانات...</p>
             </div>
 
             <form id="membershipForm">
@@ -439,7 +478,6 @@
                             <option value="بكالوريوس">بكالوريوس</option>
                             <option value="ماجستير">ماجستير</option>
                             <option value="دكتوراه">دكتوراه</option>
-                            <option value="زمالة">زمالة</option>
                             <option value="أخرى">أخرى</option>
                         </select>
                     </div>
@@ -450,96 +488,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="workplace">جهة العمل <span class="required">*</span></label>
-                        <select id="workplace" name="workplace" required>
-                            <option value="">اختر جهة العمل</option>
-                            <optgroup label="الوزارات والهيئات الحكومية">
-                                <option value="وزارة الصحة">وزارة الصحة</option>
-                                <option value="وزارة التربية">وزارة التربية</option>
-                                <option value="وزارة التعليم العالي">وزارة التعليم العالي</option>
-                                <option value="وزارة الداخلية">وزارة الداخلية</option>
-                                <option value="وزارة الدفاع">وزارة الدفاع</option>
-                                <option value="وزارة العدل">وزارة العدل</option>
-                                <option value="وزارة المالية">وزارة المالية</option>
-                                <option value="وزارة الخارجية">وزارة الخارجية</option>
-                                <option value="وزارة التجارة والصناعة">وزارة التجارة والصناعة</option>
-                                <option value="وزارة الأشغال العامة">وزارة الأشغال العامة</option>
-                                <option value="وزارة الكهرباء والماء">وزارة الكهرباء والماء</option>
-                                <option value="وزارة النفط">وزارة النفط</option>
-                                <option value="وزارة الإعلام">وزارة الإعلام</option>
-                                <option value="وزارة الشؤون الاجتماعية">وزارة الشؤون الاجتماعية</option>
-                                <option value="وزارة الأوقاف والشؤون الإسلامية">وزارة الأوقاف والشؤون الإسلامية</option>
-                                <option value="الهيئة العامة للبيئة">الهيئة العامة للبيئة</option>
-                                <option value="الهيئة العامة للغذاء والتغذية">الهيئة العامة للغذاء والتغذية</option>
-                                <option value="الهيئة العامة للقوى العاملة">الهيئة العامة للقوى العاملة</option>
-                                <option value="الهيئة العامة للطرق والنقل البري">الهيئة العامة للطرق والنقل البري</option>
-                                <option value="الهيئة العامة للاستثمار">الهيئة العامة للاستثمار</option>
-                                <option value="الهيئة العامة للصناعة">الهيئة العامة للصناعة</option>
-                                <option value="الهيئة العامة للتعليم التطبيقي والتدريب">الهيئة العامة للتعليم التطبيقي والتدريب</option>
-                                <option value="الهيئة العامة للشباب والرياضة">الهيئة العامة للشباب والرياضة</option>
-                                <option value="الهيئة العامة لشؤون ذوي الإعاقة">الهيئة العامة لشؤون ذوي الإعاقة</option>
-                                <option value="الهيئة العامة للإسكان">الهيئة العامة للإسكان</option>
-                                <option value="الهيئة العامة للزراعة والثروة السمكية">الهيئة العامة للزراعة والثروة السمكية</option>
-                                <option value="الهيئة العامة للتأمينات الاجتماعية">الهيئة العامة للتأمينات الاجتماعية</option>
-                                <option value="الهيئة العامة للمعلومات المدنية">الهيئة العامة للمعلومات المدنية</option>
-                                <option value="الهيئة العامة للاتصالات وتقنية المعلومات">الهيئة العامة للاتصالات وتقنية المعلومات</option>
-                                <option value="الهيئة العامة للطيران المدني">الهيئة العامة للطيران المدني</option>
-                                <option value="الهيئة العامة للموانئ">الهيئة العامة للموانئ</option>
-                                <option value="المؤسسة العامة للتأمينات الاجتماعية">المؤسسة العامة للتأمينات الاجتماعية</option>
-                                <option value="بنك الكويت المركزي">بنك الكويت المركزي</option>
-                                <option value="ديوان الخدمة المدنية">ديوان الخدمة المدنية</option>
-                                <option value="ديوان المحاسبة">ديوان المحاسبة</option>
-                                <option value="الأمانة العامة لمجلس الوزراء">الأمانة العامة لمجلس الوزراء</option>
-                                <option value="الأمانة العامة للمجلس الأعلى للتخطيط والتنمية">الأمانة العامة للمجلس الأعلى للتخطيط والتنمية</option>
-                            </optgroup>
-                            <optgroup label="المعاهد والجامعات">
-                                <option value="جامعة الكويت">جامعة الكويت</option>
-                                <option value="الهيئة العامة للتعليم التطبيقي والتدريب">الهيئة العامة للتعليم التطبيقي والتدريب</option>
-                                <option value="الجامعة الأمريكية في الكويت">الجامعة الأمريكية في الكويت</option>
-                                <option value="جامعة الخليج للعلوم والتكنولوجيا">جامعة الخليج للعلوم والتكنولوجيا</option>
-                                <option value="الجامعة الأسترالية في الكويت">الجامعة الأسترالية في الكويت</option>
-                                <option value="جامعة بوكسهل">جامعة بوكسهل</option>
-                                <option value="الكلية الأسترالية في الكويت">الكلية الأسترالية في الكويت</option>
-                                <option value="معهد الكويت للأبحاث العلمية">معهد الكويت للأبحاث العلمية</option>
-                                <option value="معهد الإدارة العامة">معهد الإدارة العامة</option>
-                                <option value="معهد الكويت للدراسات القضائية والقانونية">معهد الكويت للدراسات القضائية والقانونية</option>
-                                <option value="معهد الكويت للتخصصات الطبية">معهد الكويت للتخصصات الطبية</option>
-                            </optgroup>
-                            <optgroup label="المستشفيات والمراكز الطبية">
-                                <option value="مستشفى الأميري">مستشفى الأميري</option>
-                                <option value="مستشفى مبارك الكبير">مستشفى مبارك الكبير</option>
-                                <option value="مستشفى الفروانية">مستشفى الفروانية</option>
-                                <option value="مستشفى الجهراء">مستشفى الجهراء</option>
-                                <option value="مستشفى الأحمدي">مستشفى الأحمدي</option>
-                                <option value="مستشفى الصباح">مستشفى الصباح</option>
-                                <option value="مستشفى ابن سينا">مستشفى ابن سينا</option>
-                                <option value="مستشفى الرازي">مستشفى الرازي</option>
-                                <option value="مستشفى الطب النفسي">مستشفى الطب النفسي</option>
-                                <option value="مستشفى الأمراض الصدرية">مستشفى الأمراض الصدرية</option>
-                                <option value="مستشفى الولادة">مستشفى الولادة</option>
-                                <option value="مستشفى الأطفال">مستشفى الأطفال</option>
-                                <option value="مستشفى العيون">مستشفى العيون</option>
-                                <option value="مستشفى الأورام">مستشفى الأورام</option>
-                                <option value="مستشفى العظام والمفاصل">مستشفى العظام والمفاصل</option>
-                                <option value="مستشفى دار الشفاء">مستشفى دار الشفاء</option>
-                                <option value="مستشفى الحبيب">مستشفى الحبيب</option>
-                                <option value="مستشفى رويال حياة">مستشفى رويال حياة</option>
-                                <option value="مستشفى السلام الدولي">مستشفى السلام الدولي</option>
-                                <option value="مستشفى الهادي">مستشفى الهادي</option>
-                                <option value="مستشفى النور التخصصي">مستشفى النور التخصصي</option>
-                                <option value="مستشفى الموسى التخصصي">مستشفى الموسى التخصصي</option>
-                                <option value="مستشفى الشفاء">مستشفى الشفاء</option>
-                                <option value="مستشفى الأندلس">مستشفى الأندلس</option>
-                                <option value="مستشفى الإيمان">مستشفى الإيمان</option>
-                                <option value="مستشفى بيان">مستشفى بيان</option>
-                                <option value="مستشفى الكويت">مستشفى الكويت</option>
-                                <option value="مستشفى الطاهرة">مستشفى الطاهرة</option>
-                                <option value="مستشفى الصفا">مستشفى الصفا</option>
-                                <option value="مستشفى الوطني">مستشفى الوطني</option>
-                            </optgroup>
-                            <option value="القطاع الخاص">القطاع الخاص</option>
-                            <option value="أخرى">أخرى</option>
-                        </select>
+                        <label for="workplace">مكان العمل <span class="required">*</span></label>
+                        <input type="text" id="workplace" name="workplace" placeholder="أدخل مكان العمل" required>
                     </div>
 
                     <div class="form-group">
@@ -552,102 +502,97 @@
                         <select id="experience_years" name="experience_years" required>
                             <option value="">اختر سنوات الخبرة</option>
                             <option value="أقل من سنة">أقل من سنة</option>
-                            <option value="1-2 سنة">1-2 سنة</option>
+                            <option value="1-3 سنوات">1-3 سنوات</option>
                             <option value="3-5 سنوات">3-5 سنوات</option>
-                            <option value="6-10 سنوات">6-10 سنوات</option>
-                            <option value="11-15 سنة">11-15 سنة</option>
-                            <option value="أكثر من 15 سنة">أكثر من 15 سنة</option>
+                            <option value="5-10 سنوات">5-10 سنوات</option>
+                            <option value="أكثر من 10 سنوات">أكثر من 10 سنوات</option>
                         </select>
                     </div>
                 </div>
 
-                <!-- المرفقات المطلوبة -->
+                <!-- بيانات الدخول -->
                 <div class="section-title">
-                    📎 المرفقات المطلوبة
-                </div>
-
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="civil_id_front">صورة البطاقة المدنية (الوجه الأمامي) <span class="required">*</span></label>
-                        <input type="file" id="civil_id_front" name="civil_id_front" accept="image/*,.pdf" required>
-                        <small style="color: #666; font-size: 12px;">يُقبل: JPG, PNG, PDF (حد أقصى 5 ميجابايت)</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="civil_id_back">صورة البطاقة المدنية (الوجه الخلفي) <span class="required">*</span></label>
-                        <input type="file" id="civil_id_back" name="civil_id_back" accept="image/*,.pdf" required>
-                        <small style="color: #666; font-size: 12px;">يُقبل: JPG, PNG, PDF (حد أقصى 5 ميجابايت)</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="personal_photo">الصورة الشخصية <span class="required">*</span></label>
-                        <input type="file" id="personal_photo" name="personal_photo" accept="image/*" required>
-                        <small style="color: #666; font-size: 12px;">يُقبل: JPG, PNG (حد أقصى 3 ميجابايت)</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="criminal_record">الصحيفة الجنائية <span class="required">*</span></label>
-                        <input type="file" id="criminal_record" name="criminal_record" accept="image/*,.pdf" required>
-                        <small style="color: #666; font-size: 12px;">يُقبل: JPG, PNG, PDF (حد أقصى 5 ميجابايت)</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="license_photo">صورة ترخيص مزاولة المهنة <span class="required">*</span></label>
-                        <input type="file" id="license_photo" name="license_photo" accept="image/*,.pdf" required>
-                        <small style="color: #666; font-size: 12px;">يُقبل: JPG, PNG, PDF (حد أقصى 5 ميجابايت)</small>
-                    </div>
-                </div>
-
-                <!-- بيانات الحساب -->
-                <div class="section-title">
-                    🔐 بيانات الحساب للدخول
+                    🔐 بيانات الدخول
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="username">اسم المستخدم <span class="required">*</span></label>
                         <input type="text" id="username" name="username" placeholder="أدخل اسم المستخدم" required>
-                        <small style="color: #666; font-size: 12px;">سيستخدم للدخول لاحقاً لعرض بطاقة العضوية</small>
                     </div>
 
                     <div class="form-group">
                         <label for="password">كلمة المرور <span class="required">*</span></label>
                         <input type="password" id="password" name="password" placeholder="أدخل كلمة المرور" required>
-                        <small style="color: #666; font-size: 12px;">يجب أن تكون 6 أحرف على الأقل</small>
+                    </div>
+                </div>
+
+                <!-- المرفقات -->
+                <div class="section-title">
+                    📎 المرفقات المطلوبة
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="civil_id_file">صورة الرقم المدني <span class="required">*</span></label>
+                        <input type="file" id="civil_id_file" name="civil_id_file" accept="image/*,.pdf" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="confirm_password">تأكيد كلمة المرور <span class="required">*</span></label>
-                        <input type="password" id="confirm_password" name="confirm_password" placeholder="أعد إدخال كلمة المرور" required>
-                        <small style="color: #666; font-size: 12px;">يجب أن تطابق كلمة المرور أعلاه</small>
+                        <label for="qualification_file">صورة المؤهل العلمي <span class="required">*</span></label>
+                        <input type="file" id="qualification_file" name="qualification_file" accept="image/*,.pdf" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="experience_file">شهادة الخبرة</label>
+                        <input type="file" id="experience_file" name="experience_file" accept="image/*,.pdf">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="photo_file">الصورة الشخصية <span class="required">*</span></label>
+                        <input type="file" id="photo_file" name="photo_file" accept="image/*" required>
                     </div>
                 </div>
 
                 <!-- الموافقات -->
                 <div class="section-title">
-                    ✅ إقرار صحة البيانات
+                    ✅ الموافقات والإقرارات
                 </div>
 
                 <div class="checkbox-group">
-                    <input type="checkbox" id="data_accuracy" name="data_accuracy" required>
-                    <label for="data_accuracy">أقر بصحة البيانات المرسلة <span class="required">*</span></label>
+                    <input type="checkbox" id="terms_agreement" name="terms_agreement" required>
+                    <label for="terms_agreement">
+                        أوافق على <strong>الشروط والأحكام</strong> الخاصة بالجمعية الكويتية للمختبرات الطبية <span class="required">*</span>
+                    </label>
                 </div>
 
-                <button type="submit" class="submit-button">
-                    تسجيل العضوية
+                <div class="checkbox-group">
+                    <input type="checkbox" id="data_consent" name="data_consent" required>
+                    <label for="data_consent">
+                        أوافق على <strong>معالجة البيانات الشخصية</strong> وفقاً لسياسة الخصوصية <span class="required">*</span>
+                    </label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="info_accuracy" name="info_accuracy" required>
+                    <label for="info_accuracy">
+                        أقر بأن <strong>جميع المعلومات المقدمة صحيحة ودقيقة</strong> وأتحمل المسؤولية الكاملة عن صحتها <span class="required">*</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="submit-button" id="submitButton">
+                    📝 تسجيل العضوية
                 </button>
             </form>
 
             <div class="back-link">
-                <a href="index.html">← العودة للصفحة الرئيسية</a>
+                <a href="index.html">🔙 العودة للصفحة الرئيسية</a>
             </div>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script>
-        // Firebase Configuration - Updated with correct settings
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBKvr6ZI_M_s_hk3Ch2ivWBuY5jSI9QxDo",
             authDomain: "kaml-membership-system.firebaseapp.com",
@@ -662,368 +607,223 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Firebase Data Manager for Register Page
-        class RegisterFirebaseManager {
+        // Firebase Data Manager
+        class FirebaseDataManager {
             constructor() {
                 this.isOnline = navigator.onLine;
-                this.db = db;
-                
-                // Monitor online status
+                this.setupConnectionListener();
+            }
+
+            setupConnectionListener() {
                 window.addEventListener('online', () => {
                     this.isOnline = true;
-                    this.syncPendingData();
+                    console.log('Connection restored');
                 });
                 
                 window.addEventListener('offline', () => {
                     this.isOnline = false;
+                    console.log('Connection lost');
                 });
             }
 
-            async saveApplication(applicationData) {
+            async saveData(collection, data) {
                 try {
-                    // Save to localStorage first
-                    let applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
-                    applications.push(applicationData);
-                    localStorage.setItem('membershipApplications', JSON.stringify(applications));
-
-                    // Save to Firebase if online
+                    console.log('Saving data to Firebase:', collection, data);
+                    
                     if (this.isOnline) {
-                        await this.db.collection('membershipApplications').doc(applicationData.id).set(applicationData);
-                        console.log('Application saved to Firebase successfully');
-                    } else {
-                        // Mark for later sync
-                        let pendingSync = JSON.parse(localStorage.getItem('pendingFirebaseSync') || '[]');
-                        pendingSync.push({
-                            collection: 'membershipApplications',
-                            id: applicationData.id,
-                            data: applicationData,
-                            action: 'set'
-                        });
-                        localStorage.setItem('pendingFirebaseSync', JSON.stringify(pendingSync));
+                        // Save to Firebase
+                        const docRef = await db.collection(collection).add(data);
+                        console.log('Data saved to Firebase with ID:', docRef.id);
+                        
+                        // Update data with Firebase ID
+                        data.firebaseId = docRef.id;
                     }
+                    
+                    // Always save to localStorage as backup
+                    const localData = JSON.parse(localStorage.getItem(collection) || '[]');
+                    localData.push(data);
+                    localStorage.setItem(collection, JSON.stringify(localData));
+                    console.log('Data saved to localStorage');
                     
                     return true;
                 } catch (error) {
-                    console.error('Error saving application:', error);
+                    console.error('Error saving to Firebase:', error);
+                    
+                    // Fallback to localStorage only
+                    const localData = JSON.parse(localStorage.getItem(collection) || '[]');
+                    localData.push(data);
+                    localStorage.setItem(collection, JSON.stringify(localData));
+                    console.log('Data saved to localStorage (fallback)');
+                    
                     return false;
-                }
-            }
-
-            async syncPendingData() {
-                if (!this.isOnline) return;
-
-                try {
-                    const pendingSync = JSON.parse(localStorage.getItem('pendingFirebaseSync') || '[]');
-                    
-                    for (const item of pendingSync) {
-                        if (item.action === 'set') {
-                            await this.db.collection(item.collection).doc(item.id).set(item.data);
-                        }
-                    }
-                    
-                    // Clear pending sync after successful upload
-                    localStorage.removeItem('pendingFirebaseSync');
-                    console.log('Pending data synced to Firebase successfully');
-                } catch (error) {
-                    console.error('Error syncing pending data:', error);
                 }
             }
         }
 
-        // Initialize Firebase Manager
-        const firebaseManager = new RegisterFirebaseManager();
-        // قائمة البريد الإلكتروني المسجلة مسبقاً (محاكاة قاعدة البيانات)
-        const registeredEmails = [
-            'admin@kaml.org',
-            'test@example.com',
-            'member@kaml.org',
-            'info@kaml.org'
-        ];
+        // Initialize Firebase Data Manager
+        const firebaseManager = new FirebaseDataManager();
+
+        // التحقق من البريد الإلكتروني
+        function validateEmail(email) {
+            const registeredEmails = JSON.parse(localStorage.getItem('registeredEmails') || '[]');
+            return !registeredEmails.includes(email.toLowerCase());
+        }
 
         // التحقق من البريد الإلكتروني أثناء الكتابة
         document.getElementById('email').addEventListener('input', function(e) {
-            const email = e.target.value;
-            const emailValidation = document.getElementById('emailValidation');
+            const email = e.target.value.toLowerCase();
+            const validation = document.getElementById('emailValidation');
             
-            if (email.length === 0) {
-                emailValidation.style.display = 'none';
-                return;
+            if (email && !validateEmail(email)) {
+                validation.style.display = 'block';
+                validation.style.color = '#dc3545';
+                validation.innerHTML = '❌ هذا البريد الإلكتروني مسجل مسبقاً';
+            } else if (email) {
+                validation.style.display = 'block';
+                validation.style.color = '#28a745';
+                validation.innerHTML = '✅ البريد الإلكتروني متاح';
+            } else {
+                validation.style.display = 'none';
             }
-            
-            // التحقق من صحة تنسيق البريد الإلكتروني
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                emailValidation.style.display = 'block';
-                emailValidation.style.color = '#dc3545';
-                emailValidation.innerHTML = '❌ تنسيق البريد الإلكتروني غير صحيح';
-                return;
-            }
-            
-            // التحقق من وجود البريد الإلكتروني مسبقاً
-            if (registeredEmails.includes(email.toLowerCase())) {
-                emailValidation.style.display = 'block';
-                emailValidation.style.color = '#dc3545';
-                emailValidation.innerHTML = '❌ هذا البريد الإلكتروني مسجل مسبقاً';
-                return;
-            }
-            
-            // البريد الإلكتروني صحيح ومتاح
-            emailValidation.style.display = 'block';
-            emailValidation.style.color = '#28a745';
-            emailValidation.innerHTML = '✅ البريد الإلكتروني متاح';
         });
 
-        // التحقق من الرقم المدني أثناء الكتابة
-        document.getElementById('civil_id').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/[^0-9]/g, '');
-            if (value.length > 12) {
-                value = value.slice(0, 12);
-            }
-            e.target.value = value;
-        });
-
-        document.getElementById('membershipForm').addEventListener('submit', function(e) {
+        // معالجة إرسال النموذج
+        document.getElementById('membershipForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // التحقق من صحة البيانات
             const form = e.target;
+            const submitButton = document.getElementById('submitButton');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
             
-            // التحقق من رقم الهاتف (8 أرقام)
-            const phone = document.getElementById('phone').value;
-            if (!/^[0-9]{8}$/.test(phone)) {
-                document.getElementById('errorMessage').style.display = 'block';
-                document.getElementById('errorMessage').innerHTML = '❌ رقم الهاتف يجب أن يكون 8 أرقام فقط';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                return;
-            }
+            // إخفاء الرسائل السابقة
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
             
-            // التحقق من الرقم المدني (12 رقم)
+            // التحقق من صحة البيانات
+            const email = document.getElementById('email').value.toLowerCase();
             const civilId = document.getElementById('civil_id').value;
-            if (!/^[0-9]{12}$/.test(civilId)) {
-                document.getElementById('errorMessage').style.display = 'block';
-                document.getElementById('errorMessage').innerHTML = '❌ الرقم المدني يجب أن يكون 12 رقم فقط';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                return;
-            }
-            
-            // التحقق من البريد الإلكتروني
-            const email = document.getElementById('email').value;
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                document.getElementById('errorMessage').style.display = 'block';
-                document.getElementById('errorMessage').innerHTML = '❌ تنسيق البريد الإلكتروني غير صحيح';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                return;
-            }
-            
-            if (registeredEmails.includes(email.toLowerCase())) {
-                document.getElementById('errorMessage').style.display = 'block';
-                document.getElementById('errorMessage').innerHTML = '❌ هذا البريد الإلكتروني مسجل مسبقاً، يرجى استخدام بريد إلكتروني آخر';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                return;
-            }
-            
-            // التحقق من الاسم العربي (يحتوي على أحرف عربية)
-            const firstNameAr = document.getElementById('first_name_ar').value;
-            const middleNameAr = document.getElementById('middle_name_ar').value;
-            const lastNameAr = document.getElementById('last_name_ar').value;
-            
-            const arabicRegex = /^[\u0600-\u06FF\s]+$/;
-            if (!arabicRegex.test(firstNameAr) || !arabicRegex.test(middleNameAr) || !arabicRegex.test(lastNameAr)) {
-                document.getElementById('errorMessage').style.display = 'block';
-                document.getElementById('errorMessage').innerHTML = '❌ الاسم العربي يجب أن يحتوي على أحرف عربية فقط';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                return;
-            }
-            // التحقق من الاسم الإنجليزي (يحتوي على أحرف إنجليزية)
-            const firstNameEn = document.getElementById('first_name_en').value;
-            const middleNameEn = document.getElementById('middle_name_en').value;
-            const lastNameEn = document.getElementById('last_name_en').value;
-            
-            const englishRegex = /^[a-zA-Z\s]+$/;
-            if (!englishRegex.test(firstNameEn) || !englishRegex.test(middleNameEn) || !englishRegex.test(lastNameEn)) {
-                document.getElementById('errorMessage').style.display = 'block';
-                document.getElementById('errorMessage').innerHTML = '❌ الاسم الإنجليزي يجب أن يحتوي على أحرف إنجليزية فقط';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                return;
-            }
-            
-            // التحقق من اسم المستخدم وكلمة المرور
+            const phone = document.getElementById('phone').value;
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirm_password').value;
             
-            // التحقق من اسم المستخدم (يجب أن يكون 3 أحرف على الأقل)
-            if (username.length < 3) {
-                document.getElementById('errorMessage').style.display = 'block';
-                document.getElementById('errorMessage').innerHTML = '❌ اسم المستخدم يجب أن يكون 3 أحرف على الأقل';
+            // التحقق من البريد الإلكتروني
+            if (!validateEmail(email)) {
+                errorMessage.innerHTML = '❌ هذا البريد الإلكتروني مسجل مسبقاً. يرجى استخدام بريد إلكتروني آخر.';
+                errorMessage.style.display = 'block';
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 return;
             }
             
-            // التحقق من كلمة المرور (يجب أن تكون 6 أحرف على الأقل)
-            if (password.length < 6) {
-                document.getElementById('errorMessage').style.display = 'block';
-                document.getElementById('errorMessage').innerHTML = '❌ كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+            // التحقق من الرقم المدني
+            if (civilId.length !== 12 || !/^\d{12}$/.test(civilId)) {
+                errorMessage.innerHTML = '❌ يجب أن يكون الرقم المدني مكوناً من 12 رقماً فقط.';
+                errorMessage.style.display = 'block';
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 return;
             }
             
-            // التحقق من تطابق كلمة المرور
-            if (password !== confirmPassword) {
-                document.getElementById('errorMessage').style.display = 'block';
-                document.getElementById('errorMessage').innerHTML = '❌ كلمة المرور وتأكيد كلمة المرور غير متطابقتين';
+            // التحقق من رقم الهاتف
+            if (phone.length !== 8 || !/^\d{8}$/.test(phone)) {
+                errorMessage.innerHTML = '❌ يجب أن يكون رقم الهاتف مكوناً من 8 أرقام فقط.';
+                errorMessage.style.display = 'block';
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 return;
             }
             
-            // إخفاء رسائل الخطأ
-            document.getElementById('errorMessage').style.display = 'none';
+            // عرض مؤشر التحميل
+            submitButton.disabled = true;
+            submitButton.innerHTML = '⏳ جاري التسجيل...';
+            loadingSpinner.style.display = 'block';
             
-            // التحقق من الملفات المطلوبة
-            const requiredFiles = ['civil_id_front', 'civil_id_back', 'personal_photo', 'criminal_record', 'license_photo'];
-            const attachments = {};
-            
-            for (const fileId of requiredFiles) {
-                const fileInput = document.getElementById(fileId);
-                if (!fileInput.files || !fileInput.files[0]) {
-                    document.getElementById('errorMessage').style.display = 'block';
-                    document.getElementById('errorMessage').innerHTML = '❌ يرجى رفع جميع الملفات المطلوبة';
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    return;
-                }
+            try {
+                // معالجة الملفات المرفقة
+                const attachments = {};
+                const fileInputs = ['civil_id_file', 'qualification_file', 'experience_file', 'photo_file'];
                 
-                const file = fileInput.files[0];
-                
-                // التحقق من حجم الملف
-                const maxSize = fileId === 'personal_photo' ? 3 * 1024 * 1024 : 5 * 1024 * 1024; // 3MB للصورة الشخصية، 5MB للباقي
-                if (file.size > maxSize) {
-                    document.getElementById('errorMessage').style.display = 'block';
-                    document.getElementById('errorMessage').innerHTML = `❌ حجم ملف ${fileInput.previousElementSibling.textContent} كبير جداً`;
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    return;
-                }
-            }
-            
-            // دالة ضغط الصور المحسنة
-            function compressImage(file, maxWidth = 600, quality = 0.5) {
-                return new Promise((resolve) => {
-                    // إذا كان الملف صغير، لا نحتاج لضغطه
-                    if (file.size < 100 * 1024) { // أقل من 100KB
-                        const reader = new FileReader();
-                        reader.onload = (e) => resolve(e.target.result);
-                        reader.readAsDataURL(file);
-                        return;
-                    }
-                    
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const img = new Image();
-                    
-                    img.onload = function() {
-                        // حساب الأبعاد الجديدة (أصغر)
-                        let { width, height } = img;
-                        if (width > maxWidth) {
-                            height = (height * maxWidth) / width;
-                            width = maxWidth;
-                        }
+                for (const inputId of fileInputs) {
+                    const fileInput = document.getElementById(inputId);
+                    if (fileInput.files.length > 0) {
+                        const file = fileInput.files[0];
                         
-                        canvas.width = width;
-                        canvas.height = height;
-                        
-                        // رسم الصورة المضغوطة
-                        ctx.drawImage(img, 0, 0, width, height);
-                        
-                        // تحويل إلى base64 مضغوط أكثر
-                        const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
-                        resolve(compressedDataUrl);
-                    };
-                    
-                    const reader = new FileReader();
-                    reader.onload = (e) => img.src = e.target.result;
-                    reader.readAsDataURL(file);
-                });
-            }
-            
-            // تحويل الملفات إلى base64 مع الضغط
-            const filePromises = requiredFiles.map(fileId => {
-                return new Promise((resolve, reject) => {
-                    const fileInput = document.getElementById(fileId);
-                    const file = fileInput.files[0];
-                    
-                    // إذا كان الملف صورة، اضغطها
-                    if (file.type.startsWith('image/')) {
-                        compressImage(file).then(compressedData => {
-                            attachments[fileId] = {
-                                name: file.name,
-                                size: Math.round(compressedData.length * 0.75), // تقدير الحجم الجديد
-                                type: 'image/jpeg',
-                                data: compressedData
-                            };
-                            resolve();
+                        // تحويل الملف إلى Base64
+                        const base64 = await new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onload = () => resolve(reader.result);
+                            reader.onerror = reject;
+                            reader.readAsDataURL(file);
                         });
-                    } else {
-                        // للملفات غير الصور (PDF)
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            attachments[fileId] = {
-                                name: file.name,
-                                size: file.size,
-                                type: file.type,
-                                data: e.target.result
-                            };
-                            resolve();
+                        
+                        attachments[inputId] = {
+                            name: file.name,
+                            size: file.size,
+                            type: file.type,
+                            data: base64
                         };
-                        reader.onerror = function() {
-                            reject(new Error(`خطأ في قراءة ملف ${file.name}`));
-                        };
-                        reader.readAsDataURL(file);
                     }
-                });
-            });
-            
-            // انتظار تحميل جميع الملفات
-            Promise.all(filePromises).then(() => {
-                // جمع البيانات
+                }
+                
+                // جمع بيانات النموذج
                 const memberData = {
                     id: Date.now(),
-                    firstNameAr: firstNameAr,
-                    middleNameAr: middleNameAr,
-                    lastNameAr: lastNameAr,
-                    firstNameEn: firstNameEn,
-                    middleNameEn: middleNameEn,
-                    lastNameEn: lastNameEn,
+                    applicationId: 'APP-' + Date.now(),
+                    
+                    // البيانات الشخصية
+                    first_name_ar: document.getElementById('first_name_ar').value,
+                    middle_name_ar: document.getElementById('middle_name_ar').value,
+                    last_name_ar: document.getElementById('last_name_ar').value,
+                    first_name_en: document.getElementById('first_name_en').value,
+                    middle_name_en: document.getElementById('middle_name_en').value,
+                    last_name_en: document.getElementById('last_name_en').value,
                     nationality: document.getElementById('nationality').value,
-                    civilId: civilId,
-                    birthDate: document.getElementById('birth_date').value,
+                    civil_id: civilId,
+                    birth_date: document.getElementById('birth_date').value,
                     gender: document.getElementById('gender').value,
+                    
+                    // معلومات الاتصال
                     email: email,
                     phone: phone,
                     address: document.getElementById('address').value,
+                    
+                    // المؤهلات المهنية
                     qualification: document.getElementById('qualification').value,
                     specialization: document.getElementById('specialization').value,
                     workplace: document.getElementById('workplace').value,
-                    jobTitle: document.getElementById('job_title').value,
-                    experienceYears: document.getElementById('experience_years').value,
+                    job_title: document.getElementById('job_title').value,
+                    experience_years: document.getElementById('experience_years').value,
+                    
+                    // بيانات الدخول
                     username: username,
                     password: password,
+                    
+                    // الموافقات
+                    terms_agreement: document.getElementById('terms_agreement').checked,
+                    data_consent: document.getElementById('data_consent').checked,
+                    info_accuracy: document.getElementById('info_accuracy').checked,
+                    
+                    // المرفقات
+                    attachments: attachments,
+                    
+                    // معلومات الطلب
                     status: 'pending',
-                    submissionDate: new Date().toISOString(),
-                    attachments: attachments
+                    submission_date: new Date().toISOString(),
+                    created_at: new Date().toISOString()
                 };
                 
-                // حفظ البيانات محلياً أولاً
-                let applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
-                applications.push(memberData);
-                localStorage.setItem('membershipApplications', JSON.stringify(applications));
+                // حفظ البيانات في Firebase
+                const saveSuccess = await firebaseManager.saveData('membershipApplications', memberData);
                 
                 // إضافة البريد للقائمة المسجلة
-                registeredEmails.push(email.toLowerCase());
+                const registeredEmails = JSON.parse(localStorage.getItem('registeredEmails') || '[]');
+                registeredEmails.push(email);
                 localStorage.setItem('registeredEmails', JSON.stringify(registeredEmails));
                 
                 // عرض رسالة النجاح
                 setTimeout(() => {
-                    document.getElementById('successMessage').innerHTML = `
+                    loadingSpinner.style.display = 'none';
+                    
+                    successMessage.innerHTML = `
                         <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; max-width: 500px; margin: 0 auto;">
                             <div style="color: #059669; font-size: 48px; margin-bottom: 20px;">✅</div>
                             <h3 style="color: #059669; margin-bottom: 20px;">تم تسجيل العضوية بنجاح!</h3>
@@ -1035,23 +835,37 @@
                             </div>
                             <p style="color: #dc2626; font-weight: bold;">طلبك قيد المراجعة من قبل الإدارة</p>
                             <p>تم رفع جميع المرفقات المطلوبة بنجاح</p>
-                            <p style="color: #059669; font-weight: bold;">تم حفظ البيانات بنجاح ✅</p>
+                            <p style="color: #059669; font-weight: bold;">تم حفظ البيانات في السحابة ${saveSuccess ? '✅' : '⚠️ (محلياً)'}</p>
                             <a href="member-login.html" style="display: inline-block; background: #059669; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; margin-top: 15px;">دخول العضو</a>
                         </div>
                     `;
-                    document.getElementById('successMessage').style.display = 'block';
+                    successMessage.style.display = 'block';
+                    
+                    // إعادة تعيين النموذج
                     form.reset();
                     document.getElementById('emailValidation').style.display = 'none';
                     
                     // التمرير إلى أعلى الصفحة
                     window.scrollTo({ top: 0, behavior: 'smooth' });
-                }, 1000);
+                    
+                    // إعادة تفعيل الزر
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = '📝 تسجيل العضوية';
+                    
+                }, 2000);
                 
-            }).catch(error => {
-                document.getElementById('errorMessage').style.display = 'block';
-                document.getElementById('errorMessage').innerHTML = `❌ ${error.message}`;
+            } catch (error) {
+                console.error('Error during registration:', error);
+                
+                loadingSpinner.style.display = 'none';
+                errorMessage.innerHTML = `❌ حدث خطأ أثناء التسجيل: ${error.message}`;
+                errorMessage.style.display = 'block';
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
+                
+                // إعادة تفعيل الزر
+                submitButton.disabled = false;
+                submitButton.innerHTML = '📝 تسجيل العضوية';
+            }
         });
 
         // التحقق من رقم الهاتف أثناء الكتابة
@@ -1062,6 +876,17 @@
             }
             e.target.value = value;
         });
+
+        // التحقق من الرقم المدني أثناء الكتابة
+        document.getElementById('civil_id').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^0-9]/g, '');
+            if (value.length > 12) {
+                value = value.slice(0, 12);
+            }
+            e.target.value = value;
+        });
+
+        console.log('Registration form initialized with Firebase support');
     </script>
 </body>
 </html>

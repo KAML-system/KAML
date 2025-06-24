@@ -1842,39 +1842,26 @@
         // Initialize Firebase Data Manager
         const firebaseManager = new FirebaseDataManager();
 
-        // دالة مسح جميع البيانات التجريبية والقديمة
-        async function clearAllSampleData() {
+        // دالة مسح البيانات التجريبية فقط (الأسماء الوهمية)
+        async function clearSampleDataOnly() {
             try {
-                console.log('بدء مسح جميع البيانات التجريبية...');
+                console.log('بدء مسح البيانات التجريبية فقط...');
                 
-                // مسح البيانات من localStorage
-                localStorage.removeItem('members');
-                localStorage.removeItem('membershipApplications');
-                localStorage.removeItem('renewalRequests');
+                // قائمة الأسماء التجريبية المعروفة
+                const sampleNames = [
+                    'أحمد الكندري', 'فاطمة الصباح', 'محمد العتيبي', 'نورا الرشيد',
+                    'خالد المطيري', 'مريم الخالد', 'عبدالله الشمري', 'هند العجمي'
+                ];
                 
-                // مسح البيانات من Firebase إذا كان متصلاً
-                if (firebaseManager && firebaseManager.isOnline) {
-                    const collections = ['members', 'membershipApplications', 'renewalRequests'];
-                    
-                    for (const collection of collections) {
-                        try {
-                            const collectionRef = db.collection(collection);
-                            const snapshot = await collectionRef.get();
-                            
-                            const batch = db.batch();
-                            snapshot.docs.forEach(doc => {
-                                batch.delete(doc.ref);
-                            });
-                            
-                            await batch.commit();
-                            console.log(`تم مسح ${collection} من Firebase`);
-                        } catch (error) {
-                            console.log(`خطأ في مسح ${collection}:`, error);
-                        }
-                    }
-                }
+                // مسح البيانات التجريبية من localStorage
+                const localApplications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+                const filteredApplications = localApplications.filter(app => {
+                    const fullNameAr = `${app.first_name_ar || ''} ${app.middle_name_ar || ''} ${app.last_name_ar || ''}`.trim();
+                    return !sampleNames.includes(fullNameAr);
+                });
+                localStorage.setItem('membershipApplications', JSON.stringify(filteredApplications));
                 
-                console.log('تم مسح جميع البيانات التجريبية بنجاح');
+                console.log('تم مسح البيانات التجريبية فقط');
                 return true;
             } catch (error) {
                 console.error('خطأ في مسح البيانات:', error);
