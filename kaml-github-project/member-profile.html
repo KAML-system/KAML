@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الملف الشخصي - الجمعية الكويتية للمختبرات الطبية</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
     <!-- مكتبة QR Code -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-    <!-- مكتبة QR Code بديلة -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
     <!-- مكتبة html2canvas لتحويل HTML إلى صورة -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -101,55 +105,63 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 30px 20px;
         }
 
         .profile-card {
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            margin-bottom: 30px;
         }
 
+        /* حالات العضوية */
         .status-header {
             padding: 30px;
             text-align: center;
             color: white;
+            position: relative;
         }
 
-        .status-pending {
+        .status-header.status-pending {
             background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
         }
 
-        .status-approved {
-            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        .status-header.status-approved {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         }
 
-        .status-rejected {
-            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        .status-header.status-rejected {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         }
 
         .status-icon {
-            font-size: 48px;
+            font-size: 60px;
             margin-bottom: 15px;
+            animation: pulse 2s infinite;
         }
 
         .status-title {
-            font-size: 24px;
-            font-weight: 600;
+            font-size: 28px;
+            font-weight: 700;
             margin-bottom: 10px;
         }
 
         .status-description {
             font-size: 16px;
             opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
         .profile-content {
-            padding: 30px;
+            padding: 40px;
         }
 
         .info-grid {
@@ -161,15 +173,16 @@
 
         .info-section {
             background: #f8fafc;
-            border-radius: 10px;
-            padding: 20px;
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #e5e7eb;
         }
 
         .section-title {
             font-size: 18px;
             font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 15px;
+            color: #1e3a8a;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -179,36 +192,41 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 0;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
             border-bottom: 1px solid #e5e7eb;
         }
 
         .info-item:last-child {
+            margin-bottom: 0;
             border-bottom: none;
         }
 
         .info-label {
             font-weight: 500;
             color: #6b7280;
+            font-size: 14px;
         }
 
         .info-value {
             font-weight: 600;
             color: #1f2937;
+            font-size: 14px;
+            text-align: left;
         }
 
+        /* بطاقة العضوية الاحترافية */
         .membership-card {
-            margin-top: 30px;
+            margin-top: 40px;
         }
 
-        /* تنسيق بطاقة العضوية الاحترافية */
         .professional-card {
             background: white;
             border: 1px solid #e5e7eb;
             border-radius: 15px;
             overflow: hidden;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
+            max-width: 450px;
             margin: 0 auto;
             font-family: 'Arial', sans-serif;
         }
@@ -216,7 +234,7 @@
         .card-header {
             background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
             color: white;
-            padding: 20px;
+            padding: 25px;
             display: flex;
             align-items: center;
             gap: 15px;
@@ -230,8 +248,8 @@
         }
 
         .member-photo-frame {
-            width: 70px;
-            height: 70px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             border: 3px solid rgba(255, 255, 255, 0.8);
             overflow: hidden;
@@ -248,27 +266,21 @@
             border-radius: 50%;
         }
 
-        .member-name-ar {
-            font-size: 14px;
-            color: #6b7280;
-            margin: 5px 0 0 0;
-            font-weight: 400;
-        }
-
         .logo-circle {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             background: white;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 5px;
+            flex-shrink: 0;
         }
 
         .card-logo {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             object-fit: cover;
         }
@@ -277,96 +289,21 @@
             margin: 0;
             font-size: 18px;
             font-weight: 600;
+            line-height: 1.2;
         }
 
         .association-info p {
-            margin: 5px 0 0 0;
+            margin: 8px 0 0 0;
             font-size: 14px;
             opacity: 0.9;
         }
 
         .card-body {
-            padding: 25px;
+            padding: 30px;
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            gap: 20px;
-        }
-
-        .member-name h2 {
-            margin: 0 0 15px 0;
-            font-size: 22px;
-            font-weight: 700;
-            color: #1e3a8a;
-            line-height: 1.2;
-        }
-
-        .membership-details {
-            margin-top: 10px;
-        }
-
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .detail-row .label {
-            color: #6b7280;
-            font-weight: 500;
-        }
-
-        .detail-row .value {
-            color: #1f2937;
-            font-weight: 600;
-        }
-
-        .qr-section {
-            text-align: center;
-        }
-
-        .qr-code {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 8px;
-        }
-
-        .qr-label {
-            font-size: 11px;
-            color: #6b7280;
-            margin: 0;
-        }
-
-        .card-footer {
-            background: #f8fafc;
-            padding: 15px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid #e5e7eb;
-        }
-
-        .validity-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: #1f2937;
-            font-weight: 500;
-        }
-
-        .status-indicator {
-            color: #10b981;
-            font-size: 16px;
-        }
-
-        .seal-logo {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            opacity: 0.7;
+            gap: 25px;
         }
 
         .member-info {
@@ -374,16 +311,24 @@
         }
 
         .member-name h2 {
-            margin: 0 0 15px 0;
-            font-size: 20px;
+            margin: 0 0 8px 0;
+            font-size: 22px;
             color: #1e3a8a;
             font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .member-name-ar {
+            font-size: 16px;
+            color: #6b7280;
+            margin: 0 0 20px 0;
+            font-weight: 400;
         }
 
         .membership-details {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 12px;
         }
 
         .detail-row {
@@ -393,7 +338,7 @@
         }
 
         .detail-row .label {
-            font-size: 12px;
+            font-size: 13px;
             color: #6b7280;
             font-weight: 500;
         }
@@ -408,53 +353,22 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .qr-code {
-            width: 80px;
-            height: 80px;
+            width: 90px;
+            height: 90px;
             border: 2px solid #e5e7eb;
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        .qr-placeholder {
-            width: 70px;
-            height: 70px;
-        }
-
-        .qr-pattern {
-            display: grid;
-            grid-template-rows: repeat(5, 1fr);
-            gap: 1px;
-            width: 100%;
-            height: 100%;
-        }
-
-        .qr-row {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 1px;
-        }
-
-        .qr-cell {
-            width: 100%;
-            height: 100%;
-        }
-
-        .qr-cell.black {
-            background: #000;
-        }
-
-        .qr-cell.white {
-            background: #fff;
+            background: white;
         }
 
         .qr-label {
-            font-size: 10px;
+            font-size: 11px;
             color: #6b7280;
             margin: 0;
             text-align: center;
@@ -462,16 +376,20 @@
 
         .card-footer {
             background: #f8fafc;
-            padding: 15px 25px;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             border-top: 1px solid #e5e7eb;
         }
 
         .validity-info {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            font-size: 12px;
-            color: #6b7280;
+            gap: 8px;
+            font-size: 14px;
+            color: #1f2937;
+            font-weight: 500;
         }
 
         .status-indicator {
@@ -483,14 +401,14 @@
             display: flex;
             gap: 15px;
             justify-content: center;
-            margin-top: 20px;
+            margin-top: 25px;
         }
 
         .download-btn, .print-btn {
             background: #3b82f6;
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 12px 24px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
@@ -511,11 +429,79 @@
             background: #059669;
         }
 
+        /* قسم تجديد العضوية */
+        .renewal-section {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #f59e0b;
+            background: #fffbeb;
+            text-align: center;
+        }
+
+        .renewal-section.expired {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .renewal-alert {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .renewal-icon {
+            font-size: 40px;
+            animation: rotate 2s linear infinite;
+        }
+
+        .renewal-content h4 {
+            font-size: 20px;
+            color: #92400e;
+            margin-bottom: 8px;
+        }
+
+        .renewal-section.expired .renewal-content h4 {
+            color: #991b1b;
+        }
+
+        .renewal-content p {
+            font-size: 14px;
+            color: #78350f;
+            margin-bottom: 15px;
+        }
+
+        .renewal-section.expired .renewal-content p {
+            color: #7f1d1d;
+        }
+
+        .renew-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .renewal-section.expired .renew-btn {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .renew-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.3);
+        }
+
         .action-buttons {
             display: flex;
             gap: 15px;
             justify-content: center;
-            margin-top: 30px;
+            margin-top: 40px;
         }
 
         .btn {
@@ -531,13 +517,8 @@
         }
 
         .btn-primary {
-            background: #3b82f6;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
             color: white;
-        }
-
-        .btn-primary:hover {
-            background: #2563eb;
-            transform: translateY(-2px);
         }
 
         .btn-secondary {
@@ -545,107 +526,8 @@
             color: white;
         }
 
-        .btn-secondary:hover {
-            background: #4b5563;
+        .btn:hover {
             transform: translateY(-2px);
-        }
-
-        /* أنماط قسم تجديد العضوية */
-        .renewal-section {
-            margin-top: 20px;
-            padding: 15px;
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border: 2px solid #f59e0b;
-            border-radius: 12px;
-            animation: renewalPulse 2s infinite;
-        }
-
-        .renewal-alert {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .renewal-icon {
-            font-size: 24px;
-            animation: rotate 2s linear infinite;
-        }
-
-        .renewal-content h4 {
-            margin: 0 0 8px 0;
-            color: #92400e;
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        .renewal-content p {
-            margin: 0 0 12px 0;
-            color: #78350f;
-            font-size: 14px;
-        }
-
-        .renew-btn {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-        }
-
-        .renew-btn:hover {
-            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
-        }
-
-        .renew-btn:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        /* حالة العضوية المنتهية */
-        .renewal-section.expired {
-            background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
-            border-color: #ef4444;
-        }
-
-        .renewal-section.expired .renewal-content h4 {
-            color: #991b1b;
-        }
-
-        .renewal-section.expired .renewal-content p {
-            color: #7f1d1d;
-        }
-
-        /* حالة طلب التجديد المرسل */
-        .renewal-section.pending {
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-            border-color: #3b82f6;
-        }
-
-        .renewal-section.pending .renewal-content h4 {
-            color: #1e40af;
-        }
-
-        .renewal-section.pending .renewal-content p {
-            color: #1e3a8a;
-        }
-
-        /* الرسوم المتحركة */
-        @keyframes renewalPulse {
-            0%, 100% { 
-                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
-            }
-            50% { 
-                box-shadow: 0 0 0 10px rgba(245, 158, 11, 0);
-            }
         }
 
         @keyframes rotate {
@@ -667,6 +549,16 @@
                 gap: 15px;
                 text-align: center;
             }
+
+            .card-body {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .card-actions {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -675,7 +567,7 @@
         <div class="header-content">
             <div class="logo-section">
                 <div class="logo-placeholder">
-                    <img src="logo.png" alt="شعار الجمعية">
+                    <img src="logo.jpeg" alt="شعار الجمعية" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjMUUzQThBIiByeD0iMjUiLz4KPHN2ZyB4PSIxMCIgeT0iMTAiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+CjxwYXRoIGQ9Ik0xOS40MyA5LjU2Yy0uNTMtLjUzLTEuMjUtLjgzLTItLjgzSDYuNTdjLS43NSAwLTEuNDcuMy0yIC44M3MtLjgzIDEuMjUtLjgzIDJWMTljMCAuNzUuMyAxLjQ3LjgzIDJzMS4yNS44MyAyIC44M2gxMC44NmMuNzUgMCAxLjQ3LS4zIDItLjgzcy44My0xLjI1LjgzLTJWMTEuNTZjMC0uNzUtLjMtMS40Ny0uODMtMnoiLz4KPC9zdmc+Cjwvc3ZnPgo='">
                 </div>
                 <div class="header-title">
                     <h1>الجمعية الكويتية للمختبرات الطبية</h1>
@@ -738,6 +630,10 @@
                             <span class="info-value" id="workplace">-</span>
                         </div>
                         <div class="info-item">
+                            <span class="info-label">المنطقة:</span>
+                            <span class="info-value" id="area">-</span>
+                        </div>
+                        <div class="info-item">
                             <span class="info-label">العنوان:</span>
                             <span class="info-value" id="address">-</span>
                         </div>
@@ -752,6 +648,14 @@
                             <span class="info-value" id="submissionDate">-</span>
                         </div>
                         <div class="info-item">
+                            <span class="info-label">رقم العضوية:</span>
+                            <span class="info-value" id="membershipNumber">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">نوع العضوية:</span>
+                            <span class="info-value" id="membershipType">-</span>
+                        </div>
+                        <div class="info-item">
                             <span class="info-label">تاريخ الاعتماد:</span>
                             <span class="info-value" id="approvalDate">-</span>
                         </div>
@@ -763,25 +667,26 @@
                             <span class="info-label">حالة العضوية:</span>
                             <span class="info-value" id="membershipStatus">-</span>
                         </div>
-                        
-                        <!-- قسم تجديد العضوية -->
-                        <div id="renewalSection" class="renewal-section" style="display: none;">
-                            <div class="renewal-alert">
-                                <div class="renewal-icon">🔄</div>
-                                <div class="renewal-content">
-                                    <h4 id="renewalTitle">تجديد العضوية</h4>
-                                    <p id="renewalMessage">العضوية تحتاج للتجديد</p>
-                                    <button id="renewButton" class="renew-btn" onclick="requestRenewal()">
-                                        طلب تجديد العضوية
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
+                <!-- بطاقة العضوية -->
                 <div id="membershipCard" class="membership-card" style="display: none;">
-                    <!-- بطاقة العضوية الاحترافية -->
+                    <!-- سيتم إنشاؤها ديناميكياً -->
+                </div>
+
+                <!-- قسم تجديد العضوية -->
+                <div id="renewalSection" class="renewal-section" style="display: none;">
+                    <div class="renewal-alert">
+                        <div class="renewal-icon">🔄</div>
+                        <div class="renewal-content">
+                            <h4 id="renewalTitle">تجديد العضوية</h4>
+                            <p id="renewalMessage">العضوية تحتاج للتجديد</p>
+                            <button id="renewButton" class="renew-btn" onclick="requestRenewal()">
+                                طلب تجديد العضوية
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="action-buttons">
@@ -793,41 +698,76 @@
     </div>
 
     <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBL5Ej4VvdJJDl_8vG5KqF8eJ9X8yF4Abc",
+            authDomain: "kaml-membership-system.firebaseapp.com",
+            projectId: "kaml-membership-system",
+            storageBucket: "kaml-membership-system.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdef123456789"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         // التحقق من تسجيل الدخول
         if (sessionStorage.getItem('memberLoggedIn') !== 'true') {
             window.location.href = 'member-login.html';
         }
 
         // تحميل بيانات العضو
-        function loadMemberData() {
-            const memberId = sessionStorage.getItem('currentMemberId');
-            const applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
-            const member = applications.find(app => app.id == memberId);
+        async function loadMemberData() {
+            try {
+                const memberId = sessionStorage.getItem('currentMemberId');
+                if (!memberId) {
+                    throw new Error('لم يتم العثور على معرف العضو');
+                }
 
-            if (!member) {
-                alert('لم يتم العثور على بيانات العضوية');
+                // محاولة تحميل من Firebase أولاً
+                const doc = await db.collection('membershipApplications').doc(memberId).get();
+                let member;
+                
+                if (doc.exists) {
+                    member = { id: doc.id, ...doc.data() };
+                } else {
+                    // التحميل من التخزين المحلي كبديل
+                    const applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+                    member = applications.find(app => app.id == memberId);
+                }
+
+                if (!member) {
+                    throw new Error('لم يتم العثور على بيانات العضوية');
+                }
+
+                // تحديث البيانات الشخصية
+                document.getElementById('memberName').textContent = `مرحباً ${member.firstNameAr}`;
+                document.getElementById('nameAr').textContent = `${member.firstNameAr} ${member.middleNameAr} ${member.lastNameAr}`;
+                document.getElementById('nameEn').textContent = `${member.firstNameEn} ${member.middleNameEn} ${member.lastNameEn}`;
+                document.getElementById('email').textContent = member.email;
+                document.getElementById('phone').textContent = member.phone;
+                document.getElementById('civilId').textContent = member.civilId;
+                document.getElementById('jobTitle').textContent = member.jobTitle;
+                document.getElementById('workplace').textContent = member.workplace;
+                document.getElementById('area').textContent = member.area || '-';
+                document.getElementById('address').textContent = member.address;
+
+                // تحديث بيانات العضوية
+                document.getElementById('submissionDate').textContent = formatDate(member.submissionDate);
+                document.getElementById('membershipNumber').textContent = member.membershipNumber || '-';
+                document.getElementById('membershipType').textContent = getMembershipTypeArabic(member.membershipType);
+                document.getElementById('approvalDate').textContent = member.approvalDate ? formatDate(member.approvalDate) : 'لم يتم الاعتماد بعد';
+                document.getElementById('expiryDate').textContent = member.expiryDate ? formatDate(member.expiryDate) : 'لم يتم تحديده بعد';
+
+                // تحديث حالة العضوية
+                updateMembershipStatus(member);
+
+            } catch (error) {
+                console.error('خطأ في تحميل البيانات:', error);
+                alert('حدث خطأ في تحميل البيانات: ' + error.message);
                 window.location.href = 'member-login.html';
-                return;
             }
-
-            // تحديث البيانات الشخصية
-            document.getElementById('memberName').textContent = `مرحباً ${member.firstNameAr}`;
-            document.getElementById('nameAr').textContent = `${member.firstNameAr} ${member.middleNameAr} ${member.lastNameAr}`;
-            document.getElementById('nameEn').textContent = `${member.firstNameEn} ${member.middleNameEn} ${member.lastNameEn}`;
-            document.getElementById('email').textContent = member.email;
-            document.getElementById('phone').textContent = member.phone;
-            document.getElementById('civilId').textContent = member.civilId;
-            document.getElementById('jobTitle').textContent = member.jobTitle;
-            document.getElementById('workplace').textContent = member.workplace;
-            document.getElementById('address').textContent = member.address;
-
-            // تحديث بيانات العضوية
-            document.getElementById('submissionDate').textContent = new Date(member.submissionDate).toLocaleDateString('en-GB');
-            document.getElementById('approvalDate').textContent = member.approvalDate ? new Date(member.approvalDate).toLocaleDateString('en-GB') : 'لم يتم الاعتماد بعد';
-            document.getElementById('expiryDate').textContent = member.expiryDate ? new Date(member.expiryDate).toLocaleDateString('en-GB') : 'لم يتم تحديده بعد';
-
-            // تحديث حالة العضوية
-            updateMembershipStatus(member);
         }
 
         function updateMembershipStatus(member) {
@@ -837,6 +777,7 @@
             const statusDescription = document.getElementById('statusDescription');
             const membershipStatus = document.getElementById('membershipStatus');
             const membershipCard = document.getElementById('membershipCard');
+            const renewalSection = document.getElementById('renewalSection');
 
             switch (member.status) {
                 case 'pending':
@@ -846,6 +787,7 @@
                     statusDescription.textContent = 'سيتم إشعارك عند اعتماد العضوية من قبل الإدارة';
                     membershipStatus.textContent = 'في انتظار المراجعة';
                     membershipCard.style.display = 'none';
+                    renewalSection.style.display = 'none';
                     break;
 
                 case 'approved':
@@ -855,9 +797,12 @@
                     statusDescription.textContent = 'مبروك! تم الموافقة على طلب العضوية وأصبحت عضواً معتمداً';
                     membershipStatus.textContent = 'عضو معتمد';
                     
-                    // عرض بطاقة العضوية الاحترافية
+                    // عرض بطاقة العضوية
                     membershipCard.style.display = 'block';
                     generateMembershipCard(member);
+                    
+                    // التحقق من تاريخ انتهاء العضوية
+                    checkMembershipExpiry(member);
                     break;
 
                 case 'rejected':
@@ -867,27 +812,56 @@
                     statusDescription.textContent = 'نأسف، تم رفض طلب العضوية. يمكنك التواصل مع الإدارة للاستفسار';
                     membershipStatus.textContent = 'مرفوض';
                     membershipCard.style.display = 'none';
+                    renewalSection.style.display = 'none';
                     break;
+
+                default:
+                    statusHeader.className = 'status-header status-pending';
+                    statusIcon.textContent = '⏳';
+                    statusTitle.textContent = 'طلبك قيد المراجعة';
+                    statusDescription.textContent = 'سيتم إشعارك عند اعتماد العضوية من قبل الإدارة';
+                    membershipStatus.textContent = 'في انتظار المراجعة';
+                    membershipCard.style.display = 'none';
+                    renewalSection.style.display = 'none';
             }
         }
 
-        function refreshData() {
-            loadMemberData();
-            alert('تم تحديث البيانات');
+        function checkMembershipExpiry(member) {
+            if (!member.expiryDate) return;
+
+            const expiryDate = new Date(member.expiryDate);
+            const currentDate = new Date();
+            const daysUntilExpiry = Math.ceil((expiryDate - currentDate) / (1000 * 60 * 60 * 24));
+            
+            const renewalSection = document.getElementById('renewalSection');
+            const renewalTitle = document.getElementById('renewalTitle');
+            const renewalMessage = document.getElementById('renewalMessage');
+            const renewButton = document.getElementById('renewButton');
+
+            if (daysUntilExpiry < 0) {
+                // العضوية منتهية
+                renewalSection.style.display = 'block';
+                renewalSection.className = 'renewal-section expired';
+                renewalTitle.textContent = 'العضوية منتهية';
+                renewalMessage.textContent = `انتهت عضويتك منذ ${Math.abs(daysUntilExpiry)} يوم. يرجى تجديد العضوية للاستمرار.`;
+                renewButton.textContent = 'تجديد العضوية المنتهية';
+            } else if (daysUntilExpiry <= 30) {
+                // تنبيه قبل انتهاء العضوية
+                renewalSection.style.display = 'block';
+                renewalSection.className = 'renewal-section';
+                renewalTitle.textContent = 'تنبيه: العضوية ستنتهي قريباً';
+                renewalMessage.textContent = `ستنتهي عضويتك خلال ${daysUntilExpiry} يوم. يرجى تجديد العضوية قبل انتهائها.`;
+                renewButton.textContent = 'طلب تجديد العضوية';
+            } else {
+                renewalSection.style.display = 'none';
+            }
         }
 
-        function logout() {
-            sessionStorage.removeItem('currentMemberId');
-            sessionStorage.removeItem('memberLoggedIn');
-            window.location.href = 'member-login.html';
-        }
-
-        // تحميل البيانات عند تحميل الصفحة
-        // دالة إنشاء بطاقة العضوية الاحترافية مع الشعار والصورة الشخصية
+        // إنشاء بطاقة العضوية مع الصورة الشخصية
         function generateMembershipCard(member) {
             const membershipCard = document.getElementById('membershipCard');
             
-            // إنشاء QR Code data مع بيانات ثابتة ومحدثة
+            // إنشاء QR Code data
             const qrData = JSON.stringify({
                 membershipNumber: member.membershipNumber,
                 memberName: `${member.firstNameEn} ${member.middleNameEn} ${member.lastNameEn}`,
@@ -898,11 +872,10 @@
                 verificationUrl: `https://kaml.org/verify/${member.membershipNumber}`
             });
             
-            // البحث عن الصورة الشخصية في المرفقات
+            // البحث عن الصورة الشخصية
             let personalPhotoUrl = '';
             if (member.attachments && Array.isArray(member.attachments)) {
                 const photoAttachment = member.attachments.find(att => 
-                    att.type === 'photo' || 
                     att.type === 'personal_photo' || 
                     att.name === 'الصورة الشخصية'
                 );
@@ -916,7 +889,7 @@
                     <div class="card-header">
                         <div class="logo-section">
                             <div class="logo-circle">
-                                <img src="logo.jpeg" alt="KAML" class="card-logo">
+                                <img src="logo.jpeg" alt="KAML" class="card-logo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjMUUzQThBIiByeD0iMzAiLz4KPHN2ZyB4PSIxNSIgeT0iMTUiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+CjxwYXRoIGQ9Ik0xOS40MyA5LjU2Yy0uNTMtLjUzLTEuMjUtLjgzLTItLjgzSDYuNTdjLS43NSAwLTEuNDcuMy0yIC44M3MtLjgzIDEuMjUtLjgzIDJWMTljMCAuNzUuMyAxLjQ3LjgzIDJzMS4yNS44MyAyIC44M2gxMC44NmMuNzUgMCAxLjQ3LS4zIDItLjgzcy44My0xLjI1LjgzLTJWMTEuNTZjMC0uNzUtLjMtMS40Ny0uODMtMnoiLz4KPC9zdmc+Cjwvc3ZnPgo='">
                             </div>
                         </div>
                         <div class="association-info">
@@ -945,12 +918,16 @@
                                     <span class="value">${member.membershipNumber}</span>
                                 </div>
                                 <div class="detail-row">
+                                    <span class="label">Type:</span>
+                                    <span class="value">${getMembershipTypeEnglish(member.membershipType)}</span>
+                                </div>
+                                <div class="detail-row">
                                     <span class="label">Issue Date:</span>
-                                    <span class="value">${new Date(member.approvalDate).toLocaleDateString('en-GB')}</span>
+                                    <span class="value">${formatDateEnglish(member.approvalDate)}</span>
                                 </div>
                                 <div class="detail-row">
                                     <span class="label">Expiry Date:</span>
-                                    <span class="value">${new Date(member.expiryDate).toLocaleDateString('en-GB')}</span>
+                                    <span class="value">${formatDateEnglish(member.expiryDate)}</span>
                                 </div>
                             </div>
                         </div>
@@ -981,41 +958,32 @@
             
             // إنشاء QR Code
             setTimeout(() => {
-                console.log('Attempting to generate QR Code for member:', member.membershipNumber);
                 generateQRCode(`qrcode-${member.id}`, qrData);
             }, 500);
         }
-        
-        // دالة إنشاء QR Code باستخدام خدمة QR Server
+
+        // إنشاء QR Code
         function generateQRCode(elementId, data) {
             const qrContainer = document.getElementById(elementId);
-            if (!qrContainer) {
-                console.error('QR Container not found:', elementId);
-                return;
-            }
+            if (!qrContainer) return;
             
-            // مسح المحتوى السابق
             qrContainer.innerHTML = '';
             
             try {
-                // إنشاء QR Code باستخدام خدمة QR Server API
                 const qrData = encodeURIComponent(data);
-                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${qrData}`;
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=${qrData}`;
                 
-                // إنشاء صورة QR Code
                 const qrImage = document.createElement('img');
                 qrImage.src = qrUrl;
-                qrImage.style.width = '80px';
-                qrImage.style.height = '80px';
+                qrImage.style.width = '90px';
+                qrImage.style.height = '90px';
                 qrImage.style.border = '1px solid #e5e7eb';
                 qrImage.style.borderRadius = '4px';
                 qrImage.alt = 'QR Code';
                 
-                // معالجة حالة فشل تحميل الصورة
                 qrImage.onerror = function() {
-                    console.error('Failed to load QR Code from server');
                     qrContainer.innerHTML = `
-                        <div style="width: 80px; height: 80px; background: #f3f4f6; border: 2px solid #e5e7eb; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; color: #6b7280; text-align: center;">
+                        <div style="width: 90px; height: 90px; background: #f3f4f6; border: 2px solid #e5e7eb; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; color: #6b7280; text-align: center;">
                             <div style="font-size: 16px; margin-bottom: 4px;">📱</div>
                             <div>QR Code</div>
                             <div style="font-size: 8px;">Available</div>
@@ -1023,25 +991,45 @@
                     `;
                 };
                 
-                qrImage.onload = function() {
-                    console.log('QR Code loaded successfully for:', elementId);
-                };
-                
                 qrContainer.appendChild(qrImage);
                 
             } catch (error) {
-                console.error('Exception in QR Code generation:', error);
-                // إنشاء QR Code بديل أنيق
+                console.error('خطأ في إنشاء QR Code:', error);
                 qrContainer.innerHTML = `
-                    <div style="width: 80px; height: 80px; background: linear-gradient(45deg, #f3f4f6 25%, transparent 25%), linear-gradient(-45deg, #f3f4f6 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f3f4f6 75%), linear-gradient(-45deg, transparent 75%, #f3f4f6 75%); background-size: 8px 8px; background-position: 0 0, 0 4px, 4px -4px, -4px 0px; border: 2px solid #e5e7eb; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; color: #374151; text-align: center;">
+                    <div style="width: 90px; height: 90px; background: linear-gradient(45deg, #f3f4f6 25%, transparent 25%), linear-gradient(-45deg, #f3f4f6 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f3f4f6 75%), linear-gradient(-45deg, transparent 75%, #f3f4f6 75%); background-size: 8px 8px; background-position: 0 0, 0 4px, 4px -4px, -4px 0px; border: 2px solid #e5e7eb; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; color: #374151; text-align: center;">
                         <div style="background: white; padding: 2px 4px; border-radius: 4px; font-weight: bold;">QR</div>
                         <div style="background: white; padding: 1px 2px; border-radius: 2px; margin-top: 2px; font-size: 8px;">CODE</div>
                     </div>
                 `;
             }
         }
-        
-        // دالة تحميل البطاقة كصورة
+
+        // طلب تجديد العضوية
+        async function requestRenewal() {
+            try {
+                const memberId = sessionStorage.getItem('currentMemberId');
+                const renewalData = {
+                    memberId: memberId,
+                    requestDate: new Date().toISOString(),
+                    status: 'pending',
+                    type: 'renewal'
+                };
+
+                // حفظ طلب التجديد في Firebase
+                await db.collection('renewalRequests').add(renewalData);
+                
+                alert('تم إرسال طلب تجديد العضوية بنجاح. سيتم مراجعته من قبل الإدارة.');
+                
+                // إخفاء قسم التجديد
+                document.getElementById('renewalSection').style.display = 'none';
+                
+            } catch (error) {
+                console.error('خطأ في طلب التجديد:', error);
+                alert('حدث خطأ أثناء إرسال طلب التجديد. يرجى المحاولة مرة أخرى.');
+            }
+        }
+
+        // تحميل البطاقة
         function downloadCard() {
             const card = document.querySelector('.professional-card');
             if (!card) {
@@ -1049,96 +1037,25 @@
                 return;
             }
 
-            // إنشاء canvas لتحويل البطاقة إلى صورة
             html2canvas(card, {
                 backgroundColor: '#ffffff',
-                scale: 2, // جودة عالية
+                scale: 2,
                 useCORS: true,
                 allowTaint: true,
                 width: card.offsetWidth,
                 height: card.offsetHeight
             }).then(canvas => {
-                // تحويل إلى صورة وتحميلها
                 const link = document.createElement('a');
                 link.download = `membership-card-${document.getElementById('nameEn').textContent.replace(/\s+/g, '-')}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             }).catch(error => {
                 console.error('خطأ في تحميل البطاقة:', error);
-                // طريقة بديلة باستخدام SVG
-                downloadCardAsSVG();
+                alert('حدث خطأ أثناء تحميل البطاقة');
             });
         }
 
-        // دالة بديلة لتحميل البطاقة كـ SVG
-        function downloadCardAsSVG() {
-            const member = getCurrentMemberData();
-            if (!member) return;
-
-            const svg = `
-                <svg width="400" height="250" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="cardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#1e3a8a;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                    
-                    <!-- خلفية البطاقة -->
-                    <rect width="400" height="250" fill="url(#cardGradient)" rx="15"/>
-                    
-                    <!-- إطار داخلي -->
-                    <rect x="10" y="10" width="380" height="230" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1" rx="10"/>
-                    
-                    <!-- عنوان الجمعية -->
-                    <text x="200" y="35" text-anchor="middle" fill="white" font-size="16" font-weight="bold">Kuwait Association of Medical Laboratories</text>
-                    <text x="200" y="55" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-size="12">الجمعية الكويتية للمختبرات الطبية</text>
-                    
-                    <!-- خط فاصل -->
-                    <line x1="50" y1="75" x2="350" y2="75" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
-                    
-                    <!-- اسم العضو -->
-                    <text x="200" y="110" text-anchor="middle" fill="white" font-size="18" font-weight="bold">${member.firstNameEn} ${member.middleNameEn} ${member.lastNameEn}</text>
-                    <text x="200" y="130" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-size="14">${member.firstNameAr} ${member.middleNameAr} ${member.lastNameAr}</text>
-                    
-                    <!-- رقم العضوية -->
-                    <text x="200" y="160" text-anchor="middle" fill="white" font-size="14">Membership No: ${member.membershipNumber || 'M' + member.id}</text>
-                    
-                    <!-- تاريخ الانتهاء -->
-                    <text x="200" y="180" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="12">Valid Until: ${member.expiryDate ? new Date(member.expiryDate).toLocaleDateString('en-GB') : 'N/A'}</text>
-                    
-                    <!-- شعار الجمعية (دائرة بسيطة) -->
-                    <circle cx="60" cy="140" r="25" fill="rgba(255,255,255,0.2)" stroke="white" stroke-width="2"/>
-                    <text x="60" y="148" text-anchor="middle" fill="white" font-size="20" font-weight="bold">🏥</text>
-                    
-                    <!-- QR Code placeholder -->
-                    <rect x="320" y="115" width="50" height="50" fill="white" rx="5"/>
-                    <text x="345" y="135" text-anchor="middle" fill="#1e3a8a" font-size="8">QR</text>
-                    <text x="345" y="145" text-anchor="middle" fill="#1e3a8a" font-size="8">CODE</text>
-                    <text x="345" y="155" text-anchor="middle" fill="#1e3a8a" font-size="6">SCAN ME</text>
-                    
-                    <!-- حالة العضوية -->
-                    <text x="200" y="210" text-anchor="middle" fill="#10b981" font-size="12" font-weight="bold">✓ عضو معتمد - Approved Member</text>
-                </svg>
-            `;
-
-            const blob = new Blob([svg], { type: 'image/svg+xml' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.download = `membership-card-${member.firstNameEn.replace(/\s+/g, '-')}.svg`;
-            link.href = url;
-            link.click();
-            URL.revokeObjectURL(url);
-        }
-
-        // دالة للحصول على بيانات العضو الحالي
-        function getCurrentMemberData() {
-            const memberId = sessionStorage.getItem('currentMemberId');
-            const applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
-            return applications.find(app => app.id == memberId);
-        }
-        
-        // دالة طباعة البطاقة
+        // طباعة البطاقة
         function printCard() {
             const cardContent = document.querySelector('.professional-card').outerHTML;
             const printWindow = window.open('', '_blank');
@@ -1148,7 +1065,7 @@
                     <title>بطاقة العضوية</title>
                     <style>
                         body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
-                        .professional-card { max-width: 400px; margin: 0 auto; }
+                        .professional-card { max-width: 450px; margin: 0 auto; }
                     </style>
                 </head>
                 <body>
@@ -1160,6 +1077,49 @@
             printWindow.print();
         }
 
+        // وظائف مساعدة
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-GB');
+        }
+
+        function formatDateEnglish(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-GB');
+        }
+
+        function getMembershipTypeArabic(type) {
+            const types = {
+                'affiliated': 'عضو منتسب',
+                'non-affiliated': 'عضو غير منتسب',
+                'honorary': 'عضو فخري'
+            };
+            return types[type] || '-';
+        }
+
+        function getMembershipTypeEnglish(type) {
+            const types = {
+                'affiliated': 'Affiliated Member',
+                'non-affiliated': 'Non-Affiliated Member',
+                'honorary': 'Honorary Member'
+            };
+            return types[type] || 'Member';
+        }
+
+        function refreshData() {
+            loadMemberData();
+            alert('تم تحديث البيانات');
+        }
+
+        function logout() {
+            sessionStorage.removeItem('currentMemberId');
+            sessionStorage.removeItem('memberLoggedIn');
+            window.location.href = 'member-login.html';
+        }
+
+        // تحميل البيانات عند تحميل الصفحة
         document.addEventListener('DOMContentLoaded', loadMemberData);
     </script>
 </body>

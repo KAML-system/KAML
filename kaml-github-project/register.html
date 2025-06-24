@@ -19,13 +19,13 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
             min-height: 100vh;
             padding: 20px;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
@@ -34,7 +34,7 @@
         }
 
         .header {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
             color: white;
             padding: 30px;
             text-align: center;
@@ -72,7 +72,7 @@
         .section-title {
             font-size: 20px;
             font-weight: 600;
-            color: #28a745;
+            color: #1e3a8a;
             margin-bottom: 20px;
             padding-bottom: 10px;
             border-bottom: 2px solid #e9ecef;
@@ -104,165 +104,221 @@
             font-size: 14px;
         }
 
-        .required {
-            color: #dc3545;
-        }
-
         .form-group input,
         .form-group select,
         .form-group textarea {
             width: 100%;
             padding: 12px 15px;
             border: 2px solid #e9ecef;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 14px;
             transition: all 0.3s ease;
             background: #f8f9fa;
         }
 
-        .form-group input[type="file"] {
-            padding: 8px 12px;
-            background: #f8f9fa;
-            border: 2px dashed #e9ecef;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .form-group input[type="file"]:hover {
-            border-color: #28a745;
-            background: #f0fff4;
-        }
-
-        .form-group input[type="file"]:focus {
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
             outline: none;
-            border-color: #28a745;
+            border-color: #3b82f6;
             background: white;
-            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
-        .name-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 15px;
-        }
-
-        .phone-input {
+        /* تنسيق خاص للقوائم المنسدلة القابلة للكتابة */
+        .editable-select-container {
             position: relative;
         }
 
-        .phone-prefix {
+        .editable-select {
+            position: relative;
+        }
+
+        .editable-select input {
+            padding-right: 40px;
+        }
+
+        .editable-select::after {
+            content: '▼';
             position: absolute;
-            left: 15px;
+            right: 15px;
             top: 50%;
             transform: translateY(-50%);
-            background: #28a745;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
+            color: #6b7280;
+            pointer-events: none;
         }
 
-        .phone-input input {
-            padding-left: 80px;
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            width: auto;
-            margin-top: 4px;
-        }
-
-        .checkbox-group label {
-            margin-bottom: 0;
-            font-weight: 400;
-            line-height: 1.5;
-        }
-
-        .submit-button {
-            width: 100%;
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-        }
-
-        .submit-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-        }
-
-        .submit-button:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .back-link {
-            text-align: center;
-            margin-top: 25px;
-            padding-top: 25px;
-            border-top: 1px solid #e9ecef;
-        }
-
-        .back-link a {
-            color: #28a745;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-
-        .back-link a:hover {
-            color: #1e7e34;
-            text-decoration: underline;
-        }
-
-        .success-message {
-            background: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+        .dropdown-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
             display: none;
+        }
+
+        .dropdown-option {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-option:hover {
+            background-color: #f8f9fa;
+        }
+
+        .dropdown-option.selected {
+            background-color: #3b82f6;
+            color: white;
         }
 
         .error-message {
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
             display: none;
         }
 
-        .loading-spinner {
+        .success-message {
+            color: #28a745;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .file-upload {
+            border: 2px dashed #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #f8f9fa;
+        }
+
+        .file-upload:hover {
+            border-color: #3b82f6;
+            background: #f0f9ff;
+        }
+
+        .file-upload.dragover {
+            border-color: #3b82f6;
+            background: #f0f9ff;
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-text {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .file-list {
+            margin-top: 15px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .file-item-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-item-name {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .file-item-size {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .remove-file {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .back-btn {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 15px;
+        }
+
+        .back-btn:hover {
+            background: #4b5563;
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        .loading {
             display: none;
             text-align: center;
             padding: 20px;
         }
 
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #28a745;
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3b82f6;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 30px;
+            height: 30px;
             animation: spin 1s linear infinite;
             margin: 0 auto 10px;
         }
@@ -272,28 +328,89 @@
             100% { transform: rotate(360deg); }
         }
 
+        .password-strength {
+            margin-top: 5px;
+            font-size: 12px;
+        }
+
+        .strength-weak { color: #dc3545; }
+        .strength-medium { color: #ffc107; }
+        .strength-strong { color: #28a745; }
+
         @media (max-width: 768px) {
             .form-grid {
                 grid-template-columns: 1fr;
-                gap: 15px;
             }
-
-            .name-group {
-                grid-template-columns: 1fr;
-                gap: 15px;
+            
+            .container {
+                margin: 10px;
+                border-radius: 15px;
             }
-
+            
             .form-container {
-                padding: 30px 20px;
+                padding: 20px;
             }
+        }
 
-            .header {
-                padding: 25px 20px;
-            }
+        /* تنسيق النافذة المنبثقة */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
 
-            .header h1 {
-                font-size: 20px;
-            }
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 15px;
+        }
+
+        .modal-message {
+            font-size: 16px;
+            color: #6b7280;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .modal-highlight {
+            background: #f0f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .modal-btn {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -301,321 +418,109 @@
     <div class="container">
         <div class="header">
             <div class="logo-container">
-                <img src="logo.jpeg" alt="شعار الجمعية الكويتية للمختبرات الطبية">
+                <img src="logo.jpeg" alt="شعار الجمعية" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzAiIGhlaWdodD0iNzAiIHZpZXdCb3g9IjAgMCA3MCA3MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjcwIiBoZWlnaHQ9IjcwIiBmaWxsPSIjMUUzQThBIiByeD0iMzUiLz4KPHN2ZyB4PSIxNSIgeT0iMTUiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+CjxwYXRoIGQ9Ik0xOS40MyA5LjU2Yy0uNTMtLjUzLTEuMjUtLjgzLTItLjgzSDYuNTdjLS43NSAwLTEuNDcuMy0yIC44M3MtLjgzIDEuMjUtLjgzIDJWMTljMCAuNzUuMyAxLjQ3LjgzIDJzMS4yNS44MyAyIC44M2gxMC44NmMuNzUgMCAxLjQ3LS4zIDItLjgzcy44My0xLjI1LjgzLTJWMTEuNTZjMC0uNzUtLjMtMS40Ny0uODMtMnoiLz4KPC9zdmc+Cjwvc3ZnPgo='">
             </div>
-            <h1>تسجيل عضوية جديدة</h1>
-            <h2>الجمعية الكويتية للمختبرات الطبية</h2>
+            <h1>الجمعية الكويتية للمختبرات الطبية</h1>
+            <h2>تسجيل عضوية جديدة</h2>
         </div>
 
         <div class="form-container">
-            <div class="success-message" id="successMessage">
-                ✅ تم إرسال طلب العضوية بنجاح! سيتم مراجعته من قبل الإدارة وإشعارك بالنتيجة.
-            </div>
-
-            <div class="error-message" id="errorMessage">
-                ❌ يرجى التأكد من ملء جميع الحقول المطلوبة بشكل صحيح.
-            </div>
-
-            <div class="loading-spinner" id="loadingSpinner">
-                <div class="spinner"></div>
-                <p>جاري حفظ البيانات...</p>
-            </div>
-
-            <form id="membershipForm">
+            <form id="registrationForm">
                 <!-- البيانات الشخصية -->
                 <div class="section-title">
                     👤 البيانات الشخصية
                 </div>
-
-                <!-- الاسم الثلاثي بالعربية -->
-                <div class="form-group full-width">
-                    <label>الاسم الثلاثي (بالعربية) <span class="required">*</span></label>
-                    <div class="name-group">
-                        <input type="text" id="first_name_ar" name="first_name_ar" placeholder="الاسم الأول" required>
-                        <input type="text" id="middle_name_ar" name="middle_name_ar" placeholder="اسم الأب" required>
-                        <input type="text" id="last_name_ar" name="last_name_ar" placeholder="اسم العائلة" required>
-                    </div>
-                </div>
-
-                <!-- الاسم الثلاثي بالإنجليزية -->
-                <div class="form-group full-width">
-                    <label>الاسم الثلاثي (بالإنجليزية) <span class="required">*</span></label>
-                    <div class="name-group">
-                        <input type="text" id="first_name_en" name="first_name_en" placeholder="First Name" required>
-                        <input type="text" id="middle_name_en" name="middle_name_en" placeholder="Father Name" required>
-                        <input type="text" id="last_name_en" name="last_name_en" placeholder="Last Name" required>
-                    </div>
-                </div>
-
+                
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="nationality">الجنسية <span class="required">*</span></label>
-                        <select id="nationality" name="nationality" required>
-                            <option value="">اختر الجنسية</option>
-                            <option value="كويتي">كويتي</option>
-                            <option value="سعودي">سعودي</option>
-                            <option value="إماراتي">إماراتي</option>
-                            <option value="قطري">قطري</option>
-                            <option value="بحريني">بحريني</option>
-                            <option value="عماني">عماني</option>
-                            <option value="مصري">مصري</option>
-                            <option value="أردني">أردني</option>
-                            <option value="لبناني">لبناني</option>
-                            <option value="سوري">سوري</option>
-                            <option value="فلسطيني">فلسطيني</option>
-                            <option value="عراقي">عراقي</option>
-                            <option value="يمني">يمني</option>
-                            <option value="سوداني">سوداني</option>
-                            <option value="مغربي">مغربي</option>
-                            <option value="تونسي">تونسي</option>
-                            <option value="جزائري">جزائري</option>
-                            <option value="ليبي">ليبي</option>
-                            <option value="أخرى">أخرى</option>
-                        </select>
+                        <label for="firstNameAr">الاسم الأول (عربي) <span class="required">*</span></label>
+                        <input type="text" id="firstNameAr" name="firstNameAr" required>
                     </div>
-
+                    
                     <div class="form-group">
-                        <label for="civil_id">الرقم المدني <span class="required">*</span></label>
-                        <input type="text" id="civil_id" name="civil_id" placeholder="أدخل الرقم المدني (12 رقم)" maxlength="12" pattern="[0-9]{12}" required>
+                        <label for="firstNameEn">الاسم الأول (إنجليزي) <span class="required">*</span></label>
+                        <input type="text" id="firstNameEn" name="firstNameEn" required>
                     </div>
-
+                    
                     <div class="form-group">
-                        <label for="birth_date">تاريخ الميلاد <span class="required">*</span></label>
-                        <input type="date" id="birth_date" name="birth_date" required>
+                        <label for="middleNameAr">الاسم الأوسط (عربي) <span class="required">*</span></label>
+                        <input type="text" id="middleNameAr" name="middleNameAr" required>
                     </div>
-
+                    
                     <div class="form-group">
-                        <label for="gender">الجنس <span class="required">*</span></label>
-                        <select id="gender" name="gender" required>
-                            <option value="">اختر الجنس</option>
-                            <option value="ذكر">ذكر</option>
-                            <option value="أنثى">أنثى</option>
-                        </select>
+                        <label for="middleNameEn">الاسم الأوسط (إنجليزي) <span class="required">*</span></label>
+                        <input type="text" id="middleNameEn" name="middleNameEn" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lastNameAr">اسم العائلة (عربي) <span class="required">*</span></label>
+                        <input type="text" id="lastNameAr" name="lastNameAr" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lastNameEn">اسم العائلة (إنجليزي) <span class="required">*</span></label>
+                        <input type="text" id="lastNameEn" name="lastNameEn" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="civilId">الرقم المدني <span class="required">*</span></label>
+                        <input type="text" id="civilId" name="civilId" required maxlength="12" pattern="[0-9]{12}">
+                        <div class="error-message" id="civilIdError">الرقم المدني مسجل مسبقاً</div>
+                        <div class="success-message" id="civilIdSuccess">الرقم المدني متاح</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">رقم الهاتف <span class="required">*</span></label>
+                        <input type="tel" id="phone" name="phone" required>
                     </div>
                 </div>
 
-                <!-- معلومات الاتصال -->
+                <!-- معلومات الاتصال والعنوان -->
                 <div class="section-title">
-                    📞 معلومات الاتصال
+                    📧 معلومات الاتصال والعنوان
                 </div>
-
+                
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="email">البريد الإلكتروني <span class="required">*</span></label>
-                        <input type="email" id="email" name="email" placeholder="example@email.com" required>
-                        <div id="emailValidation" style="margin-top: 5px; font-size: 12px; display: none;"></div>
+                        <input type="email" id="email" name="email" required>
                     </div>
-
+                    
                     <div class="form-group">
-                        <label for="phone">رقم الهاتف <span class="required">*</span></label>
-                        <div class="phone-input">
-                            <span class="phone-prefix">+965</span>
-                            <input type="tel" id="phone" name="phone" placeholder="12345678" maxlength="8" pattern="[0-9]{8}" required>
+                        <label for="area">المنطقة <span class="required">*</span></label>
+                        <div class="editable-select-container">
+                            <div class="editable-select">
+                                <input type="text" id="area" name="area" required placeholder="اختر أو اكتب المنطقة">
+                                <div class="dropdown-options" id="areaOptions"></div>
+                            </div>
                         </div>
                     </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="address">العنوان التفصيلي <span class="required">*</span></label>
+                        <textarea id="address" name="address" rows="3" required placeholder="العنوان الكامل بالتفصيل"></textarea>
+                    </div>
                 </div>
 
-                <div class="form-group full-width">
-                    <label for="address">المنطقة <span class="required">*</span></label>
-                    <select id="address" name="address" required>
-                        <option value="">اختر المنطقة</option>
-                        <option value="العاصمة">العاصمة</option>
-                        <option value="حولي">حولي</option>
-                        <option value="الفروانية">الفروانية</option>
-                        <option value="مبارك الكبير">مبارك الكبير</option>
-                        <option value="الأحمدي">الأحمدي</option>
-                        <option value="الجهراء">الجهراء</option>
-                        <option value="الكويت">الكويت</option>
-                        <option value="السالمية">السالمية</option>
-                        <option value="الجابرية">الجابرية</option>
-                        <option value="بيان">بيان</option>
-                        <option value="المنقف">المنقف</option>
-                        <option value="الفنطاس">الفنطاس</option>
-                        <option value="المهبولة">المهبولة</option>
-                        <option value="الفحيحيل">الفحيحيل</option>
-                        <option value="صباح الأحمد">صباح الأحمد</option>
-                        <option value="جابر الأحمد">جابر الأحمد</option>
-                        <option value="صباح الناصر">صباح الناصر</option>
-                        <option value="الصليبيخات">الصليبيخات</option>
-                        <option value="الدوحة">الدوحة</option>
-                        <option value="الرقة">الرقة</option>
-                        <option value="كيفان">كيفان</option>
-                        <option value="الشامية">الشامية</option>
-                        <option value="الشويخ">الشويخ</option>
-                        <option value="الدعية">الدعية</option>
-                        <option value="النزهة">النزهة</option>
-                        <option value="اليرموك">اليرموك</option>
-                        <option value="القادسية">القادسية</option>
-                        <option value="كيفان">كيفان</option>
-                        <option value="الخالدية">الخالدية</option>
-                        <option value="الروضة">الروضة</option>
-                        <option value="العديلية">العديلية</option>
-                        <option value="قرطبة">قرطبة</option>
-                        <option value="الزهراء">الزهراء</option>
-                        <option value="الفيحاء">الفيحاء</option>
-                        <option value="الرميثية">الرميثية</option>
-                        <option value="بنيد القار">بنيد القار</option>
-                        <option value="مشرف">مشرف</option>
-                        <option value="الشعب">الشعب</option>
-                        <option value="الدسمة">الدسمة</option>
-                        <option value="دسمان">دسمان</option>
-                        <option value="الصوابر">الصوابر</option>
-                        <option value="أخرى">أخرى</option>
-                    </select>
-                </div>
-
-                <!-- المؤهلات المهنية -->
+                <!-- المعلومات المهنية -->
                 <div class="section-title">
-                    🎓 المؤهلات المهنية
+                    💼 المعلومات المهنية
                 </div>
-
+                
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="qualification">المؤهل العلمي <span class="required">*</span></label>
-                        <select id="qualification" name="qualification" required>
-                            <option value="">اختر المؤهل العلمي</option>
-                            <option value="دبلوم">دبلوم</option>
-                            <option value="بكالوريوس">بكالوريوس</option>
-                            <option value="ماجستير">ماجستير</option>
-                            <option value="دكتوراه">دكتوراه</option>
-                            <option value="أخرى">أخرى</option>
-                        </select>
+                        <label for="jobTitle">المسمى الوظيفي <span class="required">*</span></label>
+                        <input type="text" id="jobTitle" name="jobTitle" required>
                     </div>
-
-                    <div class="form-group">
-                        <label for="specialization">التخصص <span class="required">*</span></label>
-                        <input list="specialization_list" id="specialization" name="specialization" placeholder="أدخل التخصص أو اختر من القائمة" required>
-                        <datalist id="specialization_list">
-                            <option value="تقنية المختبرات الطبية">
-                            <option value="علوم المختبرات الإكلينيكية">
-                            <option value="الأحياء الدقيقة الطبية">
-                            <option value="الكيمياء الحيوية الطبية">
-                            <option value="أمراض الدم">
-                            <option value="علم الأنسجة">
-                            <option value="علم الخلايا">
-                            <option value="المناعة الطبية">
-                            <option value="الطفيليات الطبية">
-                            <option value="الوراثة الطبية">
-                            <option value="الطب النووي">
-                            <option value="علم الأمراض">
-                            <option value="الفيروسات الطبية">
-                            <option value="البكتيريا الطبية">
-                            <option value="الفطريات الطبية">
-                            <option value="التحاليل الكيميائية">
-                            <option value="التحاليل الهرمونية">
-                            <option value="تحاليل الأدوية">
-                            <option value="تحاليل السموم">
-                            <option value="الطب الشرعي">
-                        </datalist>
-                    </div>
-
+                    
                     <div class="form-group">
                         <label for="workplace">جهة العمل <span class="required">*</span></label>
-                        <select id="workplace" name="workplace" required>
-                            <option value="">اختر جهة العمل</option>
-                            <option value="وزارة الصحة">وزارة الصحة</option>
-                            <option value="وزارة الدفاع">وزارة الدفاع</option>
-                            <option value="وزارة الداخلية">وزارة الداخلية</option>
-                            <option value="وزارة التربية">وزارة التربية</option>
-                            <option value="وزارة التعليم العالي">وزارة التعليم العالي</option>
-                            <option value="مؤسسة البترول الكويتية">مؤسسة البترول الكويتية</option>
-                            <option value="الهيئة العامة للتعليم التطبيقي">الهيئة العامة للتعليم التطبيقي</option>
-                            <option value="جامعة الكويت">جامعة الكويت</option>
-                            <option value="مستشفى الأميري">مستشفى الأميري</option>
-                            <option value="مستشفى مبارك الكبير">مستشفى مبارك الكبير</option>
-                            <option value="مستشفى الفروانية">مستشفى الفروانية</option>
-                            <option value="مستشفى الجهراء">مستشفى الجهراء</option>
-                            <option value="مستشفى الأحمدي">مستشفى الأحمدي</option>
-                            <option value="مستشفى الصباح">مستشفى الصباح</option>
-                            <option value="مستشفى دسمان للسكري">مستشفى دسمان للسكري</option>
-                            <option value="معهد الكويت للأبحاث العلمية">معهد الكويت للأبحاث العلمية</option>
-                            <option value="القطاع الخاص">القطاع الخاص</option>
-                            <option value="أخرى">أخرى</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="job_title">المسمى الوظيفي <span class="required">*</span></label>
-                        <input list="job_title_list" id="job_title" name="job_title" placeholder="أدخل المسمى الوظيفي أو اختر من القائمة" required>
-                        <datalist id="job_title_list">
-                            <!-- فنيو المختبرات -->
-                            <option value="فني مختبر">
-                            <option value="فني مختبر أول">
-                            <option value="فني مختبر رئيسي">
-                            <option value="فني مختبر متخصص">
-                            <option value="فني مختبر خبير">
-                            
-                            <!-- أخصائيو المختبرات -->
-                            <option value="أخصائي مختبرات">
-                            <option value="أخصائي مختبرات أول">
-                            <option value="أخصائي مختبرات رئيسي">
-                            <option value="أخصائي مختبرات استشاري">
-                            <option value="أخصائي أحياء دقيقة">
-                            <option value="أخصائي كيمياء حيوية">
-                            <option value="أخصائي أمراض دم">
-                            <option value="أخصائي أنسجة">
-                            <option value="أخصائي خلايا">
-                            <option value="أخصائي مناعة">
-                            <option value="أخصائي طفيليات">
-                            <option value="أخصائي وراثة طبية">
-                            <option value="أخصائي طب نووي">
-                            
-                            <!-- فاصدو الدم -->
-                            <option value="فاصد دم">
-                            <option value="فاصد دم أول">
-                            <option value="فاصد دم رئيسي">
-                            <option value="فاصد دم متخصص">
-                            <option value="فاصد دم خبير">
-                            <option value="مشرف فاصدي دم">
-                            
-                            <!-- الإدارة والإشراف -->
-                            <option value="مشرف مختبر">
-                            <option value="رئيس قسم مختبرات">
-                            <option value="مدير مختبر">
-                            <option value="مدير إدارة مختبرات">
-                            <option value="مساعد مدير مختبرات">
-                            <option value="منسق مختبرات">
-                            <option value="مراقب جودة مختبرات">
-                            
-                            <!-- الاستشاريون والأطباء -->
-                            <option value="استشاري مختبرات">
-                            <option value="استشاري أمراض دم">
-                            <option value="استشاري أحياء دقيقة">
-                            <option value="استشاري كيمياء حيوية">
-                            <option value="استشاري علم الأمراض">
-                            <option value="طبيب مختبرات">
-                            <option value="طبيب أمراض دم">
-                            
-                            <!-- الأكاديميون والباحثون -->
-                            <option value="باحث">
-                            <option value="باحث أول">
-                            <option value="باحث رئيسي">
-                            <option value="مدرس">
-                            <option value="أستاذ مساعد">
-                            <option value="أستاذ مشارك">
-                            <option value="أستاذ">
-                            <option value="محاضر">
-                            <option value="معيد">
-                            
-                            <!-- فئات أخرى -->
-                            <option value="طالب دراسات عليا">
-                            <option value="طالب بكالوريوس">
-                            <option value="متدرب">
-                            <option value="متقاعد">
-                            <option value="عاطل عن العمل">
-                        </datalist>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="experience_years">سنوات الخبرة <span class="required">*</span></label>
-                        <select id="experience_years" name="experience_years" required>
-                            <option value="">اختر سنوات الخبرة</option>
-                            <option value="أقل من سنة">أقل من سنة</option>
-                            <option value="1-3 سنوات">1-3 سنوات</option>
-                            <option value="3-5 سنوات">3-5 سنوات</option>
-                            <option value="5-10 سنوات">5-10 سنوات</option>
-                            <option value="أكثر من 10 سنوات">أكثر من 10 سنوات</option>
-                        </select>
+                        <div class="editable-select-container">
+                            <div class="editable-select">
+                                <input type="text" id="workplace" name="workplace" required placeholder="اختر أو اكتب جهة العمل">
+                                <div class="dropdown-options" id="workplaceOptions"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -623,16 +528,26 @@
                 <div class="section-title">
                     🔐 بيانات الدخول
                 </div>
-
+                
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="username">اسم المستخدم <span class="required">*</span></label>
-                        <input type="text" id="username" name="username" placeholder="أدخل اسم المستخدم" required>
+                        <input type="text" id="username" name="username" required minlength="4">
+                        <div class="error-message" id="usernameError">اسم المستخدم مستخدم مسبقاً</div>
+                        <div class="success-message" id="usernameSuccess">اسم المستخدم متاح</div>
                     </div>
-
+                    
                     <div class="form-group">
                         <label for="password">كلمة المرور <span class="required">*</span></label>
-                        <input type="password" id="password" name="password" placeholder="أدخل كلمة المرور" required>
+                        <input type="password" id="password" name="password" required minlength="6">
+                        <div class="password-strength" id="passwordStrength"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmPassword">تأكيد كلمة المرور <span class="required">*</span></label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required minlength="6">
+                        <div class="error-message" id="passwordError">كلمات المرور غير متطابقة</div>
+                        <div class="success-message" id="passwordSuccess">كلمات المرور متطابقة</div>
                     </div>
                 </div>
 
@@ -640,364 +555,440 @@
                 <div class="section-title">
                     📎 المرفقات المطلوبة
                 </div>
-
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="civil_id_front_file">صورة البطاقة المدنية (الوجه الأمامي) <span class="required">*</span></label>
-                        <input type="file" id="civil_id_front_file" name="civil_id_front_file" accept="image/*,.pdf" required>
-                        <small style="color: #6b7280; font-size: 12px;">يُقبل: JPG, PNG, PDF (حد أقصى 5 ميجابايت)</small>
+                
+                <div class="form-group full-width">
+                    <label>الصورة الشخصية <span class="required">*</span></label>
+                    <div class="file-upload" onclick="document.getElementById('personalPhoto').click()">
+                        <input type="file" id="personalPhoto" accept="image/*" required>
+                        <div class="file-upload-text">
+                            📷 انقر لرفع الصورة الشخصية<br>
+                            <small>الحد الأقصى: 5 ميجابايت - الصيغ المدعومة: JPG, PNG</small>
+                        </div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="civil_id_back_file">صورة البطاقة المدنية (الوجه الخلفي) <span class="required">*</span></label>
-                        <input type="file" id="civil_id_back_file" name="civil_id_back_file" accept="image/*,.pdf" required>
-                        <small style="color: #6b7280; font-size: 12px;">يُقبل: JPG, PNG, PDF (حد أقصى 5 ميجابايت)</small>
+                    <div class="file-list" id="personalPhotoList"></div>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label>صورة الرقم المدني <span class="required">*</span></label>
+                    <div class="file-upload" onclick="document.getElementById('civilIdPhoto').click()">
+                        <input type="file" id="civilIdPhoto" accept="image/*" required>
+                        <div class="file-upload-text">
+                            🆔 انقر لرفع صورة الرقم المدني<br>
+                            <small>الحد الأقصى: 5 ميجابايت - الصيغ المدعومة: JPG, PNG</small>
+                        </div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="qualification_file">صورة المؤهل العلمي <span class="required">*</span></label>
-                        <input type="file" id="qualification_file" name="qualification_file" accept="image/*,.pdf" required>
-                        <small style="color: #6b7280; font-size: 12px;">يُقبل: JPG, PNG, PDF (حد أقصى 5 ميجابايت)</small>
+                    <div class="file-list" id="civilIdPhotoList"></div>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label>الشهادات والمؤهلات</label>
+                    <div class="file-upload" onclick="document.getElementById('certificates').click()">
+                        <input type="file" id="certificates" accept=".pdf,.jpg,.jpeg,.png" multiple>
+                        <div class="file-upload-text">
+                            🎓 انقر لرفع الشهادات والمؤهلات<br>
+                            <small>الحد الأقصى: 10 ميجابايت لكل ملف - الصيغ المدعومة: PDF, JPG, PNG</small>
+                        </div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="photo_file">الصورة الشخصية <span class="required">*</span></label>
-                        <input type="file" id="photo_file" name="photo_file" accept="image/*" required>
-                        <small style="color: #6b7280; font-size: 12px;">يُقبل: JPG, PNG (حد أقصى 3 ميجابايت)</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="criminal_record_file">الصحيفة الجنائية <span class="required">*</span></label>
-                        <input type="file" id="criminal_record_file" name="criminal_record_file" accept="image/*,.pdf" required>
-                        <small style="color: #6b7280; font-size: 12px;">يُقبل: JPG, PNG, PDF (حد أقصى 5 ميجابايت)</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="license_file">صورة ترخيص مزاولة المهنة <span class="required">*</span></label>
-                        <input type="file" id="license_file" name="license_file" accept="image/*,.pdf" required>
-                        <small style="color: #6b7280; font-size: 12px;">يُقبل: JPG, PNG, PDF (حد أقصى 5 ميجابايت)</small>
-                    </div>
+                    <div class="file-list" id="certificatesList"></div>
                 </div>
 
-                <!-- الموافقات -->
-                <div class="section-title">
-                    ✅ إقرار صحة البيانات
+                <!-- أزرار التحكم -->
+                <div style="text-align: center; margin-top: 40px;">
+                    <button type="button" class="back-btn" onclick="window.location.href='index.html'">
+                        العودة للرئيسية
+                    </button>
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        تسجيل العضوية
+                    </button>
                 </div>
-
-                <div class="checkbox-group">
-                    <input type="checkbox" id="info_accuracy" name="info_accuracy" required>
-                    <label for="info_accuracy">
-                        أقر بصحة البيانات المرسلة <span class="required">*</span>
-                    </label>
+                
+                <div class="loading" id="loadingDiv">
+                    <div class="loading-spinner"></div>
+                    <p>جاري تسجيل البيانات...</p>
                 </div>
-
-                <button type="submit" class="submit-button" id="submitButton">
-                    📝 تسجيل العضوية
-                </button>
             </form>
+        </div>
+    </div>
 
-            <div class="back-link">
-                <a href="index.html">🔙 العودة للصفحة الرئيسية</a>
+    <!-- النافذة المنبثقة للتأكيد -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-icon">✅</div>
+            <div class="modal-title">تم التسجيل بنجاح!</div>
+            <div class="modal-message">
+                تم إرسال طلب العضوية بنجاح. ستتم مراجعة طلبك من قبل الإدارة وسيتم إشعارك بالنتيجة.
             </div>
+            <div class="modal-highlight">
+                <strong>مهم جداً:</strong><br>
+                احفظ بيانات الدخول الخاصة بك:<br>
+                <strong>اسم المستخدم:</strong> <span id="savedUsername"></span><br>
+                <strong>كلمة المرور:</strong> التي قمت بإدخالها
+            </div>
+            <button class="modal-btn" onclick="closeModal()">فهمت</button>
         </div>
     </div>
 
     <script>
         // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyBKvr6ZI_M_s_hk3Ch2ivWBuY5jSI9QxDo",
+            apiKey: "AIzaSyBL5Ej4VvdJJDl_8vG5KqF8eJ9X8yF4Abc",
             authDomain: "kaml-membership-system.firebaseapp.com",
             projectId: "kaml-membership-system",
-            storageBucket: "kaml-membership-system.firebasestorage.app",
-            messagingSenderId: "1083658943439",
-            appId: "1:1083658943439:web:f6a17e3bbdb6cd8feab0ba",
-            measurementId: "G-ZZSZF3X7WC"
+            storageBucket: "kaml-membership-system.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdef123456789"
         };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Firebase Data Manager
-        class FirebaseDataManager {
-            constructor() {
-                this.isOnline = navigator.onLine;
-                this.setupConnectionListener();
-            }
+        // بيانات المناطق الكويتية
+        const kuwaitAreas = [
+            'الأحمدي', 'الجهراء', 'حولي', 'مبارك الكبير', 'الفروانية', 'العاصمة',
+            'السالمية', 'الفحيحيل', 'المنقف', 'الرقة', 'الفنطاس', 'أبو حليفة',
+            'الصباحية', 'الخيران', 'الوفرة', 'النعيم', 'الضجيج', 'الزور',
+            'كيفان', 'الشامية', 'الدعية', 'بيان', 'الجابرية', 'السرة',
+            'الرميثية', 'الشهداء', 'الزهراء', 'الفيحاء', 'الخالدية', 'الدوحة',
+            'الدسمة', 'الصوابر', 'العديلية', 'القادسية', 'قرطبة', 'اليرموك',
+            'غرناطة', 'الفردوس', 'جليب الشيوخ', 'الرابية', 'الأندلس', 'الخيطان',
+            'الرحاب', 'العمرية', 'إشبيلية', 'الضاحية', 'الصليبيخات', 'الدوحة',
+            'الشويخ', 'القبلة', 'المرقاب', 'دسمان', 'بنيد القار', 'الصفاة'
+        ];
 
-            setupConnectionListener() {
-                window.addEventListener('online', () => {
-                    this.isOnline = true;
-                    console.log('Connection restored');
+        // بيانات جهات العمل
+        const workplaces = [
+            'وزارة الصحة', 'وزارة التربية', 'وزارة الداخلية', 'وزارة الدفاع',
+            'وزارة المالية', 'وزارة العدل', 'وزارة الأشغال العامة', 'وزارة الكهرباء والماء',
+            'وزارة النفط', 'وزارة التجارة والصناعة', 'وزارة المواصلات', 'وزارة الإعلام',
+            'وزارة التعليم العالي', 'وزارة الأوقاف والشؤون الإسلامية', 'وزارة الشؤون الاجتماعية',
+            'مستشفى مبارك الكبير', 'مستشفى الأمير', 'مستشفى الجهراء', 'مستشفى الفروانية',
+            'مستشفى الأحمدي', 'مستشفى الصباح', 'مستشفى الرازي', 'مستشفى ابن سينا',
+            'جامعة الكويت', 'الهيئة العامة للتعليم التطبيقي والتدريب', 'معهد الكويت للأبحاث العلمية',
+            'شركة نفط الكويت', 'مؤسسة البترول الكويتية', 'بنك الكويت الوطني',
+            'بنك الخليج', 'بنك برقان', 'بيت التمويل الكويتي', 'القطاع الخاص'
+        ];
+
+        // إعداد القوائم المنسدلة القابلة للكتابة
+        function setupEditableSelect(inputId, optionsId, dataArray) {
+            const input = document.getElementById(inputId);
+            const optionsDiv = document.getElementById(optionsId);
+            
+            input.addEventListener('focus', () => {
+                showOptions(optionsDiv, dataArray, input);
+            });
+            
+            input.addEventListener('input', () => {
+                const value = input.value.toLowerCase();
+                const filtered = dataArray.filter(item => 
+                    item.toLowerCase().includes(value)
+                );
+                showOptions(optionsDiv, filtered, input);
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!input.contains(e.target) && !optionsDiv.contains(e.target)) {
+                    optionsDiv.style.display = 'none';
+                }
+            });
+        }
+
+        function showOptions(optionsDiv, dataArray, input) {
+            optionsDiv.innerHTML = '';
+            dataArray.forEach(item => {
+                const option = document.createElement('div');
+                option.className = 'dropdown-option';
+                option.textContent = item;
+                option.addEventListener('click', () => {
+                    input.value = item;
+                    optionsDiv.style.display = 'none';
                 });
+                optionsDiv.appendChild(option);
+            });
+            optionsDiv.style.display = dataArray.length > 0 ? 'block' : 'none';
+        }
+
+        // التحقق من تكرار الرقم المدني
+        async function checkCivilIdExists(civilId) {
+            try {
+                const snapshot = await db.collection('membershipApplications')
+                    .where('civilId', '==', civilId)
+                    .get();
+                return !snapshot.empty;
+            } catch (error) {
+                console.error('خطأ في التحقق من الرقم المدني:', error);
+                return false;
+            }
+        }
+
+        // التحقق من تكرار اسم المستخدم
+        async function checkUsernameExists(username) {
+            try {
+                const snapshot = await db.collection('membershipApplications')
+                    .where('username', '==', username)
+                    .get();
+                return !snapshot.empty;
+            } catch (error) {
+                console.error('خطأ في التحقق من اسم المستخدم:', error);
+                return false;
+            }
+        }
+
+        // التحقق من قوة كلمة المرور
+        function checkPasswordStrength(password) {
+            const strengthDiv = document.getElementById('passwordStrength');
+            let strength = 0;
+            let message = '';
+            
+            if (password.length >= 8) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            
+            if (strength < 2) {
+                message = 'ضعيفة';
+                strengthDiv.className = 'password-strength strength-weak';
+            } else if (strength < 4) {
+                message = 'متوسطة';
+                strengthDiv.className = 'password-strength strength-medium';
+            } else {
+                message = 'قوية';
+                strengthDiv.className = 'password-strength strength-strong';
+            }
+            
+            strengthDiv.textContent = `قوة كلمة المرور: ${message}`;
+        }
+
+        // معالجة رفع الملفات
+        function handleFileUpload(inputId, listId, maxSize = 5 * 1024 * 1024) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+            
+            input.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files);
+                list.innerHTML = '';
                 
-                window.addEventListener('offline', () => {
-                    this.isOnline = false;
-                    console.log('Connection lost');
-                });
-            }
-
-            async saveData(collection, data) {
-                try {
-                    console.log('Saving data to Firebase:', collection, data);
-                    
-                    if (this.isOnline) {
-                        // Save to Firebase
-                        const docRef = await db.collection(collection).add(data);
-                        console.log('Data saved to Firebase with ID:', docRef.id);
-                        
-                        // Update data with Firebase ID
-                        data.firebaseId = docRef.id;
+                files.forEach((file, index) => {
+                    if (file.size > maxSize) {
+                        alert(`الملف ${file.name} كبير جداً. الحد الأقصى ${maxSize / (1024 * 1024)} ميجابايت`);
+                        return;
                     }
                     
-                    // Always save to localStorage as backup
-                    const localData = JSON.parse(localStorage.getItem(collection) || '[]');
-                    localData.push(data);
-                    localStorage.setItem(collection, JSON.stringify(localData));
-                    console.log('Data saved to localStorage');
-                    
-                    return true;
-                } catch (error) {
-                    console.error('Error saving to Firebase:', error);
-                    
-                    // Fallback to localStorage only
-                    const localData = JSON.parse(localStorage.getItem(collection) || '[]');
-                    localData.push(data);
-                    localStorage.setItem(collection, JSON.stringify(localData));
-                    console.log('Data saved to localStorage (fallback)');
-                    
-                    return false;
-                }
-            }
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    fileItem.innerHTML = `
+                        <div class="file-item-info">
+                            <span class="file-item-name">📄 ${file.name}</span>
+                            <span class="file-item-size">(${(file.size / 1024).toFixed(1)} KB)</span>
+                        </div>
+                        <button type="button" class="remove-file" onclick="removeFile('${inputId}', ${index})">×</button>
+                    `;
+                    list.appendChild(fileItem);
+                });
+            });
         }
 
-        // Initialize Firebase Data Manager
-        const firebaseManager = new FirebaseDataManager();
-
-        // التحقق من البريد الإلكتروني
-        function validateEmail(email) {
-            const registeredEmails = JSON.parse(localStorage.getItem('registeredEmails') || '[]');
-            return !registeredEmails.includes(email.toLowerCase());
-        }
-
-        // التحقق من البريد الإلكتروني أثناء الكتابة
-        document.getElementById('email').addEventListener('input', function(e) {
-            const email = e.target.value.toLowerCase();
-            const validation = document.getElementById('emailValidation');
+        function removeFile(inputId, index) {
+            const input = document.getElementById(inputId);
+            const dt = new DataTransfer();
+            const files = Array.from(input.files);
             
-            if (email && !validateEmail(email)) {
-                validation.style.display = 'block';
-                validation.style.color = '#dc3545';
-                validation.innerHTML = '❌ هذا البريد الإلكتروني مسجل مسبقاً';
-            } else if (email) {
-                validation.style.display = 'block';
-                validation.style.color = '#28a745';
-                validation.innerHTML = '✅ البريد الإلكتروني متاح';
-            } else {
-                validation.style.display = 'none';
-            }
-        });
+            files.forEach((file, i) => {
+                if (i !== index) {
+                    dt.items.add(file);
+                }
+            });
+            
+            input.files = dt.files;
+            input.dispatchEvent(new Event('change'));
+        }
 
-        // معالجة إرسال النموذج
-        document.getElementById('membershipForm').addEventListener('submit', async function(e) {
+        // تحويل الملف إلى Base64
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        // إرسال النموذج
+        async function submitForm(e) {
             e.preventDefault();
             
-            const form = e.target;
-            const submitButton = document.getElementById('submitButton');
-            const loadingSpinner = document.getElementById('loadingSpinner');
-            const successMessage = document.getElementById('successMessage');
-            const errorMessage = document.getElementById('errorMessage');
+            const submitBtn = document.getElementById('submitBtn');
+            const loadingDiv = document.getElementById('loadingDiv');
             
-            // إخفاء الرسائل السابقة
-            successMessage.style.display = 'none';
-            errorMessage.style.display = 'none';
-            
-            // التحقق من صحة البيانات
-            const email = document.getElementById('email').value.toLowerCase();
-            const civilId = document.getElementById('civil_id').value;
-            const phone = document.getElementById('phone').value;
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            // التحقق من البريد الإلكتروني
-            if (!validateEmail(email)) {
-                errorMessage.innerHTML = '❌ هذا البريد الإلكتروني مسجل مسبقاً. يرجى استخدام بريد إلكتروني آخر.';
-                errorMessage.style.display = 'block';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                return;
-            }
-            
-            // التحقق من الرقم المدني
-            if (civilId.length !== 12 || !/^\d{12}$/.test(civilId)) {
-                errorMessage.innerHTML = '❌ يجب أن يكون الرقم المدني مكوناً من 12 رقماً فقط.';
-                errorMessage.style.display = 'block';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                return;
-            }
-            
-            // التحقق من رقم الهاتف
-            if (phone.length !== 8 || !/^\d{8}$/.test(phone)) {
-                errorMessage.innerHTML = '❌ يجب أن يكون رقم الهاتف مكوناً من 8 أرقام فقط.';
-                errorMessage.style.display = 'block';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                return;
-            }
-            
-            // عرض مؤشر التحميل
-            submitButton.disabled = true;
-            submitButton.innerHTML = '⏳ جاري التسجيل...';
-            loadingSpinner.style.display = 'block';
+            submitBtn.disabled = true;
+            loadingDiv.style.display = 'block';
             
             try {
-                // معالجة الملفات المرفقة
-                const attachments = {};
-                const fileInputs = ['civil_id_file', 'qualification_file', 'experience_file', 'photo_file'];
+                // التحقق من البيانات
+                const civilId = document.getElementById('civilId').value;
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
                 
-                for (const inputId of fileInputs) {
-                    const fileInput = document.getElementById(inputId);
-                    if (fileInput.files.length > 0) {
-                        const file = fileInput.files[0];
-                        
-                        // تحويل الملف إلى Base64
-                        const base64 = await new Promise((resolve, reject) => {
-                            const reader = new FileReader();
-                            reader.onload = () => resolve(reader.result);
-                            reader.onerror = reject;
-                            reader.readAsDataURL(file);
-                        });
-                        
-                        attachments[inputId] = {
-                            name: file.name,
-                            size: file.size,
-                            type: file.type,
-                            data: base64
-                        };
-                    }
+                // التحقق من تطابق كلمات المرور
+                if (password !== confirmPassword) {
+                    document.getElementById('passwordError').style.display = 'block';
+                    throw new Error('كلمات المرور غير متطابقة');
+                }
+                
+                // التحقق من تكرار الرقم المدني
+                if (await checkCivilIdExists(civilId)) {
+                    document.getElementById('civilIdError').style.display = 'block';
+                    throw new Error('الرقم المدني مسجل مسبقاً');
+                }
+                
+                // التحقق من تكرار اسم المستخدم
+                if (await checkUsernameExists(username)) {
+                    document.getElementById('usernameError').style.display = 'block';
+                    throw new Error('اسم المستخدم مستخدم مسبقاً');
                 }
                 
                 // جمع بيانات النموذج
-                const memberData = {
-                    id: Date.now(),
-                    applicationId: 'APP-' + Date.now(),
-                    
-                    // البيانات الشخصية
-                    first_name_ar: document.getElementById('first_name_ar').value,
-                    middle_name_ar: document.getElementById('middle_name_ar').value,
-                    last_name_ar: document.getElementById('last_name_ar').value,
-                    first_name_en: document.getElementById('first_name_en').value,
-                    middle_name_en: document.getElementById('middle_name_en').value,
-                    last_name_en: document.getElementById('last_name_en').value,
-                    nationality: document.getElementById('nationality').value,
-                    civil_id: civilId,
-                    birth_date: document.getElementById('birth_date').value,
-                    gender: document.getElementById('gender').value,
-                    
-                    // معلومات الاتصال
-                    email: email,
-                    phone: phone,
-                    address: document.getElementById('address').value,
-                    
-                    // المؤهلات المهنية
-                    qualification: document.getElementById('qualification').value,
-                    specialization: document.getElementById('specialization').value,
-                    workplace: document.getElementById('workplace').value,
-                    job_title: document.getElementById('job_title').value,
-                    experience_years: document.getElementById('experience_years').value,
-                    
-                    // بيانات الدخول
-                    username: username,
-                    password: password,
-                    
-                    // الموافقات
-                    terms_agreement: document.getElementById('terms_agreement').checked,
-                    data_consent: document.getElementById('data_consent').checked,
-                    info_accuracy: document.getElementById('info_accuracy').checked,
-                    
-                    // المرفقات
-                    attachments: attachments,
-                    
-                    // معلومات الطلب
-                    status: 'pending',
-                    submission_date: new Date().toISOString(),
-                    created_at: new Date().toISOString()
-                };
+                const formData = new FormData(document.getElementById('registrationForm'));
+                const applicationData = {};
                 
-                // حفظ البيانات في Firebase
-                const saveSuccess = await firebaseManager.saveData('membershipApplications', memberData);
+                for (let [key, value] of formData.entries()) {
+                    if (key !== 'personalPhoto' && key !== 'civilIdPhoto' && key !== 'certificates') {
+                        applicationData[key] = value;
+                    }
+                }
                 
-                // إضافة البريد للقائمة المسجلة
-                const registeredEmails = JSON.parse(localStorage.getItem('registeredEmails') || '[]');
-                registeredEmails.push(email);
-                localStorage.setItem('registeredEmails', JSON.stringify(registeredEmails));
+                // معالجة الملفات
+                const attachments = [];
+                
+                // الصورة الشخصية
+                const personalPhoto = document.getElementById('personalPhoto').files[0];
+                if (personalPhoto) {
+                    const photoBase64 = await fileToBase64(personalPhoto);
+                    attachments.push({
+                        name: 'الصورة الشخصية',
+                        type: 'personal_photo',
+                        url: photoBase64,
+                        size: personalPhoto.size
+                    });
+                }
+                
+                // صورة الرقم المدني
+                const civilIdPhoto = document.getElementById('civilIdPhoto').files[0];
+                if (civilIdPhoto) {
+                    const civilIdBase64 = await fileToBase64(civilIdPhoto);
+                    attachments.push({
+                        name: 'صورة الرقم المدني',
+                        type: 'civil_id',
+                        url: civilIdBase64,
+                        size: civilIdPhoto.size
+                    });
+                }
+                
+                // الشهادات
+                const certificates = document.getElementById('certificates').files;
+                for (let i = 0; i < certificates.length; i++) {
+                    const cert = certificates[i];
+                    const certBase64 = await fileToBase64(cert);
+                    attachments.push({
+                        name: cert.name,
+                        type: 'certificate',
+                        url: certBase64,
+                        size: cert.size
+                    });
+                }
+                
+                // إضافة البيانات الإضافية
+                applicationData.attachments = attachments;
+                applicationData.status = 'pending';
+                applicationData.submissionDate = new Date().toISOString();
+                applicationData.id = Date.now().toString();
+                
+                // حفظ في Firebase
+                await db.collection('membershipApplications').doc(applicationData.id).set(applicationData);
                 
                 // عرض رسالة النجاح
-                setTimeout(() => {
-                    loadingSpinner.style.display = 'none';
-                    
-                    successMessage.innerHTML = `
-                        <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; max-width: 500px; margin: 0 auto;">
-                            <div style="color: #059669; font-size: 48px; margin-bottom: 20px;">✅</div>
-                            <h3 style="color: #059669; margin-bottom: 20px;">تم تسجيل العضوية بنجاح!</h3>
-                            <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #0369a1;">
-                                <h4 style="color: #0369a1; margin-bottom: 15px;">بيانات الدخول:</h4>
-                                <p style="margin: 8px 0;"><strong>اسم المستخدم:</strong> ${username}</p>
-                                <p style="margin: 8px 0;"><strong>كلمة المرور:</strong> ${password}</p>
-                                <p style="color: #0369a1; font-weight: bold;">احفظ هذه البيانات للدخول لاحقاً</p>
-                            </div>
-                            <p style="color: #dc2626; font-weight: bold;">طلبك قيد المراجعة من قبل الإدارة</p>
-                            <p>تم رفع جميع المرفقات المطلوبة بنجاح</p>
-                            <p style="color: #059669; font-weight: bold;">تم حفظ البيانات في السحابة ${saveSuccess ? '✅' : '⚠️ (محلياً)'}</p>
-                            <a href="member-login.html" style="display: inline-block; background: #059669; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; margin-top: 15px;">دخول العضو</a>
-                        </div>
-                    `;
-                    successMessage.style.display = 'block';
-                    
-                    // إعادة تعيين النموذج
-                    form.reset();
-                    document.getElementById('emailValidation').style.display = 'none';
-                    
-                    // التمرير إلى أعلى الصفحة
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    
-                    // إعادة تفعيل الزر
-                    submitButton.disabled = false;
-                    submitButton.innerHTML = '📝 تسجيل العضوية';
-                    
-                }, 2000);
+                document.getElementById('savedUsername').textContent = username;
+                document.getElementById('successModal').style.display = 'block';
                 
             } catch (error) {
-                console.error('Error during registration:', error);
+                console.error('خطأ في التسجيل:', error);
+                alert('حدث خطأ أثناء التسجيل: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                loadingDiv.style.display = 'none';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('successModal').style.display = 'none';
+            window.location.href = 'index.html';
+        }
+
+        // تهيئة الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            // إعداد القوائم المنسدلة
+            setupEditableSelect('area', 'areaOptions', kuwaitAreas);
+            setupEditableSelect('workplace', 'workplaceOptions', workplaces);
+            
+            // إعداد رفع الملفات
+            handleFileUpload('personalPhoto', 'personalPhotoList');
+            handleFileUpload('civilIdPhoto', 'civilIdPhotoList');
+            handleFileUpload('certificates', 'certificatesList', 10 * 1024 * 1024);
+            
+            // التحقق من الرقم المدني
+            document.getElementById('civilId').addEventListener('blur', async function() {
+                const civilId = this.value;
+                if (civilId.length === 12) {
+                    const exists = await checkCivilIdExists(civilId);
+                    if (exists) {
+                        document.getElementById('civilIdError').style.display = 'block';
+                        document.getElementById('civilIdSuccess').style.display = 'none';
+                    } else {
+                        document.getElementById('civilIdError').style.display = 'none';
+                        document.getElementById('civilIdSuccess').style.display = 'block';
+                    }
+                }
+            });
+            
+            // التحقق من اسم المستخدم
+            document.getElementById('username').addEventListener('blur', async function() {
+                const username = this.value;
+                if (username.length >= 4) {
+                    const exists = await checkUsernameExists(username);
+                    if (exists) {
+                        document.getElementById('usernameError').style.display = 'block';
+                        document.getElementById('usernameSuccess').style.display = 'none';
+                    } else {
+                        document.getElementById('usernameError').style.display = 'none';
+                        document.getElementById('usernameSuccess').style.display = 'block';
+                    }
+                }
+            });
+            
+            // التحقق من كلمة المرور
+            document.getElementById('password').addEventListener('input', function() {
+                checkPasswordStrength(this.value);
+            });
+            
+            // التحقق من تطابق كلمات المرور
+            document.getElementById('confirmPassword').addEventListener('input', function() {
+                const password = document.getElementById('password').value;
+                const confirmPassword = this.value;
                 
-                loadingSpinner.style.display = 'none';
-                errorMessage.innerHTML = `❌ حدث خطأ أثناء التسجيل: ${error.message}`;
-                errorMessage.style.display = 'block';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                
-                // إعادة تفعيل الزر
-                submitButton.disabled = false;
-                submitButton.innerHTML = '📝 تسجيل العضوية';
-            }
+                if (confirmPassword && password !== confirmPassword) {
+                    document.getElementById('passwordError').style.display = 'block';
+                    document.getElementById('passwordSuccess').style.display = 'none';
+                } else if (confirmPassword && password === confirmPassword) {
+                    document.getElementById('passwordError').style.display = 'none';
+                    document.getElementById('passwordSuccess').style.display = 'block';
+                }
+            });
+            
+            // إرسال النموذج
+            document.getElementById('registrationForm').addEventListener('submit', submitForm);
         });
-
-        // التحقق من رقم الهاتف أثناء الكتابة
-        document.getElementById('phone').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/[^0-9]/g, '');
-            if (value.length > 8) {
-                value = value.slice(0, 8);
-            }
-            e.target.value = value;
-        });
-
-        // التحقق من الرقم المدني أثناء الكتابة
-        document.getElementById('civil_id').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/[^0-9]/g, '');
-            if (value.length > 12) {
-                value = value.slice(0, 12);
-            }
-            e.target.value = value;
-        });
-
-        console.log('Registration form initialized with Firebase support');
     </script>
 </body>
 </html>

@@ -6,8 +6,8 @@
     <title>مراجعة طلب العضوية - الجمعية الكويتية للمختبرات الطبية</title>
     
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     
     <style>
         * {
@@ -18,73 +18,126 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f8fafc;
+            direction: rtl;
             min-height: 100vh;
-            padding: 20px;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
         }
 
         .header {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-placeholder {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            overflow: hidden;
+        }
+
+        .logo-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .header-title h1 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .header-title p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .review-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e3a8a 100%);
             color: white;
             padding: 30px;
             text-align: center;
-            position: relative;
         }
 
-        .header h1 {
+        .card-title {
             font-size: 28px;
+            font-weight: 700;
             margin-bottom: 10px;
         }
 
-        .header p {
+        .card-subtitle {
             font-size: 16px;
             opacity: 0.9;
         }
 
-        .back-button {
-            position: absolute;
-            left: 30px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
+        .card-content {
+            padding: 40px;
         }
 
-        .back-button:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .loading-state {
+        .loading {
             text-align: center;
-            padding: 60px 20px;
+            padding: 60px;
+            color: #6b7280;
         }
 
         .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #e2e8f0;
-            border-top: 4px solid #4f46e5;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3b82f6;
             border-radius: 50%;
+            width: 40px;
+            height: 40px;
             animation: spin 1s linear infinite;
             margin: 0 auto 20px;
         }
@@ -94,484 +147,480 @@
             100% { transform: rotate(360deg); }
         }
 
-        .error-state {
+        .error-message {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 20px;
+            border-radius: 10px;
             text-align: center;
-            padding: 60px 20px;
-            color: #ef4444;
+            margin: 20px 0;
         }
 
-        .error-icon {
-            font-size: 48px;
-            margin-bottom: 20px;
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
         }
 
-        .section {
+        .info-section {
             background: #f8fafc;
-            border-radius: 12px;
             padding: 25px;
-            margin-bottom: 25px;
-            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            border: 1px solid #e5e7eb;
         }
 
         .section-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #1e293b;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e3a8a;
             margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e2e8f0;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .data-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e5e7eb;
         }
 
-        .data-item {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
+        .info-item:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
         }
 
-        .data-label {
-            font-weight: bold;
-            color: #475569;
-            margin-bottom: 5px;
+        .info-label {
+            font-weight: 500;
+            color: #6b7280;
             font-size: 14px;
         }
 
-        .data-value {
-            color: #1e293b;
-            font-size: 16px;
-            word-break: break-word;
+        .info-value {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        /* المرفقات */
+        .attachments-section {
+            margin-bottom: 40px;
         }
 
         .attachments-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 20px;
         }
 
-        .attachment-item {
+        .attachment-card {
             background: white;
-            border-radius: 8px;
-            padding: 15px;
-            border: 1px solid #e2e8f0;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 20px;
             text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
 
-        .attachment-preview {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 6px;
+        .attachment-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+
+        .attachment-icon {
+            font-size: 40px;
             margin-bottom: 10px;
-            border: 1px solid #e2e8f0;
+            color: #3b82f6;
         }
 
         .attachment-name {
-            font-weight: bold;
-            color: #1e293b;
-            margin-bottom: 10px;
-        }
-
-        .attachment-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
             font-size: 14px;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 5px;
         }
 
-        .btn-primary {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #2563eb;
-        }
-
-        .btn-secondary {
-            background: #6b7280;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #4b5563;
-        }
-
-        .status-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
+        .attachment-size {
             font-size: 12px;
-            font-weight: bold;
-            text-transform: uppercase;
+            color: #6b7280;
         }
 
-        .status-pending {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .status-approved {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-rejected {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
+        /* قسم اتخاذ القرار */
         .decision-section {
-            background: #f0f9ff;
-            border: 2px solid #0ea5e9;
-            border-radius: 12px;
-            padding: 25px;
-            margin-top: 30px;
+            background: #f8fafc;
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .decision-header {
+            text-align: center;
+            margin-bottom: 30px;
         }
 
         .decision-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #0c4a6e;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e3a8a;
+            margin-bottom: 10px;
         }
 
-        .decision-form {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-label {
-            font-weight: bold;
-            color: #374151;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .required {
-            color: #ef4444;
-        }
-
-        .form-input, .form-select, .form-textarea {
-            padding: 12px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
+        .decision-subtitle {
             font-size: 16px;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
-            outline: none;
-            border-color: #3b82f6;
-        }
-
-        .form-textarea {
-            min-height: 100px;
-            resize: vertical;
+            color: #6b7280;
         }
 
         .decision-buttons {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             justify-content: center;
+            margin-bottom: 30px;
         }
 
-        .btn-approve, .btn-reject {
+        .decision-btn {
             padding: 15px 30px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            min-width: 200px;
+            min-width: 120px;
         }
 
-        .btn-approve {
-            background: #10b981;
+        .approve-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
         }
 
-        .btn-approve:hover {
-            background: #059669;
+        .approve-btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
         }
 
-        .btn-reject {
-            background: #ef4444;
+        .reject-btn {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             color: white;
         }
 
-        .btn-reject:hover {
-            background: #dc2626;
+        .reject-btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
         }
 
+        /* نموذج الموافقة */
+        .approval-form {
+            display: none;
+            background: #ecfdf5;
+            padding: 25px;
+            border-radius: 10px;
+            border: 2px solid #10b981;
+            margin-top: 20px;
+        }
+
+        .approval-form.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        /* نموذج الرفض */
+        .rejection-form {
+            display: none;
+            background: #fef2f2;
+            padding: 25px;
+            border-radius: 10px;
+            border: 2px solid #ef4444;
+            margin-top: 20px;
+        }
+
+        .rejection-form.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e3a8a 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .submit-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* التجاوب */
         @media (max-width: 768px) {
-            .container {
-                margin: 10px;
-                border-radius: 10px;
-            }
-
-            .content {
-                padding: 20px;
-            }
-
-            .data-grid {
+            .info-grid {
                 grid-template-columns: 1fr;
             }
-
-            .attachments-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .decision-form {
-                grid-template-columns: 1fr;
-            }
-
+            
             .decision-buttons {
                 flex-direction: column;
             }
-
-            .back-button {
-                position: static;
-                transform: none;
-                margin-bottom: 15px;
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .attachments-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <button class="back-button" onclick="window.location.href='dashboard.html'">
-                ← العودة للوحة التحكم
-            </button>
-            <h1>مراجعة طلب العضوية</h1>
-            <p>الجمعية الكويتية للمختبرات الطبية</p>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo-placeholder">
+                    <img src="logo.jpeg" alt="شعار الجمعية" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjMUUzQThBIiByeD0iMjUiLz4KPHN2ZyB4PSIxMCIgeT0iMTAiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+CjxwYXRoIGQ9Ik0xOS40MyA5LjU2Yy0uNTMtLjUzLTEuMjUtLjgzLTItLjgzSDYuNTdjLS43NSAwLTEuNDcuMy0yIC44M3MtLjgzIDEuMjUtLjgzIDJWMTljMCAuNzUuMyAxLjQ3LjgzIDJzMS4yNS44MyAyIC44M2gxMC44NmMuNzUgMCAxLjQ3LS4zIDItLjgzcy44My0xLjI1LjgzLTJWMTEuNTZjMC0uNzUtLjMtMS40Ny0uODMtMnoiLz4KPC9zdmc+Cjwvc3ZnPgo='">
+                </div>
+                <div class="header-title">
+                    <h1>الجمعية الكويتية للمختبرات الطبية</h1>
+                    <p>مراجعة طلب العضوية</p>
+                </div>
+            </div>
+            <a href="dashboard.html" class="back-btn">🔙 العودة للوحة التحكم</a>
         </div>
+    </div>
 
-        <div class="content">
-            <!-- Loading State -->
-            <div class="loading-state" id="loadingState">
-                <div class="loading-spinner"></div>
-                <h3>جاري تحميل بيانات الطلب...</h3>
-                <p>يرجى الانتظار</p>
+    <div class="container">
+        <div class="review-card">
+            <div class="card-header">
+                <div class="card-title">مراجعة طلب العضوية</div>
+                <div class="card-subtitle">مراجعة تفصيلية لطلب العضوية واتخاذ القرار المناسب</div>
             </div>
 
-            <!-- Error State -->
-            <div class="error-state" id="errorState" style="display: none;">
-                <div class="error-icon">⚠️</div>
-                <h3>حدث خطأ</h3>
-                <p id="errorMessage">لم يتم العثور على الطلب المطلوب</p>
-            </div>
-
-            <!-- Application Details -->
-            <div class="application-details" id="applicationDetails" style="display: none;">
-                <!-- معلومات الطلب -->
-                <div class="section">
-                    <div class="section-title">
-                        📋 معلومات الطلب
-                    </div>
-                    <div class="data-grid">
-                        <div class="data-item">
-                            <div class="data-label">رقم الطلب</div>
-                            <div class="data-value" id="applicationId">-</div>
-                        </div>
-                        <div class="data-item">
-                            <div class="data-label">تاريخ التقديم</div>
-                            <div class="data-value" id="submissionDate">-</div>
-                        </div>
-                        <div class="data-item">
-                            <div class="data-label">حالة الطلب</div>
-                            <div class="data-value" id="applicationStatus">-</div>
-                        </div>
-                    </div>
+            <div class="card-content">
+                <!-- حالة التحميل -->
+                <div class="loading" id="loadingDiv">
+                    <div class="loading-spinner"></div>
+                    <p>جاري تحميل بيانات الطلب...</p>
                 </div>
 
-                <!-- البيانات الشخصية -->
-                <div class="section">
-                    <div class="section-title">
-                        👤 البيانات الشخصية
-                    </div>
-                    <div class="data-grid">
-                        <div class="data-item">
-                            <div class="data-label">الاسم الثلاثي (بالعربية)</div>
-                            <div class="data-value" id="nameArabic">-</div>
-                        </div>
-                        <div class="data-item">
-                            <div class="data-label">الاسم الثلاثي (بالإنجليزية)</div>
-                            <div class="data-value" id="nameEnglish">-</div>
-                        </div>
-                        <div class="data-item">
-                            <div class="data-label">الرقم المدني</div>
-                            <div class="data-value" id="civilId">-</div>
-                        </div>
-                        <div class="data-item">
-                            <div class="data-label">تاريخ الميلاد</div>
-                            <div class="data-value" id="birthDate">-</div>
-                        </div>
-                        <div class="data-item">
-                            <div class="data-label">الجنسية</div>
-                            <div class="data-value" id="nationality">-</div>
-                        </div>
-                        <div class="data-item">
-                            <div class="data-label">الجنس</div>
-                            <div class="data-value" id="gender">-</div>
-                        </div>
-                    </div>
+                <!-- رسالة الخطأ -->
+                <div class="error-message" id="errorDiv" style="display: none;">
+                    <h3>❌ خطأ في تحميل البيانات</h3>
+                    <p id="errorMessage">لم يتم العثور على الطلب المطلوب</p>
                 </div>
 
-                <!-- معلومات الاتصال -->
-                <div class="section">
-                    <div class="section-title">
-                        📞 معلومات الاتصال
-                    </div>
-                    <div class="data-grid">
-                        <div class="data-item">
-                            <div class="data-label">البريد الإلكتروني</div>
-                            <div class="data-value" id="email">-</div>
-                        </div>
-                        <div class="data-item">
-                            <div class="data-label">رقم الهاتف</div>
-                            <div class="data-value" id="phone">-</div>
-                        </div>
-                        <div class="data-item">
-                            <div class="data-label">المنطقة</div>
-                            <div class="data-value" id="region">-</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- المؤهلات المهنية -->
-                <div class="section">
-                    <div class="section-title">
-                        🎓 المؤهلات المهنية
-                    </div>
-                    <div class="data-grid">
-                        <div class="data-item">
-                            <div class="data-label">المؤهل العلمي</div>
-                            <div class="data-value" id="qualification">-</div>
-                        </div>
-                        <div class="data-item">
-                            <div class="data-label">التخصص</div>
-                            <div class="data-value" id="specialization">-</div>
-                        </div>
-                        <div class="data-item">
-                            <div class="data-label">جهة العمل</div>
-                            <div class="data-value" id="workplace">-</div>
-                        </div>
-                        <div class="data-item">
-                            <div class="data-label">المسمى الوظيفي</div>
-                            <div class="data-value" id="jobTitle">-</div>
-                        </div>
-                        <div class="data-item">
-                            <div class="data-label">سنوات الخبرة</div>
-                            <div class="data-value" id="experienceYears">-</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- بيانات الدخول -->
-                <div class="section">
-                    <div class="section-title">
-                        🔐 بيانات الدخول
-                    </div>
-                    <div class="data-grid">
-                        <div class="data-item">
-                            <div class="data-label">اسم المستخدم</div>
-                            <div class="data-value" id="username">-</div>
-                        </div>
-                        <div class="data-item">
-                            <div class="data-label">كلمة المرور</div>
-                            <div class="data-value" id="password">-</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- المرفقات -->
-                <div class="section">
-                    <div class="section-title">
-                        📎 المرفقات المطلوبة
-                    </div>
-                    <div class="attachments-grid" id="attachmentsGrid">
-                        <!-- سيتم تحميل المرفقات هنا -->
-                    </div>
-                </div>
-
-                <!-- قسم اتخاذ القرار -->
-                <div class="decision-section" id="decisionSection">
-                    <div class="decision-title">
-                        ⚖️ اتخاذ قرار بشأن الطلب
-                    </div>
-                    
-                    <div class="decision-form">
-                        <div class="form-group">
-                            <label class="form-label" for="membershipNumber">
-                                رقم العضوية <span class="required">*</span>
-                            </label>
-                            <input type="text" id="membershipNumber" class="form-input" 
-                                   placeholder="أدخل رقم العضوية">
+                <!-- محتوى الطلب -->
+                <div id="applicationContent" style="display: none;">
+                    <!-- البيانات الأساسية -->
+                    <div class="info-grid">
+                        <div class="info-section">
+                            <div class="section-title">
+                                👤 البيانات الشخصية
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">الاسم بالعربية:</span>
+                                <span class="info-value" id="nameAr">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">الاسم بالإنجليزية:</span>
+                                <span class="info-value" id="nameEn">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">البريد الإلكتروني:</span>
+                                <span class="info-value" id="email">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">رقم الهاتف:</span>
+                                <span class="info-value" id="phone">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">الرقم المدني:</span>
+                                <span class="info-value" id="civilId">-</span>
+                            </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label" for="membershipType">
-                                نوع العضوية <span class="required">*</span>
-                            </label>
-                            <select id="membershipType" class="form-select">
-                                <option value="">اختر نوع العضوية</option>
-                                <option value="منتسب">عضو منتسب</option>
-                                <option value="غير منتسب">عضو غير منتسب</option>
-                                <option value="فخري">عضو فخري</option>
-                            </select>
+                        <div class="info-section">
+                            <div class="section-title">
+                                💼 بيانات العمل
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">المسمى الوظيفي:</span>
+                                <span class="info-value" id="jobTitle">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">جهة العمل:</span>
+                                <span class="info-value" id="workplace">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">المنطقة:</span>
+                                <span class="info-value" id="area">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">العنوان:</span>
+                                <span class="info-value" id="address">-</span>
+                            </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label" for="adminNotes">
-                                ملاحظات الإدارة
-                            </label>
-                            <textarea id="adminNotes" class="form-textarea" 
-                                      placeholder="أدخل أي ملاحظات أو أسباب الرفض (هذه الملاحظات لن تظهر للعضو)"></textarea>
-                            <small style="color: #6b7280;">هذه الملاحظات خاصة بالإدارة ولن تظهر للأعضاء</small>
+                        <div class="info-section">
+                            <div class="section-title">
+                                📅 بيانات الطلب
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">تاريخ التقديم:</span>
+                                <span class="info-value" id="submissionDate">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">اسم المستخدم:</span>
+                                <span class="info-value" id="username">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">الحالة الحالية:</span>
+                                <span class="info-value" id="currentStatus">-</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="decision-buttons">
-                        <button class="btn-approve" onclick="approveApplication()">
-                            ✅ الموافقة على الطلب
-                        </button>
-                        <button class="btn-reject" onclick="rejectApplication()">
-                            ❌ رفض الطلب
-                        </button>
+                    <!-- المرفقات -->
+                    <div class="attachments-section">
+                        <div class="section-title">
+                            📎 المرفقات والوثائق
+                        </div>
+                        <div class="attachments-grid" id="attachmentsGrid">
+                            <!-- سيتم ملؤها ديناميكياً -->
+                        </div>
+                    </div>
+
+                    <!-- قسم اتخاذ القرار -->
+                    <div class="decision-section">
+                        <div class="decision-header">
+                            <div class="decision-title">اتخاذ القرار</div>
+                            <div class="decision-subtitle">يرجى مراجعة جميع البيانات والمرفقات قبل اتخاذ القرار</div>
+                        </div>
+
+                        <div class="decision-buttons">
+                            <button class="decision-btn approve-btn" onclick="showApprovalForm()">
+                                ✅ موافقة
+                            </button>
+                            <button class="decision-btn reject-btn" onclick="showRejectionForm()">
+                                ❌ رفض
+                            </button>
+                        </div>
+
+                        <!-- نموذج الموافقة -->
+                        <div class="approval-form" id="approvalForm">
+                            <h4 style="color: #059669; margin-bottom: 20px;">✅ الموافقة على طلب العضوية</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">رقم العضوية (3 أرقام)</label>
+                                    <input type="text" class="form-input" id="membershipNumber" placeholder="مثال: 001" maxlength="3" pattern="[0-9]{3}">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">نوع العضوية</label>
+                                    <select class="form-select" id="membershipType">
+                                        <option value="">اختر نوع العضوية</option>
+                                        <option value="affiliated">عضو منتسب</option>
+                                        <option value="non-affiliated">عضو غير منتسب</option>
+                                        <option value="honorary">عضو فخري</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button class="submit-btn" onclick="approveApplication()">
+                                ✅ تأكيد الموافقة وحفظ
+                            </button>
+                        </div>
+
+                        <!-- نموذج الرفض -->
+                        <div class="rejection-form" id="rejectionForm">
+                            <h4 style="color: #dc2626; margin-bottom: 20px;">❌ رفض طلب العضوية</h4>
+                            <div class="form-group">
+                                <label class="form-label">أسباب الرفض (للإدارة فقط - لن تظهر للعضو)</label>
+                                <textarea class="form-textarea" id="rejectionReason" placeholder="يرجى كتابة أسباب الرفض بالتفصيل..."></textarea>
+                            </div>
+                            <button class="submit-btn" onclick="rejectApplication()" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                                ❌ تأكيد الرفض وحفظ
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -581,427 +630,312 @@
     <script>
         // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyBKvr6ZI_M_s_hk3Ch2ivWBuY5jSI9QxDo",
+            apiKey: "AIzaSyBL5Ej4VvdJJDl_8vG5KqF8eJ9X8yF4Abc",
             authDomain: "kaml-membership-system.firebaseapp.com",
             projectId: "kaml-membership-system",
-            storageBucket: "kaml-membership-system.firebasestorage.app",
-            messagingSenderId: "1083658943439",
-            appId: "1:1083658943439:web:f6a17e3bbdb6cd8feab0ba",
-            measurementId: "G-ZZSZF3X7WC"
+            storageBucket: "kaml-membership-system.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdef123456789"
         };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Firebase Data Manager
-        class FirebaseDataManager {
-            constructor() {
-                this.isOnline = navigator.onLine;
-                this.setupConnectionListener();
-            }
+        // متغيرات عامة
+        let currentApplication = null;
+        let applicationId = null;
 
-            setupConnectionListener() {
-                window.addEventListener('online', () => {
-                    this.isOnline = true;
-                    console.log('🌐 Firebase: Connection restored');
-                });
-
-                window.addEventListener('offline', () => {
-                    this.isOnline = false;
-                    console.log('📴 Firebase: Connection lost');
-                });
-            }
-
-            async getData(collection) {
-                try {
-                    if (!this.isOnline) {
-                        console.log('📴 Firebase: Offline, using localStorage');
-                        return JSON.parse(localStorage.getItem(collection) || '[]');
-                    }
-
-                    console.log(`🔍 Firebase: Loading data from ${collection}...`);
-                    const snapshot = await db.collection(collection).get();
-                    const data = [];
-                    snapshot.forEach(doc => {
-                        data.push({ id: doc.id, ...doc.data() });
-                    });
-
-                    // Backup to localStorage
-                    localStorage.setItem(collection, JSON.stringify(data));
-                    console.log(`✅ Firebase: Retrieved ${data.length} items from ${collection}`);
-                    return data;
-                } catch (error) {
-                    console.error(`❌ Firebase getData error for ${collection}:`, error);
-                    // Fallback to localStorage
-                    return JSON.parse(localStorage.getItem(collection) || '[]');
-                }
-            }
-
-            async loadFromMultipleCollections() {
-                const collections = ['applications', 'membershipApplications', 'membership_requests'];
-                let allData = [];
-
-                for (const collection of collections) {
-                    try {
-                        const data = await this.getData(collection);
-                        allData = allData.concat(data);
-                        console.log(`📋 Loaded ${data.length} items from ${collection}`);
-                    } catch (error) {
-                        console.error(`❌ Error loading from ${collection}:`, error);
-                    }
-                }
-
-                console.log(`📊 Total applications loaded: ${allData.length}`);
-                return allData;
-            }
-
-            async updateData(collection, id, data) {
-                try {
-                    if (this.isOnline) {
-                        await db.collection(collection).doc(id).update(data);
-                        console.log(`✅ Firebase: Updated document ${id} in ${collection}`);
-                    }
-
-                    // Update localStorage
-                    const localData = JSON.parse(localStorage.getItem(collection) || '[]');
-                    const index = localData.findIndex(item => item.id === id);
-                    if (index !== -1) {
-                        localData[index] = { ...localData[index], ...data };
-                        localStorage.setItem(collection, JSON.stringify(localData));
-                    }
-
-                    return true;
-                } catch (error) {
-                    console.error('❌ Firebase updateData error:', error);
-                    throw error;
-                }
-            }
-
-            async saveData(collection, data) {
-                try {
-                    if (this.isOnline) {
-                        const docRef = await db.collection(collection).add(data);
-                        console.log(`✅ Firebase: Saved document ${docRef.id} to ${collection}`);
-                        return docRef.id;
-                    }
-
-                    // Save to localStorage
-                    const localData = JSON.parse(localStorage.getItem(collection) || '[]');
-                    const newId = Date.now().toString();
-                    localData.push({ id: newId, ...data });
-                    localStorage.setItem(collection, JSON.stringify(localData));
-                    
-                    return newId;
-                } catch (error) {
-                    console.error('❌ Firebase saveData error:', error);
-                    throw error;
-                }
-            }
+        // التحقق من تسجيل الدخول
+        if (sessionStorage.getItem('adminLoggedIn') !== 'true') {
+            window.location.href = 'admin-login.html';
         }
 
-        // Initialize Firebase Manager
-        const firebaseManager = new FirebaseDataManager();
-        let currentApplication = null;
-
-        // Get application ID from URL
+        // الحصول على معرف الطلب من URL
         function getApplicationId() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('id');
         }
 
-        // Load application data
-        async function loadApplicationData() {
-            const applicationId = getApplicationId();
+        // تحميل بيانات الطلب
+        async function loadApplication() {
+            applicationId = getApplicationId();
             
             if (!applicationId) {
-                showError('لم يتم تحديد رقم الطلب');
+                showError('لم يتم تحديد معرف الطلب');
                 return;
             }
 
             try {
-                console.log(`🔍 Looking for application ID: ${applicationId}`);
+                // محاولة تحميل من Firebase أولاً
+                const doc = await db.collection('membershipApplications').doc(applicationId).get();
                 
-                // Load from multiple collections
-                const allApplications = await firebaseManager.loadFromMultipleCollections();
-                
-                // Find the application
-                currentApplication = allApplications.find(app => 
-                    app.id === applicationId || 
-                    app.applicationId === applicationId ||
-                    app.timestamp === applicationId
-                );
-
-                if (!currentApplication) {
-                    console.log('❌ Application not found in Firebase, checking localStorage...');
-                    
-                    // Check localStorage as fallback
-                    const localApps = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
-                    currentApplication = localApps.find(app => 
-                        app.id === applicationId || 
-                        app.applicationId === applicationId ||
-                        app.timestamp === applicationId
-                    );
+                if (doc.exists) {
+                    currentApplication = { id: doc.id, ...doc.data() };
+                } else {
+                    // التحميل من التخزين المحلي كبديل
+                    const applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+                    currentApplication = applications.find(app => app.id == applicationId);
                 }
 
                 if (!currentApplication) {
-                    showError('لم يتم العثور على الطلب المطلوب');
-                    return;
+                    throw new Error('لم يتم العثور على الطلب المحدد');
                 }
 
-                console.log('✅ Application found:', currentApplication);
-                displayApplicationData(currentApplication);
-                
+                // عرض البيانات
+                displayApplicationData();
+
             } catch (error) {
-                console.error('❌ Error loading application:', error);
-                showError('حدث خطأ أثناء تحميل بيانات الطلب');
+                console.error('خطأ في تحميل الطلب:', error);
+                showError('حدث خطأ في تحميل بيانات الطلب: ' + error.message);
             }
         }
 
-        // Display application data
-        function displayApplicationData(application) {
-            // Hide loading, show details
-            document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('applicationDetails').style.display = 'block';
+        // عرض البيانات
+        function displayApplicationData() {
+            // إخفاء التحميل وإظهار المحتوى
+            document.getElementById('loadingDiv').style.display = 'none';
+            document.getElementById('applicationContent').style.display = 'block';
 
-            // Application Information
-            document.getElementById('applicationId').textContent = application.id || application.applicationId || application.timestamp || '-';
-            document.getElementById('submissionDate').textContent = 
-                application.submission_date ? new Date(application.submission_date).toLocaleDateString('ar-SA') : 
-                application.timestamp ? new Date(parseInt(application.timestamp)).toLocaleDateString('ar-SA') : '-';
+            // البيانات الشخصية
+            document.getElementById('nameAr').textContent = `${currentApplication.firstNameAr} ${currentApplication.middleNameAr} ${currentApplication.lastNameAr}`;
+            document.getElementById('nameEn').textContent = `${currentApplication.firstNameEn} ${currentApplication.middleNameEn} ${currentApplication.lastNameEn}`;
+            document.getElementById('email').textContent = currentApplication.email;
+            document.getElementById('phone').textContent = currentApplication.phone;
+            document.getElementById('civilId').textContent = currentApplication.civilId;
 
-            const statusElement = document.getElementById('applicationStatus');
-            const status = application.status || 'pending';
-            statusElement.innerHTML = `<span class="status-badge status-${status}">${getStatusText(status)}</span>`;
+            // بيانات العمل
+            document.getElementById('jobTitle').textContent = currentApplication.jobTitle;
+            document.getElementById('workplace').textContent = currentApplication.workplace;
+            document.getElementById('area').textContent = currentApplication.area || '-';
+            document.getElementById('address').textContent = currentApplication.address;
 
-            // Personal Information
-            document.getElementById('nameArabic').textContent = 
-                `${application.first_name_ar || application.firstNameAr || ''} ${application.middle_name_ar || application.middleNameAr || ''} ${application.last_name_ar || application.lastNameAr || ''}`.trim() || '-';
-            
-            document.getElementById('nameEnglish').textContent = 
-                `${application.first_name_en || application.firstNameEn || ''} ${application.middle_name_en || application.middleNameEn || ''} ${application.last_name_en || application.lastNameEn || ''}`.trim() || '-';
-            
-            document.getElementById('civilId').textContent = application.civil_id || application.civilId || '-';
-            document.getElementById('birthDate').textContent = application.birth_date || application.birthDate || '-';
-            document.getElementById('nationality').textContent = application.nationality || '-';
-            document.getElementById('gender').textContent = application.gender || '-';
+            // بيانات الطلب
+            document.getElementById('submissionDate').textContent = formatDate(currentApplication.submissionDate);
+            document.getElementById('username').textContent = currentApplication.username;
+            document.getElementById('currentStatus').textContent = getStatusArabic(currentApplication.status);
 
-            // Contact Information
-            document.getElementById('email').textContent = application.email || '-';
-            document.getElementById('phone').textContent = application.phone || '-';
-            document.getElementById('region').textContent = application.region || '-';
-
-            // Professional Qualifications
-            document.getElementById('qualification').textContent = application.qualification || '-';
-            document.getElementById('specialization').textContent = application.specialization || '-';
-            document.getElementById('workplace').textContent = application.workplace || '-';
-            document.getElementById('jobTitle').textContent = application.job_title || application.jobTitle || '-';
-            document.getElementById('experienceYears').textContent = application.experience_years || application.experienceYears || '-';
-
-            // Login Credentials
-            document.getElementById('username').textContent = application.username || '-';
-            document.getElementById('password').textContent = application.password || '-';
-
-            // Load attachments
-            loadAttachments(application.attachments || []);
-
-            // Hide decision section if already processed
-            if (status !== 'pending') {
-                document.getElementById('decisionSection').style.display = 'none';
-            }
-
-            // Generate next membership number
-            generateNextMembershipNumber();
+            // عرض المرفقات
+            displayAttachments();
         }
 
-        // Load attachments
-        function loadAttachments(attachments) {
+        // عرض المرفقات
+        function displayAttachments() {
             const attachmentsGrid = document.getElementById('attachmentsGrid');
+            
+            if (!currentApplication.attachments || currentApplication.attachments.length === 0) {
+                attachmentsGrid.innerHTML = '<p style="text-align: center; color: #6b7280; grid-column: 1/-1;">لا توجد مرفقات</p>';
+                return;
+            }
+
             attachmentsGrid.innerHTML = '';
-
-            const attachmentTypes = {
-                'civil_id_front': 'صورة البطاقة المدنية (الوجه الأمامي)',
-                'civil_id_back': 'صورة البطاقة المدنية (الوجه الخلفي)',
-                'qualification': 'صورة المؤهل العلمي',
-                'photo': 'الصورة الشخصية',
-                'criminal_record': 'الصحيفة الجنائية',
-                'license': 'صورة ترخيص مزاولة المهنة'
-            };
-
-            Object.keys(attachmentTypes).forEach(type => {
-                const attachment = attachments.find(att => att.type === type);
-                const attachmentDiv = document.createElement('div');
-                attachmentDiv.className = 'attachment-item';
+            
+            currentApplication.attachments.forEach(attachment => {
+                const attachmentCard = document.createElement('div');
+                attachmentCard.className = 'attachment-card';
+                attachmentCard.onclick = () => viewAttachment(attachment);
                 
-                attachmentDiv.innerHTML = `
-                    <div class="attachment-name">${attachmentTypes[type]}</div>
-                    ${attachment ? `
-                        <img src="${attachment.url}" alt="${attachmentTypes[type]}" class="attachment-preview" 
-                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0zMCA0MEg3MFY2MEgzMFY0MFoiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTQwIDUwSDYwVjUySDQwVjUwWiIgZmlsbD0iIzZCNzI4MCIvPgo8L3N2Zz4K'">
-                        <div class="attachment-actions">
-                            <a href="${attachment.url}" target="_blank" class="btn btn-primary">👁️ عرض</a>
-                            <a href="${attachment.url}" download class="btn btn-secondary">📥 تحميل</a>
-                        </div>
-                    ` : `
-                        <div class="attachment-preview" style="display: flex; align-items: center; justify-content: center; background: #f3f4f6; color: #6b7280;">
-                            📄 لم يتم رفع الملف
-                        </div>
-                        <div style="color: #ef4444; font-size: 14px;">مرفق مفقود</div>
-                    `}
+                const icon = getFileIcon(attachment.type);
+                
+                attachmentCard.innerHTML = `
+                    <div class="attachment-icon">${icon}</div>
+                    <div class="attachment-name">${attachment.name}</div>
+                    <div class="attachment-size">${attachment.size || 'غير محدد'}</div>
                 `;
                 
-                attachmentsGrid.appendChild(attachmentDiv);
+                attachmentsGrid.appendChild(attachmentCard);
             });
         }
 
-        // Generate next membership number
-        async function generateNextMembershipNumber() {
-            try {
-                const members = await firebaseManager.getData('members');
-                const membershipNumbers = members
-                    .map(member => parseInt(member.membershipNumber))
-                    .filter(num => !isNaN(num))
-                    .sort((a, b) => b - a);
-
-                const nextNumber = membershipNumbers.length > 0 ? membershipNumbers[0] + 1 : 1;
-                const formattedNumber = nextNumber.toString().padStart(3, '0');
-                
-                document.getElementById('membershipNumber').value = formattedNumber;
-            } catch (error) {
-                console.error('❌ Error generating membership number:', error);
-                document.getElementById('membershipNumber').value = '001';
+        // عرض المرفق
+        function viewAttachment(attachment) {
+            if (attachment.url) {
+                window.open(attachment.url, '_blank');
+            } else {
+                alert('رابط المرفق غير متاح');
             }
         }
 
-        // Get status text
-        function getStatusText(status) {
-            const statusTexts = {
-                'pending': 'في الانتظار',
-                'approved': 'موافق عليه',
-                'rejected': 'مرفوض'
+        // الحصول على أيقونة الملف
+        function getFileIcon(type) {
+            const icons = {
+                'civil_id': '🆔',
+                'personal_photo': '📷',
+                'certificate': '📜',
+                'cv': '📄',
+                'other': '📎'
             };
-            return statusTexts[status] || status;
+            return icons[type] || '📎';
         }
 
-        // Show error
-        function showError(message) {
-            document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('errorMessage').textContent = message;
-            document.getElementById('errorState').style.display = 'block';
+        // إظهار نموذج الموافقة
+        function showApprovalForm() {
+            document.getElementById('approvalForm').classList.add('active');
+            document.getElementById('rejectionForm').classList.remove('active');
+            
+            // إنشاء رقم عضوية تلقائي
+            generateMembershipNumber();
         }
 
-        // Approve application
+        // إظهار نموذج الرفض
+        function showRejectionForm() {
+            document.getElementById('rejectionForm').classList.add('active');
+            document.getElementById('approvalForm').classList.remove('active');
+        }
+
+        // إنشاء رقم عضوية تلقائي
+        async function generateMembershipNumber() {
+            try {
+                // الحصول على آخر رقم عضوية
+                const snapshot = await db.collection('membershipApplications')
+                    .where('status', '==', 'approved')
+                    .orderBy('membershipNumber', 'desc')
+                    .limit(1)
+                    .get();
+                
+                let nextNumber = 1;
+                
+                if (!snapshot.empty) {
+                    const lastMember = snapshot.docs[0].data();
+                    const lastNumber = parseInt(lastMember.membershipNumber);
+                    if (!isNaN(lastNumber)) {
+                        nextNumber = lastNumber + 1;
+                    }
+                }
+                
+                // تنسيق الرقم بثلاثة أرقام
+                const formattedNumber = nextNumber.toString().padStart(3, '0');
+                document.getElementById('membershipNumber').value = formattedNumber;
+                
+            } catch (error) {
+                console.error('خطأ في إنشاء رقم العضوية:', error);
+                // استخدام رقم عشوائي كبديل
+                const randomNumber = Math.floor(Math.random() * 900) + 100;
+                document.getElementById('membershipNumber').value = randomNumber.toString();
+            }
+        }
+
+        // الموافقة على الطلب
         async function approveApplication() {
             const membershipNumber = document.getElementById('membershipNumber').value.trim();
             const membershipType = document.getElementById('membershipType').value;
-            const adminNotes = document.getElementById('adminNotes').value.trim();
-
-            // Validation
-            if (!membershipNumber) {
-                alert('يرجى إدخال رقم العضوية');
+            
+            // التحقق من صحة البيانات
+            if (!membershipNumber || membershipNumber.length !== 3 || !/^\d{3}$/.test(membershipNumber)) {
+                alert('يرجى إدخال رقم عضوية صحيح مكون من 3 أرقام');
                 return;
             }
-
+            
             if (!membershipType) {
                 alert('يرجى اختيار نوع العضوية');
                 return;
             }
-
+            
             if (!confirm('هل أنت متأكد من الموافقة على هذا الطلب؟')) {
                 return;
             }
-
+            
             try {
-                // Update application status
+                const approvalDate = new Date();
+                const expiryDate = new Date(approvalDate.getFullYear() + 1, approvalDate.getMonth(), approvalDate.getDate());
+                
                 const updateData = {
                     status: 'approved',
                     membershipNumber: membershipNumber,
                     membershipType: membershipType,
-                    adminNotes: adminNotes,
-                    approvedDate: new Date().toISOString(),
-                    approvedBy: 'admin'
+                    approvalDate: approvalDate.toISOString(),
+                    expiryDate: expiryDate.toISOString(),
+                    approvedBy: 'admin', // يمكن تحديث هذا ليكون اسم المدير الفعلي
+                    approvedAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
-
-                await firebaseManager.updateData('membershipApplications', currentApplication.id, updateData);
-
-                // Create new member record
-                const newMember = {
-                    membershipNumber: membershipNumber,
-                    firstNameAr: currentApplication.first_name_ar || currentApplication.firstNameAr,
-                    middleNameAr: currentApplication.middle_name_ar || currentApplication.middleNameAr,
-                    lastNameAr: currentApplication.last_name_ar || currentApplication.lastNameAr,
-                    firstNameEn: currentApplication.first_name_en || currentApplication.firstNameEn,
-                    middleNameEn: currentApplication.middle_name_en || currentApplication.middleNameEn,
-                    lastNameEn: currentApplication.last_name_en || currentApplication.lastNameEn,
-                    email: currentApplication.email,
-                    phone: currentApplication.phone,
-                    civilId: currentApplication.civil_id || currentApplication.civilId,
-                    birthDate: currentApplication.birth_date || currentApplication.birthDate,
-                    nationality: currentApplication.nationality,
-                    gender: currentApplication.gender,
-                    region: currentApplication.region,
-                    qualification: currentApplication.qualification,
-                    specialization: currentApplication.specialization,
-                    workplace: currentApplication.workplace,
-                    jobTitle: currentApplication.job_title || currentApplication.jobTitle,
-                    experienceYears: currentApplication.experience_years || currentApplication.experienceYears,
-                    membershipType: membershipType,
-                    status: 'active',
-                    joinDate: new Date().toISOString().split('T')[0],
-                    expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                    username: currentApplication.username,
-                    password: currentApplication.password,
-                    attachments: currentApplication.attachments || [],
-                    createdAt: new Date().toISOString()
-                };
-
-                await firebaseManager.saveData('members', newMember);
-
-                alert(`تم الموافقة على الطلب بنجاح!\nرقم العضوية: ${membershipNumber}\nنوع العضوية: ${membershipType}`);
+                
+                // تحديث في Firebase
+                await db.collection('membershipApplications').doc(applicationId).update(updateData);
+                
+                // تحديث التخزين المحلي أيضاً
+                const applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+                const index = applications.findIndex(app => app.id == applicationId);
+                if (index !== -1) {
+                    applications[index] = { ...applications[index], ...updateData };
+                    localStorage.setItem('membershipApplications', JSON.stringify(applications));
+                }
+                
+                alert('تم الموافقة على الطلب بنجاح! سيتم إشعار العضو بالموافقة.');
                 window.location.href = 'dashboard.html';
-
+                
             } catch (error) {
-                console.error('❌ Error approving application:', error);
-                alert('حدث خطأ أثناء الموافقة على الطلب');
+                console.error('خطأ في الموافقة على الطلب:', error);
+                alert('حدث خطأ أثناء معالجة الموافقة. يرجى المحاولة مرة أخرى.');
             }
         }
 
-        // Reject application
+        // رفض الطلب
         async function rejectApplication() {
-            const adminNotes = document.getElementById('adminNotes').value.trim();
-
-            if (!adminNotes) {
-                alert('يرجى إدخال سبب الرفض في ملاحظات الإدارة');
+            const rejectionReason = document.getElementById('rejectionReason').value.trim();
+            
+            if (!rejectionReason) {
+                alert('يرجى كتابة أسباب الرفض');
                 return;
             }
-
+            
             if (!confirm('هل أنت متأكد من رفض هذا الطلب؟')) {
                 return;
             }
-
+            
             try {
                 const updateData = {
                     status: 'rejected',
-                    adminNotes: adminNotes,
-                    rejectedDate: new Date().toISOString(),
-                    rejectedBy: 'admin'
+                    rejectionReason: rejectionReason,
+                    rejectedBy: 'admin', // يمكن تحديث هذا ليكون اسم المدير الفعلي
+                    rejectedAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
-
-                await firebaseManager.updateData('membershipApplications', currentApplication.id, updateData);
-
-                alert(`تم رفض الطلب.\nسبب الرفض: ${adminNotes}`);
+                
+                // تحديث في Firebase
+                await db.collection('membershipApplications').doc(applicationId).update(updateData);
+                
+                // تحديث التخزين المحلي أيضاً
+                const applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+                const index = applications.findIndex(app => app.id == applicationId);
+                if (index !== -1) {
+                    applications[index] = { ...applications[index], ...updateData };
+                    localStorage.setItem('membershipApplications', JSON.stringify(applications));
+                }
+                
+                alert('تم رفض الطلب. سيتم إشعار المتقدم بالرفض (بدون ذكر الأسباب).');
                 window.location.href = 'dashboard.html';
-
+                
             } catch (error) {
-                console.error('❌ Error rejecting application:', error);
-                alert('حدث خطأ أثناء رفض الطلب');
+                console.error('خطأ في رفض الطلب:', error);
+                alert('حدث خطأ أثناء معالجة الرفض. يرجى المحاولة مرة أخرى.');
             }
         }
 
-        // Initialize page
+        // عرض رسالة خطأ
+        function showError(message) {
+            document.getElementById('loadingDiv').style.display = 'none';
+            document.getElementById('errorDiv').style.display = 'block';
+            document.getElementById('errorMessage').textContent = message;
+        }
+
+        // وظائف مساعدة
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-GB');
+        }
+
+        function getStatusArabic(status) {
+            const statuses = {
+                'pending': 'في انتظار المراجعة',
+                'approved': 'معتمد',
+                'rejected': 'مرفوض'
+            };
+            return statuses[status] || status;
+        }
+
+        // تحميل البيانات عند تحميل الصفحة
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Review application page loading...');
-            loadApplicationData();
+            loadApplication();
         });
     </script>
 </body>
