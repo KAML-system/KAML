@@ -378,6 +378,17 @@
             100% { transform: rotate(360deg); }
         }
 
+        .debug-info {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 12px;
+            color: #374151;
+        }
+
         @media (max-width: 768px) {
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -521,6 +532,12 @@
                 </div>
             </div>
 
+            <!-- معلومات التشخيص -->
+            <div id="debugInfo" class="debug-info" style="display: none;">
+                <strong>معلومات التشخيص:</strong><br>
+                <span id="debugText"></span>
+            </div>
+
             <!-- الجدول -->
             <div class="table-section">
                 <div class="table-header">
@@ -528,6 +545,9 @@
                         📋 جميع السجلات
                     </div>
                     <div class="table-actions">
+                        <button onclick="toggleDebug()" class="btn btn-secondary btn-sm">
+                            🔍 تشخيص
+                        </button>
                         <button onclick="refreshData()" class="btn btn-secondary btn-sm">
                             🔄 تحديث
                         </button>
@@ -592,6 +612,7 @@
         let allData = [];
         let filteredData = [];
         let currentFilter = 'all';
+        let debugMode = false;
 
         // تحميل البيانات عند بدء الصفحة
         document.addEventListener('DOMContentLoaded', function() {
@@ -602,7 +623,7 @@
         async function loadData() {
             try {
                 showLoading(true);
-                console.log('🔄 بدء تحميل البيانات...');
+                updateDebug('🔄 بدء تحميل البيانات...');
                 
                 let firebaseData = [];
                 
@@ -616,11 +637,11 @@
 
                 for (const collectionName of possibleCollections) {
                     try {
-                        console.log(`🔍 البحث في مجموعة: ${collectionName}`);
+                        updateDebug(`🔍 البحث في مجموعة: ${collectionName}`);
                         const snapshot = await db.collection(collectionName).get();
                         
                         if (!snapshot.empty) {
-                            console.log(`✅ تم العثور على ${snapshot.size} سجل في ${collectionName}`);
+                            updateDebug(`✅ تم العثور على ${snapshot.size} سجل في ${collectionName}`);
                             snapshot.forEach(doc => {
                                 const data = doc.data();
                                 firebaseData.push({
@@ -631,16 +652,16 @@
                             });
                             break; // توقف عند العثور على بيانات
                         } else {
-                            console.log(`⚠️ مجموعة ${collectionName} فارغة`);
+                            updateDebug(`⚠️ مجموعة ${collectionName} فارغة`);
                         }
                     } catch (collectionError) {
-                        console.warn(`❌ خطأ في الوصول لمجموعة ${collectionName}:`, collectionError);
+                        updateDebug(`❌ خطأ في الوصول لمجموعة ${collectionName}: ${collectionError.message}`);
                     }
                 }
 
                 // تحميل من التخزين المحلي كنسخة احتياطية
                 const localData = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
-                console.log(`💾 تم العثور على ${localData.length} سجل في التخزين المحلي`);
+                updateDebug(`💾 تم العثور على ${localData.length} سجل في التخزين المحلي`);
                 
                 // دمج البيانات (Firebase له الأولوية)
                 const combinedData = [...firebaseData];
@@ -653,8 +674,15 @@
                     }
                 });
 
-                console.log(`📊 إجمالي البيانات المحملة: ${combinedData.length}`);
-                console.log('البيانات:', combinedData);
+                updateDebug(`📊 إجمالي البيانات المحملة: ${combinedData.length}`);
+
+                // تحليل الحالات
+                const statusCounts = {};
+                combinedData.forEach(item => {
+                    const status = item.status || 'undefined';
+                    statusCounts[status] = (statusCounts[status] || 0) + 1;
+                });
+                updateDebug(`📈 إحصائيات الحالات: ${JSON.stringify(statusCounts)}`);
 
                 allData = combinedData;
                 updateStatistics();
@@ -662,16 +690,16 @@
 
                 // عرض رسالة إذا لم توجد بيانات
                 if (combinedData.length === 0) {
-                    console.log('⚠️ لم يتم العثور على أي بيانات');
+                    updateDebug('⚠️ لم يتم العثور على أي بيانات');
                     showNoDataMessage();
                 }
                 
             } catch (error) {
-                console.error('❌ خطأ عام في تحميل البيانات:', error);
+                updateDebug(`❌ خطأ عام في تحميل البيانات: ${error.message}`);
                 
                 // الاعتماد على التخزين المحلي فقط
                 const localData = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
-                console.log(`🔄 الاعتماد على التخزين المحلي: ${localData.length} سجل`);
+                updateDebug(`🔄 الاعتماد على التخزين المحلي: ${localData.length} سجل`);
                 
                 allData = localData.map(item => ({
                     ...item,
@@ -685,6 +713,34 @@
                 }
             } finally {
                 showLoading(false);
+            }
+        }
+
+        // تحديث معلومات التشخيص
+        function updateDebug(message) {
+            console.log(message);
+            if (debugMode) {
+                const debugText = document.getElementById('debugText');
+                if (debugText) {
+                    debugText.innerHTML += message + '<br>';
+                }
+            }
+        }
+
+        // تبديل وضع التشخيص
+        function toggleDebug() {
+            debugMode = !debugMode;
+            const debugInfo = document.getElementById('debugInfo');
+            const debugText = document.getElementById('debugText');
+            
+            if (debugMode) {
+                debugInfo.style.display = 'block';
+                debugText.innerHTML = 'وضع التشخيص مفعل...<br>';
+                updateDebug(`📊 إجمالي البيانات: ${allData.length}`);
+                updateDebug(`🔍 الفلتر الحالي: ${currentFilter}`);
+                updateDebug(`📋 البيانات المفلترة: ${filteredData.length}`);
+            } else {
+                debugInfo.style.display = 'none';
             }
         }
 
@@ -708,19 +764,43 @@
 
         // تحديث الإحصائيات
         function updateStatistics() {
-            const total = allData.filter(item => item.status === 'approved').length;
-            const pending = allData.filter(item => item.status === 'pending').length;
-            const rejected = allData.filter(item => item.status === 'rejected').length;
-            const renewal = allData.filter(item => item.status === 'renewal_requested').length;
+            // حساب الإحصائيات بناءً على جميع الحالات الممكنة
+            const total = allData.filter(item => 
+                item.status === 'approved' || 
+                item.status === 'معتمد' || 
+                item.membership_number
+            ).length;
+            
+            const pending = allData.filter(item => 
+                item.status === 'pending' || 
+                item.status === 'في الانتظار' || 
+                item.status === 'قيد المراجعة' ||
+                (!item.status && !item.membership_number)
+            ).length;
+            
+            const rejected = allData.filter(item => 
+                item.status === 'rejected' || 
+                item.status === 'مرفوض'
+            ).length;
+            
+            const renewal = allData.filter(item => 
+                item.status === 'renewal_requested' || 
+                item.status === 'طلب تجديد'
+            ).length;
 
             document.getElementById('totalCount').textContent = total;
             document.getElementById('pendingCount').textContent = pending;
             document.getElementById('rejectedCount').textContent = rejected;
             document.getElementById('renewalCount').textContent = renewal;
+
+            updateDebug(`📊 الإحصائيات: معتمد=${total}, انتظار=${pending}, مرفوض=${rejected}, تجديد=${renewal}`);
         }
 
         // فلترة البيانات
         function filterData(filter) {
+            updateDebug(`🔍 فلترة البيانات بـ: ${filter}`);
+            updateDebug(`📊 إجمالي البيانات المتاحة: ${allData.length}`);
+            
             currentFilter = filter;
             
             // إزالة التحديد من جميع البطاقات
@@ -728,91 +808,134 @@
                 card.classList.remove('active');
             });
 
-            // تحديد البطاقة النشطة
+            // تحديد البطاقة النشطة وفلترة البيانات
             let activeCard, title;
             switch(filter) {
                 case 'all':
-                    filteredData = allData.filter(item => item.status === 'approved');
+                    filteredData = allData.filter(item => 
+                        item.status === 'approved' || 
+                        item.status === 'معتمد' || 
+                        item.membership_number
+                    );
                     activeCard = 'totalCard';
                     title = '👥 إجمالي الأعضاء';
                     break;
                 case 'pending':
-                    filteredData = allData.filter(item => item.status === 'pending');
+                    filteredData = allData.filter(item => 
+                        item.status === 'pending' || 
+                        item.status === 'في الانتظار' || 
+                        item.status === 'قيد المراجعة' ||
+                        (!item.status && !item.membership_number)
+                    );
                     activeCard = 'pendingCard';
                     title = '⏳ في انتظار المراجعة';
                     break;
                 case 'rejected':
-                    filteredData = allData.filter(item => item.status === 'rejected');
+                    filteredData = allData.filter(item => 
+                        item.status === 'rejected' || 
+                        item.status === 'مرفوض'
+                    );
                     activeCard = 'rejectedCard';
                     title = '❌ تم الرفض';
                     break;
                 case 'renewal':
-                    filteredData = allData.filter(item => item.status === 'renewal_requested');
+                    filteredData = allData.filter(item => 
+                        item.status === 'renewal_requested' || 
+                        item.status === 'طلب تجديد'
+                    );
                     activeCard = 'renewalCard';
                     title = '🔄 طلبات التجديد';
                     break;
+                default:
+                    filteredData = allData;
+                    title = '📋 جميع السجلات';
             }
 
-            document.getElementById(activeCard).classList.add('active');
-            document.getElementById('tableTitle').textContent = title;
+            updateDebug(`📋 البيانات المفلترة (${filter}): ${filteredData.length} سجل`);
+            if (filteredData.length > 0) {
+                updateDebug(`📄 عينة من البيانات المفلترة: ${JSON.stringify(filteredData[0])}`);
+            }
+
+            // تحديد البطاقة النشطة
+            if (activeCard) {
+                const activeCardElement = document.getElementById(activeCard);
+                if (activeCardElement) {
+                    activeCardElement.classList.add('active');
+                } else {
+                    updateDebug(`⚠️ لم يتم العثور على البطاقة: ${activeCard}`);
+                }
+            }
+            
+            // تحديث العنوان
+            const titleElement = document.getElementById('tableTitle');
+            if (titleElement) {
+                titleElement.textContent = title;
+            } else {
+                updateDebug(`⚠️ لم يتم العثور على عنصر العنوان`);
+            }
             
             displayData(filteredData);
         }
 
         // عرض البيانات في الجدول
         function displayData(data) {
+            updateDebug(`📋 عرض البيانات: ${data.length} سجل`);
+            
             const tableBody = document.getElementById('tableBody');
             const table = document.getElementById('dataTable');
             const emptyState = document.getElementById('emptyState');
 
-            if (data.length === 0) {
-                table.style.display = 'none';
-                emptyState.style.display = 'block';
+            if (!tableBody) {
+                updateDebug('❌ لم يتم العثور على tableBody');
                 return;
             }
 
-            table.style.display = 'table';
-            emptyState.style.display = 'none';
+            if (data.length === 0) {
+                updateDebug('📭 لا توجد بيانات لعرضها');
+                if (table) table.style.display = 'none';
+                if (emptyState) {
+                    emptyState.innerHTML = `
+                        <div class="empty-state-icon">📭</div>
+                        <h3>لا توجد بيانات</h3>
+                        <p>لم يتم العثور على أي سجلات تطابق الفلتر المحدد: ${currentFilter}</p>
+                    `;
+                    emptyState.style.display = 'block';
+                }
+                return;
+            }
+
+            updateDebug('📊 عرض البيانات في الجدول');
+            if (table) table.style.display = 'table';
+            if (emptyState) emptyState.style.display = 'none';
 
             tableBody.innerHTML = '';
 
-            data.forEach(item => {
+            data.forEach((item, index) => {
+                updateDebug(`📄 معالجة السجل ${index + 1}: ID=${item.id}, Status=${item.status}`);
+                
                 const row = document.createElement('tr');
                 
                 // تحديد الحالة والأزرار
                 let statusBadge, actionButtons;
                 
-                switch(item.status) {
-                    case 'pending':
-                        statusBadge = '<span class="status-badge status-pending">في الانتظار</span>';
-                        actionButtons = `
-                            <button onclick="viewApplication('${item.id}')" class="btn btn-view btn-sm">عرض</button>
-                        `;
-                        break;
-                    case 'approved':
-                        statusBadge = '<span class="status-badge status-approved">معتمد</span>';
-                        actionButtons = `
-                            <button onclick="viewMember('${item.id}')" class="btn btn-view btn-sm">عرض</button>
-                        `;
-                        break;
-                    case 'rejected':
-                        statusBadge = '<span class="status-badge status-rejected">مرفوض</span>';
-                        actionButtons = `
-                            <button onclick="viewApplication('${item.id}')" class="btn btn-view btn-sm">عرض</button>
-                        `;
-                        break;
-                    case 'renewal_requested':
-                        statusBadge = '<span class="status-badge status-renewal">طلب تجديد</span>';
-                        actionButtons = `
-                            <button onclick="processRenewal('${item.id}')" class="btn btn-approve btn-sm">تجديد</button>
-                            <button onclick="viewMember('${item.id}')" class="btn btn-view btn-sm">عرض</button>
-                        `;
-                        break;
-                    default:
-                        statusBadge = '<span class="status-badge">غير محدد</span>';
-                        actionButtons = `
-                            <button onclick="viewApplication('${item.id}')" class="btn btn-view btn-sm">عرض</button>
-                        `;
+                if (item.status === 'pending' || item.status === 'في الانتظار' || item.status === 'قيد المراجعة' || (!item.status && !item.membership_number)) {
+                    statusBadge = '<span class="status-badge status-pending">في الانتظار</span>';
+                    actionButtons = `<button onclick="viewApplication('${item.id}')" class="btn btn-view btn-sm">عرض</button>`;
+                } else if (item.status === 'approved' || item.status === 'معتمد' || item.membership_number) {
+                    statusBadge = '<span class="status-badge status-approved">معتمد</span>';
+                    actionButtons = `<button onclick="viewMember('${item.id}')" class="btn btn-view btn-sm">عرض</button>`;
+                } else if (item.status === 'rejected' || item.status === 'مرفوض') {
+                    statusBadge = '<span class="status-badge status-rejected">مرفوض</span>';
+                    actionButtons = `<button onclick="viewApplication('${item.id}')" class="btn btn-view btn-sm">عرض</button>`;
+                } else if (item.status === 'renewal_requested' || item.status === 'طلب تجديد') {
+                    statusBadge = '<span class="status-badge status-renewal">طلب تجديد</span>';
+                    actionButtons = `
+                        <button onclick="processRenewal('${item.id}')" class="btn btn-approve btn-sm">تجديد</button>
+                        <button onclick="viewMember('${item.id}')" class="btn btn-view btn-sm">عرض</button>
+                    `;
+                } else {
+                    statusBadge = '<span class="status-badge">غير محدد</span>';
+                    actionButtons = `<button onclick="viewApplication('${item.id}')" class="btn btn-view btn-sm">عرض</button>`;
                 }
 
                 const fullName = `${item.first_name_ar || ''} ${item.middle_name_ar || ''} ${item.last_name_ar || ''}`.trim();
@@ -837,6 +960,8 @@
 
                 tableBody.appendChild(row);
             });
+            
+            updateDebug(`✅ تم عرض ${data.length} سجل في الجدول`);
         }
 
         // البحث في البيانات
