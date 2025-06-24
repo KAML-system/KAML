@@ -790,14 +790,152 @@
 
         // عرض المرفق
         function viewAttachment(fileData, fileName) {
-            if (fileData && fileData.startsWith('data:')) {
-                // فتح في نافذة جديدة
-                const newWindow = window.open();
-                newWindow.document.write(`
-                    <html>
-                        <head><title>${fileName}</title></head>
-                        <body style="margin:0; display:flex; justify-content:center; align-items:center; min-height:100vh; background:#f3f4f6;">
-                            <img src="${fileData}" style="max-width:100%; max-height:100%; object-fit:contain;" alt="${fileName}">
+            console.log('محاولة عرض المرفق:', fileName, 'البيانات:', fileData ? 'موجودة' : 'غير موجودة');
+            
+            if (!fileData) {
+                alert('لا توجد بيانات للمرفق');
+                return;
+            }
+
+            try {
+                if (fileData.startsWith('data:')) {
+                    // فتح في نافذة جديدة
+                    const newWindow = window.open('', '_blank');
+                    if (newWindow) {
+                        newWindow.document.write(`
+                            <!DOCTYPE html>
+                            <html>
+                                <head>
+                                    <title>${fileName}</title>
+                                    <style>
+                                        body { 
+                                            margin: 0; 
+                                            padding: 20px;
+                                            display: flex; 
+                                            justify-content: center; 
+                                            align-items: center; 
+                                            min-height: 100vh; 
+                                            background: #f3f4f6;
+                                            font-family: Arial, sans-serif;
+                                        }
+                                        .container {
+                                            text-align: center;
+                                            background: white;
+                                            padding: 20px;
+                                            border-radius: 10px;
+                                            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                                            max-width: 90vw;
+                                            max-height: 90vh;
+                                        }
+                                        img { 
+                                            max-width: 100%; 
+                                            max-height: 70vh; 
+                                            object-fit: contain;
+                                            border: 1px solid #ddd;
+                                            border-radius: 5px;
+                                        }
+                                        h3 {
+                                            margin-top: 0;
+                                            color: #374151;
+                                        }
+                                        .download-btn {
+                                            margin-top: 15px;
+                                            padding: 10px 20px;
+                                            background: #3b82f6;
+                                            color: white;
+                                            border: none;
+                                            border-radius: 5px;
+                                            cursor: pointer;
+                                            text-decoration: none;
+                                            display: inline-block;
+                                        }
+                                        .download-btn:hover {
+                                            background: #2563eb;
+                                        }
+                                    </style>
+                                </head>
+                                <body>
+                                    <div class="container">
+                                        <h3>${fileName}</h3>
+                                        <img src="${fileData}" alt="${fileName}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                        <div style="display:none; color:#ef4444;">خطأ في تحميل الصورة</div>
+                                        <br>
+                                        <a href="${fileData}" download="${fileName}" class="download-btn">تحميل الملف</a>
+                                    </div>
+                                </body>
+                            </html>
+                        `);
+                        newWindow.document.close();
+                    } else {
+                        // إذا فشل فتح النافذة الجديدة، استخدم modal
+                        showAttachmentModal(fileData, fileName);
+                    }
+                } else if (fileData.startsWith('http')) {
+                    // رابط خارجي
+                    window.open(fileData, '_blank');
+                } else {
+                    // محاولة إنشاء data URL
+                    const dataUrl = `data:image/jpeg;base64,${fileData}`;
+                    viewAttachment(dataUrl, fileName);
+                }
+            } catch (error) {
+                console.error('خطأ في عرض المرفق:', error);
+                alert('حدث خطأ في عرض المرفق: ' + error.message);
+            }
+        }
+
+        // عرض المرفق في modal إذا فشل فتح النافذة الجديدة
+        function showAttachmentModal(fileData, fileName) {
+            // إنشاء modal
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+            `;
+
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: white;
+                padding: 20px;
+                border-radius: 10px;
+                max-width: 90vw;
+                max-height: 90vh;
+                text-align: center;
+                position: relative;
+            `;
+
+            modalContent.innerHTML = `
+                <h3 style="margin-top: 0;">${fileName}</h3>
+                <img src="${fileData}" style="max-width: 100%; max-height: 70vh; object-fit: contain;" alt="${fileName}">
+                <br><br>
+                <button onclick="this.closest('[style*=\"position: fixed\"]').remove()" 
+                        style="padding: 10px 20px; background: #ef4444; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    إغلاق
+                </button>
+                <a href="${fileData}" download="${fileName}" 
+                   style="margin-left: 10px; padding: 10px 20px; background: #3b82f6; color: white; text-decoration: none; border-radius: 5px;">
+                    تحميل
+                </a>
+            `;
+
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+
+            // إغلاق عند النقر خارج المحتوى
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            };
+        }
                         </body>
                     </html>
                 `);
@@ -884,47 +1022,78 @@
 
                 console.log('تحديث البيانات:', updatedData);
 
-                // حفظ في Firebase
+                // حفظ في Firebase أولاً
+                let firebaseSaved = false;
                 try {
-                    if (currentApplication.source && currentApplication.source.includes('firebase')) {
-                        await db.collection('membershipApplications').doc(applicationId).update(updatedData);
-                        console.log('تم التحديث في Firebase');
+                    if (typeof db !== 'undefined' && db) {
+                        // البحث عن المستند في Firebase
+                        const querySnapshot = await db.collection('membershipApplications')
+                            .where('id', '==', applicationId)
+                            .get();
+                        
+                        if (!querySnapshot.empty) {
+                            // تحديث المستند الموجود
+                            const doc = querySnapshot.docs[0];
+                            await doc.ref.update(updatedData);
+                            console.log('تم التحديث في Firebase');
+                            firebaseSaved = true;
+                        } else {
+                            // إنشاء مستند جديد
+                            await db.collection('membershipApplications').doc(applicationId).set(updatedData);
+                            console.log('تم إنشاء مستند جديد في Firebase');
+                            firebaseSaved = true;
+                        }
                     }
                 } catch (firebaseError) {
                     console.warn('خطأ في حفظ Firebase:', firebaseError);
                 }
 
-                // حفظ في التخزين المحلي (مهم جداً)
-                const localData = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
-                const index = localData.findIndex(app => 
+                // حفظ في التخزين المحلي (مهم جداً لضمان التحديث)
+                let localData = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+                
+                // البحث بطرق متعددة
+                let index = localData.findIndex(app => 
                     app.id === applicationId || 
                     String(app.id) === String(applicationId) ||
-                    app.civil_id === applicationId
+                    app.civil_id === applicationId ||
+                    app.civil_id === updatedData.civil_id
                 );
                 
                 if (index !== -1) {
-                    // تحديث السجل الموجود
+                    // تحديث السجل الموجود مع الحفاظ على البيانات الأصلية
                     localData[index] = { ...localData[index], ...updatedData };
-                    console.log('تم تحديث السجل في الفهرس:', index);
+                    console.log('تم تحديث السجل في الفهرس:', index, 'الحالة الجديدة:', localData[index].status);
                 } else {
                     // إضافة سجل جديد
                     localData.push(updatedData);
-                    console.log('تم إضافة سجل جديد');
+                    console.log('تم إضافة سجل جديد، الحالة:', updatedData.status);
                 }
                 
+                // حفظ البيانات المحدثة
                 localStorage.setItem('membershipApplications', JSON.stringify(localData));
-                console.log('تم حفظ البيانات في localStorage');
+                console.log('تم حفظ البيانات في localStorage، إجمالي السجلات:', localData.length);
+
+                // تحديث البيانات الحالية في الصفحة
+                currentApplication = { ...currentApplication, ...updatedData };
 
                 // إظهار رسالة النجاح
                 const successText = decision === 'approve' ? 
-                    'تم قبول الطلب وإنشاء العضوية بنجاح' : 
+                    `تم قبول الطلب وإنشاء العضوية رقم ${updatedData.membership_number} بنجاح` : 
                     'تم رفض الطلب وحفظ الأسباب';
                 
                 showSuccess(successText);
 
-                // إعادة التوجيه بعد 3 ثوان
+                // إعادة التوجيه بعد 3 ثوان مع تحديث الصفحة
                 setTimeout(() => {
-                    window.location.href = 'dashboard.html';
+                    // إجبار تحديث البيانات في لوحة التحكم
+                    if (window.opener && !window.opener.closed) {
+                        try {
+                            window.opener.location.reload();
+                        } catch (e) {
+                            console.log('لا يمكن تحديث النافذة الأصلية');
+                        }
+                    }
+                    window.location.href = 'dashboard.html?refresh=true';
                 }, 3000);
 
             } catch (error) {

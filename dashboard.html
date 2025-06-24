@@ -618,7 +618,21 @@
 
         // تحميل البيانات عند بدء الصفحة
         document.addEventListener('DOMContentLoaded', function() {
+            // التحقق من معامل التحديث في URL
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('refresh') === 'true') {
+                console.log('تم طلب تحديث البيانات من صفحة المراجعة');
+                // إزالة معامل التحديث من URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+            
             loadData();
+            
+            // إضافة مستمع لتحديث البيانات عند التركيز على النافذة
+            window.addEventListener('focus', function() {
+                console.log('تم التركيز على النافذة - تحديث البيانات');
+                loadData();
+            });
         });
 
         // تحديث معلومات التشخيص
