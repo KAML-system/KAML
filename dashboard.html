@@ -683,13 +683,28 @@
                             updateDebug(`✅ تم العثور على ${snapshot.size} سجل في ${collectionName}`);
                             snapshot.forEach(doc => {
                                 const data = doc.data();
-                                firebaseData.push({
+                                
+                                // تنظيف وإصلاح البيانات الناقصة
+                                const cleanedData = {
                                     id: doc.id,
-                                    ...data,
-                                    source: collectionName
-                                });
+                                    first_name_ar: data.first_name_ar || data.firstName || '',
+                                    middle_name_ar: data.middle_name_ar || data.middleName || '',
+                                    last_name_ar: data.last_name_ar || data.lastName || '',
+                                    civil_id: data.civil_id || data.civilId || '',
+                                    email: data.email || '',
+                                    phone: data.phone || '',
+                                    status: data.status || (data.membership_number ? 'approved' : 'pending'),
+                                    membership_number: data.membership_number || '',
+                                    membership_type: data.membership_type || '',
+                                    submissionDate: data.submissionDate || data.createdAt || new Date().toISOString(),
+                                    source: collectionName,
+                                    ...data // الاحتفاظ بباقي البيانات
+                                };
+                                
+                                firebaseData.push(cleanedData);
                             });
-                            break; // توقف عند العثور على بيانات
+                            
+                            // لا نتوقف - نجمع من جميع المجموعات
                         } else {
                             updateDebug(`⚠️ مجموعة ${collectionName} فارغة`);
                         }
@@ -706,22 +721,45 @@
                 const combinedData = [...firebaseData];
                 localData.forEach(localItem => {
                     if (!combinedData.find(item => item.id === localItem.id)) {
-                        combinedData.push({
-                            ...localItem,
-                            source: 'localStorage'
-                        });
+                        // تنظيف البيانات المحلية أيضاً
+                        const cleanedLocalData = {
+                            id: localItem.id,
+                            first_name_ar: localItem.first_name_ar || localItem.firstName || '',
+                            middle_name_ar: localItem.middle_name_ar || localItem.middleName || '',
+                            last_name_ar: localItem.last_name_ar || localItem.lastName || '',
+                            civil_id: localItem.civil_id || localItem.civilId || '',
+                            email: localItem.email || '',
+                            phone: localItem.phone || '',
+                            status: localItem.status || (localItem.membership_number ? 'approved' : 'pending'),
+                            membership_number: localItem.membership_number || '',
+                            membership_type: localItem.membership_type || '',
+                            submissionDate: localItem.submissionDate || localItem.createdAt || new Date().toISOString(),
+                            source: 'localStorage',
+                            ...localItem // الاحتفاظ بباقي البيانات
+                        };
+                        
+                        combinedData.push(cleanedLocalData);
                     }
                 });
 
                 updateDebug(`📊 إجمالي البيانات المحملة: ${combinedData.length}`);
 
-                // تحليل الحالات
+                // تحليل الحالات مع عرض تفصيلي
                 const statusCounts = {};
                 combinedData.forEach(item => {
                     const status = item.status || 'undefined';
                     statusCounts[status] = (statusCounts[status] || 0) + 1;
                 });
                 updateDebug(`📈 إحصائيات الحالات: ${JSON.stringify(statusCounts)}`);
+                
+                // عرض عينة من البيانات للتشخيص
+                if (combinedData.length > 0) {
+                    updateDebug(`📄 عينة من البيانات المحملة:`);
+                    combinedData.slice(0, 3).forEach((item, index) => {
+                        const fullName = `${item.first_name_ar || ''} ${item.middle_name_ar || ''} ${item.last_name_ar || ''}`.trim();
+                        updateDebug(`${index + 1}. ID: ${item.id}, Status: ${item.status}, Name: ${fullName || 'غير محدد'}, Source: ${item.source}`);
+                    });
+                }
 
                 allData = combinedData;
                 updateStatistics();
@@ -987,7 +1025,7 @@
                     <td>${item.email || 'غير محدد'}</td>
                     <td>${fullName || 'غير محدد'}</td>
                     <td>${item.civil_id || 'غير محدد'}</td>
-                    <td>${item.id ? item.id.substring(0, 8) : 'غير محدد'}</td>
+                    <td>${item.id ? String(item.id).substring(0, 8) : 'غير محدد'}</td>
                 `;
 
                 tableBody.appendChild(row);
