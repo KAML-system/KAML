@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تعديل بيانات العضو - الجمعية الكويتية للمختبرات الطبية</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            direction: rtl;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-placeholder {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .header-title h1 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .header-title p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .edit-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .member-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .member-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: #6b7280;
+            overflow: hidden;
+        }
+
+        .member-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .member-info h3 {
+            color: #1f2937;
+            margin-bottom: 5px;
+            font-size: 18px;
+        }
+
+        .member-info p {
+            color: #6b7280;
+            margin-bottom: 3px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .membership-card {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .membership-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .card-logo {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .card-subtitle {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .card-body {
+            text-align: center;
+        }
+
+        .card-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .card-number {
+            font-size: 16px;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .qr-code {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .card-dates {
+            font-size: 11px;
+            opacity: 0.8;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .attachments-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .attachment-icon {
+            width: 40px;
+            height: 40px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .attachment-info {
+            flex: 1;
+        }
+
+        .attachment-name {
+            font-weight: 500;
+            color: #1f2937;
+            margin-bottom: 2px;
+        }
+
+        .attachment-size {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .attachment-preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #e5e7eb;
+        }
+
+        .attachment-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        /* تنسيق بطاقة العضوية الاحترافية */
+        .membership-card-container {
+            margin: 20px 0;
+        }
+
+        .professional-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px solid #e5e7eb;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 450px;
+            margin: 0 auto;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .card-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid white;
+        }
+
+        .association-info h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .association-info p {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .card-body {
+            padding: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .member-info {
+            flex: 1;
+        }
+
+        .member-name h2 {
+            margin: 0 0 15px 0;
+            font-size: 20px;
+            color: #1e3a8a;
+            font-weight: 700;
+        }
+
+        .membership-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .detail-row .label {
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .detail-row .value {
+            font-size: 14px;
+            color: #1f2937;
+            font-weight: 600;
+        }
+
+        .qr-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .qr-code {
+            width: 80px;
+            height: 80px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qr-placeholder {
+            width: 70px;
+            height: 70px;
+        }
+
+        .qr-pattern {
+            display: grid;
+            grid-template-rows: repeat(5, 1fr);
+            gap: 1px;
+            width: 100%;
+            height: 100%;
+        }
+
+        .qr-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1px;
+        }
+
+        .qr-cell {
+            width: 100%;
+            height: 100%;
+        }
+
+        .qr-cell.black {
+            background: #000;
+        }
+
+        .qr-cell.white {
+            background: #fff;
+        }
+
+        .qr-label {
+            font-size: 10px;
+            color: #6b7280;
+            margin: 0;
+            text-align: center;
+        }
+
+        .card-footer {
+            background: #f8fafc;
+            padding: 15px 25px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .validity-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .status-indicator {
+            color: #10b981;
+            font-size: 16px;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .edit-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo-placeholder">
+                    <img src="logo.png" alt="شعار الجمعية" style="width: 100%; height: 100%; object-fit: contain; border-radius: 50%;">
+                </div>
+                <div class="header-title">
+                    <h1>الجمعية الكويتية للمختبرات الطبية</h1>
+                    <p>تعديل بيانات العضو</p>
+                </div>
+            </div>
+            <a href="dashboard.html" class="back-btn">← العودة للوحة التحكم</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="edit-layout">
+            <!-- المحتوى الرئيسي -->
+            <div class="main-content">
+                <div class="section-title">
+                    📝 تعديل بيانات العضو
+                </div>
+
+                <!-- البيانات الشخصية -->
+                <div class="form-section">
+                    <h3>البيانات الشخصية</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>الاسم الأول (عربي)</label>
+                            <input type="text" id="firstNameAr" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>الاسم الأوسط (عربي)</label>
+                            <input type="text" id="middleNameAr" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>الاسم الأخير (عربي)</label>
+                            <input type="text" id="lastNameAr" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>الاسم الأول (إنجليزي)</label>
+                            <input type="text" id="firstNameEn" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>الاسم الأوسط (إنجليزي)</label>
+                            <input type="text" id="middleNameEn" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>الاسم الأخير (إنجليزي)</label>
+                            <input type="text" id="lastNameEn" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- معلومات الاتصال -->
+                <div class="form-section">
+                    <h3>معلومات الاتصال</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>البريد الإلكتروني</label>
+                            <input type="email" id="email">
+                        </div>
+                        <div class="form-group">
+                            <label>رقم الهاتف</label>
+                            <input type="tel" id="phone">
+                        </div>
+                        <div class="form-group">
+                            <label>الرقم المدني</label>
+                            <input type="text" id="civilId" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>العنوان</label>
+                            <textarea id="address" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- معلومات العضوية -->
+                <div class="form-section">
+                    <h3>معلومات العضوية</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>رقم العضوية</label>
+                            <input type="text" id="membershipNumber" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>نوع العضوية</label>
+                            <select id="membershipType">
+                                <option value="عضو منتسب">عضو منتسب</option>
+                                <option value="عضو غير منتسب">عضو غير منتسب</option>
+                                <option value="عضو فخري">عضو فخري</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>حالة العضوية</label>
+                            <select id="status">
+                                <option value="active">نشط</option>
+                                <option value="inactive">غير نشط</option>
+                                <option value="suspended">معلق</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ الانضمام</label>
+                            <input type="date" id="joinDate">
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ انتهاء العضوية</label>
+                            <input type="date" id="expiryDate">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- أزرار الحفظ -->
+                <div class="btn-group">
+                    <button class="btn btn-success" onclick="saveMemberData()">💾 حفظ التغييرات</button>
+                    <button class="btn btn-secondary" onclick="cancelEdit()">❌ إلغاء</button>
+                </div>
+            </div>
+
+            <!-- الشريط الجانبي -->
+            <div class="sidebar">
+                <!-- بطاقة العضو -->
+                <div class="member-card">
+                    <div class="member-photo" id="memberPhoto">
+                        👤
+                    </div>
+                    <div class="member-info">
+                        <h3 id="memberName">اسم العضو</h3>
+                        <p id="memberEmail">البريد الإلكتروني</p>
+                        <p id="memberPhone">رقم الهاتف</p>
+                        <span class="status-badge" id="memberStatus">نشط</span>
+                    </div>
+                </div>
+
+                <!-- بطاقة العضوية الاحترافية -->
+                <div id="membershipCard" class="membership-card-container">
+                    <!-- سيتم إنشاء بطاقة العضوية هنا -->
+                </div>
+
+                <!-- المرفقات -->
+                <div class="attachments-section">
+                    <div class="section-title">
+                        📎 المرفقات
+                    </div>
+                    <div id="attachmentsList">
+                        <!-- سيتم ملء المرفقات هنا -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMember = null;
+
+        // تحميل بيانات العضو عند تحميل الصفحة
+        window.addEventListener('DOMContentLoaded', function() {
+            loadMemberData();
+        });
+
+        function loadMemberData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const memberId = urlParams.get('id');
+            
+            if (!memberId) {
+                alert('لم يتم تحديد العضو');
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            const members = JSON.parse(localStorage.getItem('members') || '[]');
+            currentMember = members.find(m => m.id === memberId);
+            
+            if (!currentMember) {
+                alert('العضو غير موجود');
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            // ملء البيانات في النموذج
+            fillFormData(currentMember);
+            
+            // تحديث بطاقة العضو
+            updateMemberCard(currentMember);
+            
+            // تحديث بطاقة العضوية
+            updateMembershipCard(currentMember);
+            
+            // تحميل المرفقات
+            loadAttachments(currentMember);
+        }
+
+        function fillFormData(member) {
+            document.getElementById('firstNameAr').value = member.firstNameAr || '';
+            document.getElementById('middleNameAr').value = member.middleNameAr || '';
+            document.getElementById('lastNameAr').value = member.lastNameAr || '';
+            document.getElementById('firstNameEn').value = member.firstNameEn || '';
+            document.getElementById('middleNameEn').value = member.middleNameEn || '';
+            document.getElementById('lastNameEn').value = member.lastNameEn || '';
+            document.getElementById('email').value = member.email || '';
+            document.getElementById('phone').value = member.phone || '';
+            document.getElementById('civilId').value = member.civilId || '';
+            document.getElementById('address').value = member.address || '';
+            document.getElementById('membershipNumber').value = member.membershipNumber || '';
+            document.getElementById('membershipType').value = member.membershipType || '';
+            document.getElementById('status').value = member.status || '';
+            document.getElementById('joinDate').value = member.joinDate || '';
+            document.getElementById('expiryDate').value = member.expiryDate || '';
+        }
+
+        function updateMemberCard(member) {
+            const fullName = `${member.firstNameAr || ''} ${member.middleNameAr || ''} ${member.lastNameAr || ''}`.trim();
+            document.getElementById('memberName').textContent = fullName || 'اسم العضو';
+            document.getElementById('memberEmail').textContent = member.email || 'البريد الإلكتروني';
+            document.getElementById('memberPhone').textContent = member.phone || 'رقم الهاتف';
+            
+            // تحديث الصورة الشخصية
+            const memberPhoto = document.getElementById('memberPhoto');
+            if (member.personalPhoto) {
+                memberPhoto.innerHTML = `<img src="${member.personalPhoto}" alt="صورة العضو" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+            } else {
+                memberPhoto.innerHTML = '👤';
+            }
+            
+            const statusBadge = document.getElementById('memberStatus');
+            statusBadge.textContent = member.status === 'active' ? 'نشط' : 'غير نشط';
+            statusBadge.className = `status-badge ${member.status === 'active' ? 'status-active' : 'status-inactive'}`;
+        }
+
+        function updateMembershipCard(member) {
+            // إنشاء بطاقة العضوية الاحترافية
+            generateMembershipCard(member);
+        }
+
+        // دالة إنشاء بطاقة العضوية الاحترافية
+        function generateMembershipCard(member) {
+            const membershipCard = document.getElementById('membershipCard');
+            
+            // إنشاء QR Code data مع بيانات ثابتة ومحدثة
+            const qrData = JSON.stringify({
+                membershipNumber: member.membershipNumber,
+                memberName: `${member.firstNameEn} ${member.middleNameEn} ${member.lastNameEn}`,
+                issueDate: member.joinDate,
+                expiryDate: member.expiryDate,
+                status: member.status,
+                association: "Kuwait Association for Medical Laboratories",
+                verificationUrl: `https://kaml.org/verify/${member.membershipNumber}`
+            });
+            
+            membershipCard.innerHTML = `
+                <div class="professional-card">
+                    <div class="card-header">
+                        <div class="logo-section">
+                            <img src="logo.png" alt="شعار الجمعية" class="card-logo">
+                        </div>
+                        <div class="association-info">
+                            <h3>Kuwait Association for Medical Laboratories</h3>
+                            <p>الجمعية الكويتية للمختبرات الطبية</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="member-info">
+                            <div class="member-name">
+                                <h2>${member.firstNameEn} ${member.middleNameEn} ${member.lastNameEn}</h2>
+                            </div>
+                            <div class="membership-details">
+                                <div class="detail-row">
+                                    <span class="label">Membership No:</span>
+                                    <span class="value">${member.membershipNumber}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="label">Issue Date:</span>
+                                    <span class="value">${new Date(member.joinDate).toLocaleDateString('en-GB')}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="label">Expiry Date:</span>
+                                    <span class="value">${new Date(member.expiryDate).toLocaleDateString('en-GB')}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="qr-section">
+                            <div id="qrcode-${member.id}" class="qr-code"></div>
+                            <p class="qr-label">Scan for verification</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <div class="validity-info">
+                            <span>Valid Member</span>
+                            <span class="status-indicator">●</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // إنشاء QR Code
+            setTimeout(() => {
+                console.log('Attempting to generate QR Code for member:', member.membershipNumber);
+                generateQRCode(`qrcode-${member.id}`, qrData);
+            }, 500);
+        }
+        
+        // دالة إنشاء QR Code باستخدام خدمة QR Server
+        function generateQRCode(elementId, data) {
+            const qrContainer = document.getElementById(elementId);
+            if (!qrContainer) {
+                console.error('QR Container not found:', elementId);
+                return;
+            }
+            
+            // مسح المحتوى السابق
+            qrContainer.innerHTML = '';
+            
+            try {
+                // إنشاء QR Code باستخدام خدمة QR Server API
+                const qrData = encodeURIComponent(data);
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${qrData}`;
+                
+                // إنشاء صورة QR Code
+                const qrImage = document.createElement('img');
+                qrImage.src = qrUrl;
+                qrImage.style.width = '80px';
+                qrImage.style.height = '80px';
+                qrImage.style.border = '1px solid #e5e7eb';
+                qrImage.style.borderRadius = '4px';
+                qrImage.alt = 'QR Code';
+                
+                // معالجة حالة فشل تحميل الصورة
+                qrImage.onerror = function() {
+                    console.error('Failed to load QR Code from server');
+                    qrContainer.innerHTML = `
+                        <div style="width: 80px; height: 80px; background: #f3f4f6; border: 2px solid #e5e7eb; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; color: #6b7280; text-align: center;">
+                            <div style="font-size: 16px; margin-bottom: 4px;">📱</div>
+                            <div>QR Code</div>
+                            <div style="font-size: 8px;">Available</div>
+                        </div>
+                    `;
+                };
+                
+                qrImage.onload = function() {
+                    console.log('QR Code loaded successfully for:', elementId);
+                };
+                
+                qrContainer.appendChild(qrImage);
+                
+            } catch (error) {
+                console.error('Exception in QR Code generation:', error);
+                // إنشاء QR Code بديل أنيق
+                qrContainer.innerHTML = `
+                    <div style="width: 80px; height: 80px; background: linear-gradient(45deg, #f3f4f6 25%, transparent 25%), linear-gradient(-45deg, #f3f4f6 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f3f4f6 75%), linear-gradient(-45deg, transparent 75%, #f3f4f6 75%); background-size: 8px 8px; background-position: 0 0, 0 4px, 4px -4px, -4px 0px; border: 2px solid #e5e7eb; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; color: #374151; text-align: center;">
+                        <div style="background: white; padding: 2px 4px; border-radius: 4px; font-weight: bold;">QR</div>
+                        <div style="background: white; padding: 1px 2px; border-radius: 2px; margin-top: 2px; font-size: 8px;">CODE</div>
+                    </div>
+                `;
+            }
+        }
+
+        function loadAttachments(member) {
+            const attachmentsList = document.getElementById('attachmentsList');
+            
+            // مرفقات تجريبية شاملة
+            const attachments = [
+                {
+                    name: 'الهوية المدنية',
+                    type: 'image',
+                    size: '2.3 MB',
+                    icon: '🆔'
+                },
+                {
+                    name: 'الشهادة الجامعية',
+                    type: 'pdf',
+                    size: '1.8 MB',
+                    icon: '📜'
+                },
+                {
+                    name: 'صورة شخصية',
+                    type: 'image',
+                    size: '856 KB',
+                    icon: '📷'
+                },
+                {
+                    name: 'الصحيفة الجنائية',
+                    type: 'pdf',
+                    size: '1.2 MB',
+                    icon: '📋'
+                },
+                {
+                    name: 'ترخيص مزاولة المهنة',
+                    type: 'pdf',
+                    size: '950 KB',
+                    icon: '📄'
+                }
+            ];
+            
+            attachmentsList.innerHTML = attachments.map(attachment => `
+                <div class="attachment-item">
+                    <div class="attachment-icon">${attachment.icon}</div>
+                    <div class="attachment-info">
+                        <div class="attachment-name">${attachment.name}</div>
+                        <div class="attachment-size">${attachment.size}</div>
+                    </div>
+                    <div class="attachment-preview">
+                        ${attachment.type === 'image' ? '<img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjRTVFN0VCIi8+CjxwYXRoIGQ9Ik0yMCAyMEg0MFY0MEgyMFYyMFoiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+Cg==" alt="معاينة">' : '📄'}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function saveMemberData() {
+            if (!currentMember) return;
+            
+            // تحديث البيانات
+            currentMember.email = document.getElementById('email').value;
+            currentMember.phone = document.getElementById('phone').value;
+            currentMember.address = document.getElementById('address').value;
+            currentMember.membershipType = document.getElementById('membershipType').value;
+            currentMember.status = document.getElementById('status').value;
+            currentMember.joinDate = document.getElementById('joinDate').value;
+            currentMember.expiryDate = document.getElementById('expiryDate').value;
+            
+            // حفظ في localStorage
+            const members = JSON.parse(localStorage.getItem('members') || '[]');
+            const memberIndex = members.findIndex(m => m.id === currentMember.id);
+            
+            if (memberIndex !== -1) {
+                members[memberIndex] = currentMember;
+                localStorage.setItem('members', JSON.stringify(members));
+                
+                // تحديث العرض
+                updateMemberCard(currentMember);
+                updateMembershipCard(currentMember);
+                
+                alert('تم حفظ التغييرات بنجاح');
+            } else {
+                alert('خطأ في حفظ البيانات');
+            }
+        }
+
+        function cancelEdit() {
+            if (confirm('هل أنت متأكد من إلغاء التعديل؟ ستفقد جميع التغييرات غير المحفوظة.')) {
+                window.location.href = 'dashboard.html';
+            }
+        }
+    </script>
+</body>
+</html>
+

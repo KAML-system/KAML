@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إضافة عضو قديم - الجمعية الكويتية للمختبرات الطبية</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-50%) translateX(-5px);
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .form-section {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-left: 5px solid #4f46e5;
+        }
+
+        .section-title {
+            color: #1f2937;
+            font-size: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 16px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .file-upload-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .upload-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .upload-item {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .upload-item:hover {
+            border-color: #4f46e5;
+            background: #f0f4ff;
+        }
+
+        .upload-item.has-file {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .upload-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .upload-label {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+
+        .upload-hint {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .membership-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+            transform: translateY(-2px);
+        }
+
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .upload-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="dashboard.html" class="back-btn">← العودة</a>
+            <h1>إضافة عضو قديم</h1>
+            <p>إدخال بيانات عضو سابق إلى النظام</p>
+        </div>
+
+        <div class="content">
+            <form id="addMemberForm">
+                <!-- البيانات الشخصية -->
+                <div class="form-section">
+                    <h2 class="section-title">👤 البيانات الشخصية</h2>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">الاسم الأول (عربي) *</label>
+                            <input type="text" class="form-input" id="firstNameAr" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">الاسم الأوسط (عربي) *</label>
+                            <input type="text" class="form-input" id="middleNameAr" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">الاسم الأخير (عربي) *</label>
+                            <input type="text" class="form-input" id="lastNameAr" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">الاسم الأول (إنجليزي) *</label>
+                            <input type="text" class="form-input" id="firstNameEn" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">الاسم الأوسط (إنجليزي) *</label>
+                            <input type="text" class="form-input" id="middleNameEn" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">الاسم الأخير (إنجليزي) *</label>
+                            <input type="text" class="form-input" id="lastNameEn" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- معلومات الاتصال -->
+                <div class="form-section">
+                    <h2 class="section-title">📞 معلومات الاتصال</h2>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">البريد الإلكتروني *</label>
+                            <input type="email" class="form-input" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">رقم الهاتف *</label>
+                            <input type="tel" class="form-input" id="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">تاريخ الميلاد</label>
+                            <input type="date" class="form-input" id="birthDate">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">الجنسية</label>
+                            <input type="text" class="form-input" id="nationality" value="كويتي">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">العنوان</label>
+                        <textarea class="form-textarea" id="address" placeholder="العنوان الكامل..."></textarea>
+                    </div>
+                </div>
+
+                <!-- المعلومات المهنية -->
+                <div class="form-section">
+                    <h2 class="section-title">🎓 المعلومات المهنية</h2>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">المؤهل العلمي</label>
+                            <select class="form-select" id="qualification">
+                                <option value="">اختر المؤهل العلمي</option>
+                                <option value="دبلوم">دبلوم</option>
+                                <option value="بكالوريوس">بكالوريوس</option>
+                                <option value="ماجستير">ماجستير</option>
+                                <option value="دكتوراه">دكتوراه</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">التخصص</label>
+                            <input type="text" class="form-input" id="specialization" placeholder="مثال: علم الأحياء الدقيقة">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">جهة العمل</label>
+                            <input type="text" class="form-input" id="workplace" placeholder="مثال: مستشفى الأميري">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">المنصب</label>
+                            <input type="text" class="form-input" id="position" placeholder="مثال: أخصائي مختبرات">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">سنوات الخبرة</label>
+                            <input type="number" class="form-input" id="experience" min="0" placeholder="عدد السنوات">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- معلومات العضوية -->
+                <div class="membership-section">
+                    <h2 class="section-title">🎫 معلومات العضوية</h2>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">رقم العضوية *</label>
+                            <input type="text" class="form-input" id="membershipNumber" required placeholder="مثال: 020">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">نوع العضوية *</label>
+                            <select class="form-select" id="membershipType" required>
+                                <option value="">اختر نوع العضوية</option>
+                                <option value="عضو عامل">عضو عامل</option>
+                                <option value="عضو منتسب">عضو منتسب</option>
+                                <option value="عضو شرفي">عضو شرفي</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">تاريخ الانضمام</label>
+                            <input type="date" class="form-input" id="joinDate">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">تاريخ انتهاء العضوية</label>
+                            <input type="date" class="form-input" id="expiryDate">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">حالة العضوية</label>
+                            <select class="form-select" id="memberStatus">
+                                <option value="active">نشط</option>
+                                <option value="expired">منتهي الصلاحية</option>
+                                <option value="pending">في الانتظار</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- المرفقات -->
+                <div class="file-upload-section">
+                    <h2 class="section-title">📎 المرفقات المطلوبة</h2>
+                    
+                    <div class="upload-grid">
+                        <div class="upload-item" onclick="document.getElementById('civilIdFront').click()">
+                            <span class="upload-icon">🆔</span>
+                            <div class="upload-label">البطاقة المدنية (الوجه الأمامي)</div>
+                            <div class="upload-hint">اضغط لرفع الملف</div>
+                            <input type="file" id="civilIdFront" class="file-input" accept="image/*,.pdf">
+                        </div>
+                        
+                        <div class="upload-item" onclick="document.getElementById('civilIdBack').click()">
+                            <span class="upload-icon">🆔</span>
+                            <div class="upload-label">البطاقة المدنية (الوجه الخلفي)</div>
+                            <div class="upload-hint">اضغط لرفع الملف</div>
+                            <input type="file" id="civilIdBack" class="file-input" accept="image/*,.pdf">
+                        </div>
+                        
+                        <div class="upload-item" onclick="document.getElementById('certificate').click()">
+                            <span class="upload-icon">📜</span>
+                            <div class="upload-label">الشهادة الجامعية</div>
+                            <div class="upload-hint">اضغط لرفع الملف</div>
+                            <input type="file" id="certificate" class="file-input" accept="image/*,.pdf">
+                        </div>
+                        
+                        <div class="upload-item" onclick="document.getElementById('personalPhoto').click()">
+                            <span class="upload-icon">📷</span>
+                            <div class="upload-label">الصورة الشخصية</div>
+                            <div class="upload-hint">اضغط لرفع الملف</div>
+                            <input type="file" id="personalPhoto" class="file-input" accept="image/*">
+                        </div>
+                        
+                        <div class="upload-item" onclick="document.getElementById('criminalRecord').click()">
+                            <span class="upload-icon">📋</span>
+                            <div class="upload-label">الصحيفة الجنائية</div>
+                            <div class="upload-hint">اضغط لرفع الملف</div>
+                            <input type="file" id="criminalRecord" class="file-input" accept="image/*,.pdf">
+                        </div>
+                        
+                        <div class="upload-item" onclick="document.getElementById('license').click()">
+                            <span class="upload-icon">📄</span>
+                            <div class="upload-label">ترخيص مزاولة المهنة</div>
+                            <div class="upload-hint">اضغط لرفع الملف</div>
+                            <input type="file" id="license" class="file-input" accept="image/*,.pdf">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        ✅ إضافة العضو
+                    </button>
+                    <a href="dashboard.html" class="btn btn-secondary">
+                        🔙 إلغاء
+                    </a>
+                </div>
+
+                <div class="success-message" id="success-message"></div>
+                <div class="error-message" id="error-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // معالجة رفع الملفات
+        function setupFileUploads() {
+            const fileInputs = document.querySelectorAll('.file-input');
+            
+            fileInputs.forEach(input => {
+                input.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    const uploadItem = this.closest('.upload-item');
+                    
+                    if (file) {
+                        uploadItem.classList.add('has-file');
+                        const hint = uploadItem.querySelector('.upload-hint');
+                        hint.textContent = `تم رفع: ${file.name}`;
+                    } else {
+                        uploadItem.classList.remove('has-file');
+                        const hint = uploadItem.querySelector('.upload-hint');
+                        hint.textContent = 'اضغط لرفع الملف';
+                    }
+                });
+            });
+        }
+
+        // تعيين التواريخ الافتراضية
+        function setDefaultDates() {
+            const today = new Date();
+            const joinDate = document.getElementById('joinDate');
+            const expiryDate = document.getElementById('expiryDate');
+            
+            // تعيين تاريخ الانضمام لليوم
+            joinDate.value = today.toISOString().split('T')[0];
+            
+            // تعيين تاريخ الانتهاء لسنة من اليوم
+            const nextYear = new Date(today);
+            nextYear.setFullYear(nextYear.getFullYear() + 1);
+            expiryDate.value = nextYear.toISOString().split('T')[0];
+        }
+
+        // التحقق من صحة البيانات
+        function validateForm() {
+            const requiredFields = [
+                'firstNameAr', 'middleNameAr', 'lastNameAr',
+                'firstNameEn', 'middleNameEn', 'lastNameEn',
+                'email', 'phone', 'membershipNumber', 'membershipType'
+            ];
+            
+            for (let fieldId of requiredFields) {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    showError(`يرجى ملء جميع الحقول المطلوبة`);
+                    field.focus();
+                    return false;
+                }
+            }
+            
+            // التحقق من صحة البريد الإلكتروني
+            const email = document.getElementById('email').value;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showError('يرجى إدخال بريد إلكتروني صحيح');
+                return false;
+            }
+            
+            // التحقق من تفرد رقم العضوية
+            const membershipNumber = document.getElementById('membershipNumber').value;
+            const existingMembers = JSON.parse(localStorage.getItem('members') || '[]');
+            const duplicateNumber = existingMembers.find(member => member.membershipNumber === membershipNumber);
+            
+            if (duplicateNumber) {
+                showError('رقم العضوية موجود مسبقاً، يرجى اختيار رقم آخر');
+                return false;
+            }
+            
+            return true;
+        }
+
+        // حفظ العضو الجديد
+        function saveMember() {
+            const newMember = {
+                id: 'member_' + Date.now(),
+                membershipNumber: document.getElementById('membershipNumber').value,
+                firstNameAr: document.getElementById('firstNameAr').value,
+                middleNameAr: document.getElementById('middleNameAr').value,
+                lastNameAr: document.getElementById('lastNameAr').value,
+                firstNameEn: document.getElementById('firstNameEn').value,
+                middleNameEn: document.getElementById('middleNameEn').value,
+                lastNameEn: document.getElementById('lastNameEn').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                address: document.getElementById('address').value,
+                birthDate: document.getElementById('birthDate').value,
+                nationality: document.getElementById('nationality').value,
+                qualification: document.getElementById('qualification').value,
+                specialization: document.getElementById('specialization').value,
+                workplace: document.getElementById('workplace').value,
+                position: document.getElementById('position').value,
+                experience: document.getElementById('experience').value,
+                membershipType: document.getElementById('membershipType').value,
+                status: document.getElementById('memberStatus').value,
+                joinDate: document.getElementById('joinDate').value,
+                expiryDate: document.getElementById('expiryDate').value,
+                username: document.getElementById('email').value.split('@')[0],
+                password: 'temp123',
+                personalPhoto: generateDefaultPhoto()
+            };
+            
+            // حفظ في localStorage
+            const members = JSON.parse(localStorage.getItem('members') || '[]');
+            members.push(newMember);
+            localStorage.setItem('members', JSON.stringify(members));
+            
+            return newMember;
+        }
+
+        // إنشاء صورة افتراضية
+        function generateDefaultPhoto() {
+            const colors = ['#10B981', '#EF4444', '#3B82F6', '#F59E0B', '#8B5CF6'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            return `data:image/svg+xml;base64,${btoa(`
+                <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100" height="100" fill="#FEF3F4"/>
+                    <circle cx="50" cy="35" r="15" fill="${randomColor}"/>
+                    <path d="M25 85C25 70 36.1929 58 50 58C63.8071 58 75 70 75 85H75H25Z" fill="${randomColor}"/>
+                </svg>
+            `)}`;
+        }
+
+        // عرض رسالة نجاح
+        function showSuccess(message) {
+            const successElement = document.getElementById('success-message');
+            successElement.textContent = message;
+            successElement.style.display = 'block';
+            
+            const errorElement = document.getElementById('error-message');
+            errorElement.style.display = 'none';
+            
+            // التمرير إلى الرسالة
+            successElement.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // عرض رسالة خطأ
+        function showError(message) {
+            const errorElement = document.getElementById('error-message');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            
+            const successElement = document.getElementById('success-message');
+            successElement.style.display = 'none';
+            
+            // التمرير إلى الرسالة
+            errorElement.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // معالجة إرسال النموذج
+        document.getElementById('addMemberForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!validateForm()) {
+                return;
+            }
+            
+            try {
+                const newMember = saveMember();
+                showSuccess(`تم إضافة العضو بنجاح!\nرقم العضوية: ${newMember.membershipNumber}\nاسم المستخدم: ${newMember.username}\nكلمة المرور المؤقتة: ${newMember.password}`);
+                
+                // إعادة تعيين النموذج بعد 3 ثوان
+                setTimeout(() => {
+                    if (confirm('هل تريد إضافة عضو آخر؟')) {
+                        document.getElementById('addMemberForm').reset();
+                        setDefaultDates();
+                        document.getElementById('success-message').style.display = 'none';
+                        document.getElementById('error-message').style.display = 'none';
+                        
+                        // إزالة حالة الملفات المرفوعة
+                        document.querySelectorAll('.upload-item').forEach(item => {
+                            item.classList.remove('has-file');
+                            const hint = item.querySelector('.upload-hint');
+                            hint.textContent = 'اضغط لرفع الملف';
+                        });
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
+                }, 3000);
+                
+            } catch (error) {
+                showError('حدث خطأ أثناء حفظ البيانات: ' + error.message);
+            }
+        });
+
+        // تهيئة الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            setupFileUploads();
+            setDefaultDates();
+        });
+    </script>
+</body>
+</html>
+
