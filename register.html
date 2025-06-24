@@ -484,21 +484,29 @@
 
                     <div class="form-group">
                         <label for="specialization">التخصص <span class="required">*</span></label>
-                        <select id="specialization" name="specialization" required>
-                            <option value="">أدخل التخصص</option>
-                            <option value="تقنية المختبرات الطبية">تقنية المختبرات الطبية</option>
-                            <option value="علوم المختبرات الإكلينيكية">علوم المختبرات الإكلينيكية</option>
-                            <option value="الأحياء الدقيقة الطبية">الأحياء الدقيقة الطبية</option>
-                            <option value="الكيمياء الحيوية الطبية">الكيمياء الحيوية الطبية</option>
-                            <option value="أمراض الدم">أمراض الدم</option>
-                            <option value="علم الأنسجة">علم الأنسجة</option>
-                            <option value="علم الخلايا">علم الخلايا</option>
-                            <option value="المناعة الطبية">المناعة الطبية</option>
-                            <option value="الطفيليات الطبية">الطفيليات الطبية</option>
-                            <option value="الوراثة الطبية">الوراثة الطبية</option>
-                            <option value="الطب النووي">الطب النووي</option>
-                            <option value="أخرى">أخرى</option>
-                        </select>
+                        <input list="specialization_list" id="specialization" name="specialization" placeholder="أدخل التخصص أو اختر من القائمة" required>
+                        <datalist id="specialization_list">
+                            <option value="تقنية المختبرات الطبية">
+                            <option value="علوم المختبرات الإكلينيكية">
+                            <option value="الأحياء الدقيقة الطبية">
+                            <option value="الكيمياء الحيوية الطبية">
+                            <option value="أمراض الدم">
+                            <option value="علم الأنسجة">
+                            <option value="علم الخلايا">
+                            <option value="المناعة الطبية">
+                            <option value="الطفيليات الطبية">
+                            <option value="الوراثة الطبية">
+                            <option value="الطب النووي">
+                            <option value="علم الأمراض">
+                            <option value="الفيروسات الطبية">
+                            <option value="البكتيريا الطبية">
+                            <option value="الفطريات الطبية">
+                            <option value="التحاليل الكيميائية">
+                            <option value="التحاليل الهرمونية">
+                            <option value="تحاليل الأدوية">
+                            <option value="تحاليل السموم">
+                            <option value="الطب الشرعي">
+                        </datalist>
                     </div>
 
                     <div class="form-group">
@@ -528,90 +536,74 @@
 
                     <div class="form-group">
                         <label for="job_title">المسمى الوظيفي <span class="required">*</span></label>
-                        <select id="job_title" name="job_title" required>
-                            <option value="">أدخل المسمى الوظيفي</option>
-                            
+                        <input list="job_title_list" id="job_title" name="job_title" placeholder="أدخل المسمى الوظيفي أو اختر من القائمة" required>
+                        <datalist id="job_title_list">
                             <!-- فنيو المختبرات -->
-                            <optgroup label="فنيو المختبرات">
-                                <option value="فني مختبر">فني مختبر</option>
-                                <option value="فني مختبر أول">فني مختبر أول</option>
-                                <option value="فني مختبر رئيسي">فني مختبر رئيسي</option>
-                                <option value="فني مختبر متخصص">فني مختبر متخصص</option>
-                                <option value="فني مختبر خبير">فني مختبر خبير</option>
-                            </optgroup>
+                            <option value="فني مختبر">
+                            <option value="فني مختبر أول">
+                            <option value="فني مختبر رئيسي">
+                            <option value="فني مختبر متخصص">
+                            <option value="فني مختبر خبير">
                             
                             <!-- أخصائيو المختبرات -->
-                            <optgroup label="أخصائيو المختبرات">
-                                <option value="أخصائي مختبرات">أخصائي مختبرات</option>
-                                <option value="أخصائي مختبرات أول">أخصائي مختبرات أول</option>
-                                <option value="أخصائي مختبرات رئيسي">أخصائي مختبرات رئيسي</option>
-                                <option value="أخصائي مختبرات استشاري">أخصائي مختبرات استشاري</option>
-                                <option value="أخصائي أحياء دقيقة">أخصائي أحياء دقيقة</option>
-                                <option value="أخصائي كيمياء حيوية">أخصائي كيمياء حيوية</option>
-                                <option value="أخصائي أمراض دم">أخصائي أمراض دم</option>
-                                <option value="أخصائي أنسجة">أخصائي أنسجة</option>
-                                <option value="أخصائي خلايا">أخصائي خلايا</option>
-                                <option value="أخصائي مناعة">أخصائي مناعة</option>
-                                <option value="أخصائي طفيليات">أخصائي طفيليات</option>
-                                <option value="أخصائي وراثة طبية">أخصائي وراثة طبية</option>
-                                <option value="أخصائي طب نووي">أخصائي طب نووي</option>
-                            </optgroup>
+                            <option value="أخصائي مختبرات">
+                            <option value="أخصائي مختبرات أول">
+                            <option value="أخصائي مختبرات رئيسي">
+                            <option value="أخصائي مختبرات استشاري">
+                            <option value="أخصائي أحياء دقيقة">
+                            <option value="أخصائي كيمياء حيوية">
+                            <option value="أخصائي أمراض دم">
+                            <option value="أخصائي أنسجة">
+                            <option value="أخصائي خلايا">
+                            <option value="أخصائي مناعة">
+                            <option value="أخصائي طفيليات">
+                            <option value="أخصائي وراثة طبية">
+                            <option value="أخصائي طب نووي">
                             
                             <!-- فاصدو الدم -->
-                            <optgroup label="فاصدو الدم">
-                                <option value="فاصد دم">فاصد دم</option>
-                                <option value="فاصد دم أول">فاصد دم أول</option>
-                                <option value="فاصد دم رئيسي">فاصد دم رئيسي</option>
-                                <option value="فاصد دم متخصص">فاصد دم متخصص</option>
-                                <option value="فاصد دم خبير">فاصد دم خبير</option>
-                                <option value="مشرف فاصدي دم">مشرف فاصدي دم</option>
-                            </optgroup>
+                            <option value="فاصد دم">
+                            <option value="فاصد دم أول">
+                            <option value="فاصد دم رئيسي">
+                            <option value="فاصد دم متخصص">
+                            <option value="فاصد دم خبير">
+                            <option value="مشرف فاصدي دم">
                             
                             <!-- الإدارة والإشراف -->
-                            <optgroup label="الإدارة والإشراف">
-                                <option value="مشرف مختبر">مشرف مختبر</option>
-                                <option value="رئيس قسم مختبرات">رئيس قسم مختبرات</option>
-                                <option value="مدير مختبر">مدير مختبر</option>
-                                <option value="مدير إدارة مختبرات">مدير إدارة مختبرات</option>
-                                <option value="مساعد مدير مختبرات">مساعد مدير مختبرات</option>
-                                <option value="منسق مختبرات">منسق مختبرات</option>
-                                <option value="مراقب جودة مختبرات">مراقب جودة مختبرات</option>
-                            </optgroup>
+                            <option value="مشرف مختبر">
+                            <option value="رئيس قسم مختبرات">
+                            <option value="مدير مختبر">
+                            <option value="مدير إدارة مختبرات">
+                            <option value="مساعد مدير مختبرات">
+                            <option value="منسق مختبرات">
+                            <option value="مراقب جودة مختبرات">
                             
                             <!-- الاستشاريون والأطباء -->
-                            <optgroup label="الاستشاريون والأطباء">
-                                <option value="استشاري مختبرات">استشاري مختبرات</option>
-                                <option value="استشاري أمراض دم">استشاري أمراض دم</option>
-                                <option value="استشاري أحياء دقيقة">استشاري أحياء دقيقة</option>
-                                <option value="استشاري كيمياء حيوية">استشاري كيمياء حيوية</option>
-                                <option value="استشاري علم الأمراض">استشاري علم الأمراض</option>
-                                <option value="طبيب مختبرات">طبيب مختبرات</option>
-                                <option value="طبيب أمراض دم">طبيب أمراض دم</option>
-                            </optgroup>
+                            <option value="استشاري مختبرات">
+                            <option value="استشاري أمراض دم">
+                            <option value="استشاري أحياء دقيقة">
+                            <option value="استشاري كيمياء حيوية">
+                            <option value="استشاري علم الأمراض">
+                            <option value="طبيب مختبرات">
+                            <option value="طبيب أمراض دم">
                             
                             <!-- الأكاديميون والباحثون -->
-                            <optgroup label="الأكاديميون والباحثون">
-                                <option value="باحث">باحث</option>
-                                <option value="باحث أول">باحث أول</option>
-                                <option value="باحث رئيسي">باحث رئيسي</option>
-                                <option value="مدرس">مدرس</option>
-                                <option value="أستاذ مساعد">أستاذ مساعد</option>
-                                <option value="أستاذ مشارك">أستاذ مشارك</option>
-                                <option value="أستاذ">أستاذ</option>
-                                <option value="محاضر">محاضر</option>
-                                <option value="معيد">معيد</option>
-                            </optgroup>
+                            <option value="باحث">
+                            <option value="باحث أول">
+                            <option value="باحث رئيسي">
+                            <option value="مدرس">
+                            <option value="أستاذ مساعد">
+                            <option value="أستاذ مشارك">
+                            <option value="أستاذ">
+                            <option value="محاضر">
+                            <option value="معيد">
                             
                             <!-- فئات أخرى -->
-                            <optgroup label="فئات أخرى">
-                                <option value="طالب دراسات عليا">طالب دراسات عليا</option>
-                                <option value="طالب بكالوريوس">طالب بكالوريوس</option>
-                                <option value="متدرب">متدرب</option>
-                                <option value="متقاعد">متقاعد</option>
-                                <option value="عاطل عن العمل">عاطل عن العمل</option>
-                                <option value="أخرى">أخرى</option>
-                            </optgroup>
-                        </select>
+                            <option value="طالب دراسات عليا">
+                            <option value="طالب بكالوريوس">
+                            <option value="متدرب">
+                            <option value="متقاعد">
+                            <option value="عاطل عن العمل">
+                        </datalist>
                     </div>
 
                     <div class="form-group">
@@ -689,27 +681,13 @@
 
                 <!-- الموافقات -->
                 <div class="section-title">
-                    ✅ الموافقات والإقرارات
-                </div>
-
-                <div class="checkbox-group">
-                    <input type="checkbox" id="terms_agreement" name="terms_agreement" required>
-                    <label for="terms_agreement">
-                        أوافق على <strong>الشروط والأحكام</strong> الخاصة بالجمعية الكويتية للمختبرات الطبية <span class="required">*</span>
-                    </label>
-                </div>
-
-                <div class="checkbox-group">
-                    <input type="checkbox" id="data_consent" name="data_consent" required>
-                    <label for="data_consent">
-                        أوافق على <strong>معالجة البيانات الشخصية</strong> وفقاً لسياسة الخصوصية <span class="required">*</span>
-                    </label>
+                    ✅ إقرار صحة البيانات
                 </div>
 
                 <div class="checkbox-group">
                     <input type="checkbox" id="info_accuracy" name="info_accuracy" required>
                     <label for="info_accuracy">
-                        أقر بأن <strong>جميع المعلومات المقدمة صحيحة ودقيقة</strong> وأتحمل المسؤولية الكاملة عن صحتها <span class="required">*</span>
+                        أقر بصحة البيانات المرسلة <span class="required">*</span>
                     </label>
                 </div>
 
