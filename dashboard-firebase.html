@@ -578,24 +578,22 @@
         }
 
         // عرض الطلب
-        function viewApplication(applicationId) {
-            console.log('👁️ Viewing application:', applicationId);
-            window.location.href = `review-application-fixed-data.html?id=${applicationId}`;
+        function viewApplication(id) {
+            console.log('👁️ Viewing application:', id);
+            window.location.href = `review-application-status-fix.html?id=${id}`;
         }
 
         // موافقة سريعة
         function quickApprove(applicationId) {
             if (confirm('هل أنت متأكد من الموافقة على هذا الطلب؟')) {
-                console.log('✅ Quick approve for:', applicationId);
-                window.location.href = `review-application-fixed-data.html?id=${applicationId}&action=approve`;
+                window.location.href = `review-application-status-fix.html?id=${applicationId}`;
             }
         }
 
         // رفض سريع
         function quickReject(applicationId) {
             if (confirm('هل أنت متأكد من رفض هذا الطلب؟')) {
-                console.log('❌ Quick reject for:', applicationId);
-                window.location.href = `review-application-fixed-data.html?id=${applicationId}&action=reject`;
+                window.location.href = `review-application-status-fix.html?id=${applicationId}`;
             }
         }
 
