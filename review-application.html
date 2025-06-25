@@ -594,7 +594,7 @@
         });
 
         // تحميل بيانات الطلب
-        async function loadApplicationData() {
+        window.loadApplicationData = async function() {
             try {
                 console.log('🔄 بدء تحميل البيانات للطلب:', applicationId);
                 showLoading(true);
@@ -607,19 +607,25 @@
                     return;
                 }
 
-                // البحث في التخزين المحلي أولاً
                 console.log('🔍 البحث في التخزين المحلي...');
+                
+                // البحث في التخزين المحلي أولاً
                 const localData = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
                 console.log('📊 عدد السجلات في localStorage:', localData.length);
                 
                 // طباعة جميع المعرفات المتاحة للتشخيص
                 console.log('🆔 المعرفات المتاحة:', localData.map(app => app.id));
+                console.log('🔍 البحث عن المعرف:', applicationId);
                 
-                const foundApp = localData.find(app => 
-                    app.id === applicationId || 
-                    String(app.id) === String(applicationId) ||
-                    app.civil_id === applicationId
-                );
+                const foundApp = localData.find(app => {
+                    const match = app.id === applicationId || 
+                                 String(app.id) === String(applicationId) ||
+                                 app.civil_id === applicationId;
+                    if (match) {
+                        console.log('✅ تطابق وُجد مع:', app.id);
+                    }
+                    return match;
+                });
                 
                 if (foundApp) {
                     console.log('✅ تم العثور على البيانات في التخزين المحلي');
@@ -636,6 +642,7 @@
                 // البحث في Firebase إذا لم توجد في localStorage
                 try {
                     if (typeof db !== 'undefined' && db) {
+                        console.log('🔄 محاولة الاتصال بـ Firebase...');
                         const doc = await Promise.race([
                             db.collection('membershipApplications').doc(applicationId).get(),
                             new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
@@ -647,7 +654,11 @@
                             displayApplicationData();
                             showLoading(false);
                             return;
+                        } else {
+                            console.log('❌ لا توجد بيانات في Firebase للمعرف:', applicationId);
                         }
+                    } else {
+                        console.log('⚠️ Firebase غير متاح');
                     }
                 } catch (firebaseError) {
                     console.log('⚠️ خطأ في Firebase:', firebaseError.message);

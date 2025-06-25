@@ -490,8 +490,9 @@
                 sessionStorage.setItem('currentMemberId', member.id || member.civil_id);
                 sessionStorage.setItem('memberLoggedIn', 'true');
                 
-                // توجيه إلى الملف الشخصي
-                window.location.href = 'member-profile.html';
+                // توجيه إلى الملف الشخصي مع إرسال معرف العضو
+                const memberId = member.id || member.civil_id || member.membershipNumber;
+                window.location.href = `member-profile.html?id=${memberId}`;
             } else {
                 console.log('❌ فشل تسجيل الدخول - بيانات غير صحيحة');
                 

@@ -720,36 +720,81 @@
         // تحميل بيانات العضو
         async function loadMemberData() {
             try {
+                console.log('🔄 بدء تحميل بيانات العضو:', memberId);
                 showLoading(true);
 
-                // محاولة التحميل من Firebase أولاً
-                try {
-                    const doc = await db.collection('membershipApplications').doc(memberId).get();
-                    if (doc.exists) {
-                        currentMember = { id: doc.id, ...doc.data() };
-                    }
-                } catch (firebaseError) {
-                    console.warn('خطأ في Firebase:', firebaseError);
-                }
-
-                // إذا لم توجد في Firebase، ابحث في التخزين المحلي
-                if (!currentMember) {
-                    const localData = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
-                    const localMember = localData.find(member => member.id === memberId);
-                    if (localMember) {
-                        currentMember = localMember;
-                    }
-                }
-
-                if (!currentMember) {
-                    showError('لم يتم العثور على بيانات العضوية');
+                // البحث في بيانات الأعضاء المسجلين أولاً
+                console.log('🔍 البحث في بيانات الأعضاء...');
+                const localMembers = JSON.parse(localStorage.getItem('members') || '[]');
+                console.log('👥 عدد الأعضاء المسجلين:', localMembers.length);
+                
+                let foundMember = localMembers.find(member => 
+                    String(member.id) === String(memberId) || 
+                    member.civil_id === memberId ||
+                    member.email === memberId
+                );
+                
+                if (foundMember) {
+                    console.log('✅ تم العثور على العضو في قائمة الأعضاء');
+                    currentMember = { ...foundMember, source: 'members' };
+                    displayMemberData();
+                    showLoading(false);
                     return;
                 }
 
-                displayMemberData();
+                // البحث في طلبات العضوية كبديل
+                console.log('🔍 البحث في طلبات العضوية...');
+                const localApplications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+                console.log('📋 عدد طلبات العضوية:', localApplications.length);
+                
+                foundMember = localApplications.find(app => 
+                    String(app.id) === String(memberId) || 
+                    app.civil_id === memberId ||
+                    app.email === memberId
+                );
+                
+                if (foundMember) {
+                    console.log('✅ تم العثور على الطلب في قائمة الطلبات');
+                    currentMember = { ...foundMember, source: 'applications' };
+                    displayMemberData();
+                    showLoading(false);
+                    return;
+                }
+
+                // محاولة التحميل من Firebase كبديل أخير
+                try {
+                    console.log('🔍 البحث في Firebase...');
+                    if (typeof db !== 'undefined' && db) {
+                        // البحث في مجموعة members
+                        let doc = await db.collection('members').doc(memberId).get();
+                        if (doc.exists) {
+                            console.log('✅ تم العثور على العضو في Firebase (members)');
+                            currentMember = { id: doc.id, ...doc.data(), source: 'firebase-members' };
+                            displayMemberData();
+                            showLoading(false);
+                            return;
+                        }
+                        
+                        // البحث في مجموعة membershipApplications
+                        doc = await db.collection('membershipApplications').doc(memberId).get();
+                        if (doc.exists) {
+                            console.log('✅ تم العثور على الطلب في Firebase (applications)');
+                            currentMember = { id: doc.id, ...doc.data(), source: 'firebase-applications' };
+                            displayMemberData();
+                            showLoading(false);
+                            return;
+                        }
+                    }
+                } catch (firebaseError) {
+                    console.warn('⚠️ خطأ في Firebase:', firebaseError.message);
+                }
+
+                // إذا لم توجد البيانات في أي مكان
+                console.log('❌ لم يتم العثور على بيانات العضو');
+                showError(`لم يتم العثور على بيانات العضو (${memberId})`);
                 
             } catch (error) {
-                console.error('خطأ في تحميل البيانات:', error);
+                console.error('❌ خطأ في تحميل البيانات:', error);
                 showError('حدث خطأ أثناء تحميل بيانات العضوية');
             } finally {
                 showLoading(false);
