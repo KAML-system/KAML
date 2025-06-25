@@ -471,31 +471,24 @@
             const password = document.getElementById('password').value;
             const errorDiv = document.getElementById('errorMessage');
             
-            console.log('🔄 محاولة تسجيل الدخول:', { username, password: '***' });
-            
-            // البحث عن العضو في قاعدة بيانات الأعضاء المسجلين
-            const members = JSON.parse(localStorage.getItem('members') || '[]');
-            console.log('👥 عدد الأعضاء المسجلين:', members.length);
-            
-            const member = members.find(m => 
-                (m.username === username || m.email === username) && 
-                m.password === password
+            // البحث عن العضو في قاعدة البيانات
+            const applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+            const member = applications.find(app => 
+                (app.username === username || app.email === username) && 
+                app.password === password
             );
             
             if (member) {
-                console.log('✅ تم تسجيل الدخول بنجاح:', member);
-                
                 // حفظ بيانات العضو الكاملة في الجلسة
                 sessionStorage.setItem('currentMember', JSON.stringify(member));
                 sessionStorage.setItem('currentMemberId', member.id || member.civil_id);
                 sessionStorage.setItem('memberLoggedIn', 'true');
                 
-                // توجيه إلى الملف الشخصي مع إرسال معرف العضو
-                const memberId = member.id || member.civil_id || member.membershipNumber;
-                window.location.href = `member-profile.html?id=${memberId}`;
-            } else {
-                console.log('❌ فشل تسجيل الدخول - بيانات غير صحيحة');
+                console.log('تم تسجيل الدخول بنجاح:', member);
                 
+                // توجيه إلى الملف الشخصي
+                window.location.href = 'member-profile.html';
+            } else {
                 // عرض رسالة خطأ
                 errorDiv.style.display = 'block';
                 errorDiv.innerHTML = '❌ اسم المستخدم أو كلمة المرور غير صحيحة';
