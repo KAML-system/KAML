@@ -490,12 +490,12 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>الإجراءات</th>
-                                <th>تاريخ الانتهاء</th>
-                                <th>رقم العضوية</th>
-                                <th>الحالة</th>
-                                <th>البريد</th>
                                 <th>الاسم</th>
+                                <th>البريد</th>
+                                <th>الحالة</th>
+                                <th>رقم العضوية</th>
+                                <th>تاريخ الانتهاء</th>
+                                <th>الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody id="applicationsTableBody">
@@ -815,12 +815,12 @@
                 const actions = createActionButtons(app);
 
                 row.innerHTML = `
-                    <td>${actions}</td>
-                    <td>${expiryDate}</td>
-                    <td>${membershipNumber}</td>
-                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                    <td>${app.email || 'غير محدد'}</td>
                     <td>${fullName}</td>
+                    <td>${app.email || 'غير محدد'}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>${membershipNumber}</td>
+                    <td>${expiryDate}</td>
+                    <td>${actions}</td>
                 `;
 
                 tableBody.appendChild(row);
