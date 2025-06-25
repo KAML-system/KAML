@@ -596,78 +596,51 @@
                 console.log('🔄 بدء تحميل البيانات للطلب:', applicationId);
                 showLoading(true);
 
-                // إنشاء بيانات تجريبية فوراً لضمان عمل الصفحة
-                currentApplication = {
-                    id: applicationId,
-                    first_name_ar: 'أحمد',
-                    middle_name_ar: 'محمد',
-                    last_name_ar: 'الأحمد',
-                    first_name_en: 'Ahmed',
-                    middle_name_en: 'Mohammed',
-                    last_name_en: 'Al-Ahmad',
-                    nationality: 'كويتي',
-                    civil_id: '99998765432',
-                    birth_date: '1990-01-01',
-                    gender: 'ذكر',
-                    email: 'ahmed@example.com',
-                    phone: '87654321',
-                    area: 'الجهراء',
-                    qualification: 'بكالوريوس',
-                    specialization: 'هندسة',
-                    workplace: 'شركة الكويت',
-                    job_title: 'مهندس',
-                    status: 'pending',
-                    submissionDate: '2025-06-24',
-                    // إضافة مرفقات تجريبية
-                    civil_id_copy: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
-                    passport_photo: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
-                    qualification_certificate: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
-                    work_certificate: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
-                    cv: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
-                    source: 'test_data'
-                };
-
-                console.log('✅ تم إنشاء بيانات تجريبية للاختبار');
+                // البحث في التخزين المحلي أولاً
+                console.log('🔍 البحث في التخزين المحلي...');
+                const localData = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
+                console.log('📊 عدد السجلات في localStorage:', localData.length);
                 
-                // عرض البيانات فوراً
-                displayApplicationData();
-                showLoading(false);
+                const foundApp = localData.find(app => 
+                    app.id === applicationId || 
+                    String(app.id) === String(applicationId) ||
+                    app.civil_id === applicationId
+                );
+                
+                if (foundApp) {
+                    console.log('✅ تم العثور على البيانات في التخزين المحلي');
+                    console.log('📋 بيانات الطلب:', foundApp);
+                    currentApplication = { ...foundApp, source: 'localStorage' };
+                    displayApplicationData();
+                    showLoading(false);
+                    return;
+                }
 
-                // محاولة تحميل البيانات الحقيقية في الخلفية (اختياري)
-                setTimeout(async () => {
-                    try {
-                        console.log('🔍 البحث عن البيانات الحقيقية في الخلفية...');
-                        
-                        // البحث في التخزين المحلي
-                        const localData = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
-                        const foundApp = localData.find(app => 
-                            app.id === applicationId || 
-                            String(app.id) === String(applicationId) ||
-                            app.civil_id === applicationId
-                        );
-                        
-                        if (foundApp) {
-                            console.log('✅ تم العثور على البيانات الحقيقية في التخزين المحلي');
-                            currentApplication = { ...foundApp, source: 'localStorage' };
-                            displayApplicationData();
-                            return;
-                        }
-
-                        // البحث في Firebase (بدون انتظار طويل)
+                // البحث في Firebase إذا لم توجد في localStorage
+                console.log('🔍 البحث في Firebase...');
+                try {
+                    if (typeof db !== 'undefined' && db) {
                         const doc = await Promise.race([
                             db.collection('membershipApplications').doc(applicationId).get(),
-                            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+                            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
                         ]);
                         
                         if (doc.exists) {
-                            console.log('✅ تم العثور على البيانات الحقيقية في Firebase');
+                            console.log('✅ تم العثور على البيانات في Firebase');
                             currentApplication = { id: doc.id, ...doc.data(), source: 'firebase' };
                             displayApplicationData();
+                            showLoading(false);
+                            return;
                         }
-                    } catch (error) {
-                        console.log('⚠️ لم يتم العثور على بيانات حقيقية، الاستمرار مع البيانات التجريبية');
                     }
-                }, 100);
+                } catch (firebaseError) {
+                    console.log('⚠️ خطأ في Firebase:', firebaseError.message);
+                }
+
+                // إذا لم توجد البيانات في أي مكان
+                console.log('❌ لم يتم العثور على البيانات');
+                showError(`لم يتم العثور على الطلب المحدد (${applicationId})`);
+                showLoading(false);
                 
             } catch (error) {
                 console.error('❌ خطأ في تحميل البيانات:', error);
