@@ -99,15 +99,21 @@
         }
 
         .controls {
-            padding: 0 30px 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            justify-content: center;
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
         }
 
-        .filter-btn, .action-btn {
-            padding: 12px 25px;
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .filter-btn {
+            padding: 12px 24px;
             border: none;
             border-radius: 25px;
             font-size: 1rem;
@@ -120,83 +126,124 @@
             gap: 8px;
         }
 
-        .filter-btn {
-            background: #f8f9fa;
-            color: #495057;
-            border: 2px solid #dee2e6;
-        }
-
-        .filter-btn:hover, .filter-btn.active {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-
-        .action-btn.primary { background: #007bff; color: white; }
-        .action-btn.success { background: #28a745; color: white; }
-        .action-btn.warning { background: #ffc107; color: #212529; }
-        .action-btn.danger { background: #dc3545; color: white; }
-
-        .action-btn:hover {
+        .filter-btn.active {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
+
+        .filter-btn[data-filter="all"] { background: #6c757d; color: white; }
+        .filter-btn[data-filter="pending"] { background: #2196F3; color: white; }
+        .filter-btn[data-filter="approved"] { background: #4CAF50; color: white; }
+        .filter-btn[data-filter="rejected"] { background: #f44336; color: white; }
+        .filter-btn[data-filter="renewal_requested"] { background: #FF9800; color: white; }
+
+        .action-buttons-top {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-info { background: #17a2b8; color: white; }
+        .btn-warning { background: #ffc107; color: #212529; }
 
         .table-container {
             padding: 30px;
             overflow-x: auto;
         }
 
-        table {
+        .table {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border-radius: 10px;
+            border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
 
-        th, td {
-            padding: 15px;
-            text-align: center;
-            border-bottom: 1px solid #eee;
-        }
-
-        th {
+        .table th {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            padding: 15px;
+            text-align: center;
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
 
-        tr:hover {
+        .table td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+        }
+
+        .table tbody tr:hover {
             background: #f8f9fa;
         }
 
         .status-badge {
+            display: inline-block;
             padding: 6px 12px;
             border-radius: 20px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
+            text-transform: uppercase;
         }
 
-        .status-approved { background: #d4edda; color: #155724; }
-        .status-pending { background: #cce5ff; color: #004085; }
-        .status-renewal { background: #fff3cd; color: #856404; }
-        .status-rejected { background: #f8d7da; color: #721c24; }
+        .status-pending { background: #e3f2fd; color: #1976d2; }
+        .status-approved { background: #e8f5e8; color: #2e7d32; }
+        .status-rejected { background: #ffebee; color: #c62828; }
+        .status-renewal { background: #fff3e0; color: #f57c00; }
 
         .action-buttons {
             display: flex;
-            gap: 8px;
+            gap: 5px;
             justify-content: center;
             flex-wrap: wrap;
         }
 
-        .action-buttons .action-btn {
-            padding: 8px 15px;
-            font-size: 0.9rem;
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
             border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .action-btn.primary { background: #007bff; color: white; }
+        .action-btn.danger { background: #dc3545; color: white; }
 
         .loading {
             text-align: center;
@@ -220,6 +267,16 @@
             100% { transform: rotate(360deg); }
         }
 
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px;
+            border: 1px solid #f5c6cb;
+            text-align: center;
+        }
+
         .empty-state {
             text-align: center;
             padding: 50px;
@@ -228,60 +285,112 @@
 
         .empty-state h3 {
             margin-bottom: 10px;
-            color: #333;
+            color: #495057;
         }
 
-        .error-message {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 10px;
+        /* نافذة التأكيد المخصصة */
+        .confirmation-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .confirmation-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
             margin: 20px;
-            border: 1px solid #f5c6cb;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
 
-        .success-message {
-            background: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px;
-            border: 1px solid #c3e6cb;
+        .confirmation-content h3 {
+            color: #dc3545;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
         }
 
+        .confirmation-content p {
+            margin-bottom: 20px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .confirmation-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .confirm-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .confirm-btn.danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .confirm-btn.secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .confirm-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        /* تحسينات للهواتف المحمولة */
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
             }
             
-            .stats-grid {
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 15px;
-                padding: 20px;
-            }
-            
-            .controls {
-                padding: 0 20px 20px;
+            .filter-buttons,
+            .action-buttons-top {
+                flex-direction: column;
+                align-items: center;
             }
             
             .table-container {
-                padding: 20px;
+                padding: 15px;
             }
             
-            th, td {
+            .table th,
+            .table td {
                 padding: 10px 8px;
                 font-size: 0.9rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- الرأس -->
         <div class="header">
             <h1>🏛️ لوحة تحكم نظام العضوية</h1>
             <p>إدارة طلبات العضوية ومراجعة البيانات - الجمعية الكويتية للمختبرات الطبية</p>
         </div>
 
+        <!-- الإحصائيات -->
         <div class="stats-grid">
             <div class="stat-card approved" onclick="filterApplications('approved')">
                 <div class="stat-number" id="approvedCount">0</div>
@@ -301,65 +410,107 @@
             </div>
         </div>
 
+        <!-- أدوات التحكم -->
         <div class="controls">
-            <button class="filter-btn active" data-filter="all" onclick="filterApplications('all')">جميع البيانات 📊</button>
-            <button class="filter-btn" data-filter="approved" onclick="filterApplications('approved')">الأعضاء المعتمدين ✅</button>
-            <button class="filter-btn" data-filter="pending" onclick="filterApplications('pending')">في انتظار المراجعة ⏳</button>
-            <button class="filter-btn" data-filter="renewal_requested" onclick="filterApplications('renewal_requested')">طلبات تجديد 🔄</button>
-            <button class="filter-btn" data-filter="rejected" onclick="filterApplications('rejected')">مرفوض ❌</button>
-            
-            <button class="action-btn primary" onclick="refreshData()">تحديث البيانات 🔄</button>
-            <button class="action-btn success" onclick="exportData()">تصدير البيانات 📊</button>
+            <!-- أزرار الفلترة -->
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all" onclick="filterApplications('all')">
+                    📊 جميع البيانات
+                </button>
+                <button class="filter-btn" data-filter="pending" onclick="filterApplications('pending')">
+                    ⏳ في انتظار المراجعة
+                </button>
+                <button class="filter-btn" data-filter="approved" onclick="filterApplications('approved')">
+                    ✅ الأعضاء المعتمدين
+                </button>
+                <button class="filter-btn" data-filter="renewal_requested" onclick="filterApplications('renewal_requested')">
+                    🔄 طلبات تجديد
+                </button>
+                <button class="filter-btn" data-filter="rejected" onclick="filterApplications('rejected')">
+                    ❌ مرفوض
+                </button>
+            </div>
+
+            <!-- أزرار الإجراءات -->
+            <div class="action-buttons-top">
+                <button class="btn btn-primary" onclick="exportData()">
+                    📊 تصدير البيانات
+                </button>
+                <button class="btn btn-success" onclick="refreshData()">
+                    🔄 تحديث البيانات
+                </button>
+                <button class="btn btn-info" onclick="window.location.href='data-management.html'">
+                    📋 إدارة البيانات
+                </button>
+                <button class="btn btn-warning" onclick="window.location.href='admin-add-member.html'">
+                    ➕ إضافة عضو جديد
+                </button>
+            </div>
         </div>
 
-        <div class="table-container">
-            <div id="loadingIndicator" class="loading">
-                <div class="spinner"></div>
-                <div>جاري تحميل البيانات من السيرفر...</div>
-            </div>
+        <!-- مؤشر التحميل -->
+        <div id="loadingIndicator" class="loading">
+            <div class="spinner"></div>
+            <div>جاري تحميل البيانات...</div>
+        </div>
 
-            <div id="errorMessage" class="error-message" style="display: none;">
-                <strong>خطأ في الاتصال:</strong>
-                <span id="errorText"></span>
-                <br><br>
-                <button class="action-btn primary" onclick="retryConnection()">إعادة المحاولة</button>
-            </div>
+        <!-- رسالة خطأ -->
+        <div id="errorMessage" class="error-message" style="display: none;">
+            <h3>خطأ في تحميل البيانات</h3>
+            <p id="errorText"></p>
+            <br>
+            <button class="btn btn-primary" onclick="retryConnection()">إعادة المحاولة</button>
+        </div>
 
-            <div id="tableContainer" style="display: none;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>الاسم</th>
-                            <th>البريد</th>
-                            <th>الحالة</th>
-                            <th>رقم العضوية</th>
-                            <th>تاريخ الانتهاء</th>
-                            <th>الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="applicationsTableBody">
-                    </tbody>
-                </table>
-            </div>
+        <!-- حالة فارغة -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <h3>لا توجد بيانات</h3>
+            <p>لم يتم العثور على أي طلبات عضوية</p>
+            <br>
+            <button class="btn btn-primary" onclick="refreshData()">إعادة التحميل</button>
+        </div>
 
-            <div id="emptyState" class="empty-state" style="display: none;">
-                <h3>لا توجد بيانات</h3>
-                <p>لم يتم العثور على طلبات في قاعدة البيانات</p>
-                <br>
-                <button class="action-btn primary" onclick="refreshData()">تحديث البيانات</button>
+        <!-- جدول البيانات -->
+        <div id="tableContainer" class="table-container" style="display: none;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>الاسم</th>
+                        <th>البريد</th>
+                        <th>الحالة</th>
+                        <th>رقم العضوية</th>
+                        <th>تاريخ الانتهاء</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="applicationsTableBody">
+                    <!-- البيانات ستُملأ هنا -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- نافذة التأكيد المخصصة -->
+    <div id="confirmationModal" class="confirmation-modal">
+        <div class="confirmation-content">
+            <h3>⚠️ تأكيد الحذف</h3>
+            <p id="confirmationMessage">هل أنت متأكد من حذف هذا السجل؟ لا يمكن التراجع عن هذا الإجراء.</p>
+            <div class="confirmation-buttons">
+                <button class="confirm-btn danger" onclick="confirmDelete()">نعم، احذف</button>
+                <button class="confirm-btn secondary" onclick="cancelDelete()">إلغاء</button>
             </div>
         </div>
     </div>
 
     <script>
-        // تكوين Firebase
+        // إعدادات Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyBqzVdXOJY8lVKZmPkP5L5L5L5L5L5L5L5",
-            authDomain: "kaml-membership-system.firebaseapp.com",
-            projectId: "kaml-membership-system",
-            storageBucket: "kaml-membership-system.appspot.com",
-            messagingSenderId: "123456789012",
-            appId: "1:123456789012:web:abcdef123456789012345"
+            apiKey: "AIzaSyDGpAHia_wEmrhnmYjrPf1n1TrAzwEMiAI",
+            authDomain: "kaml-f5c8c.firebaseapp.com",
+            projectId: "kaml-f5c8c",
+            storageBucket: "kaml-f5c8c.appspot.com",
+            messagingSenderId: "381072250848",
+            appId: "1:381072250848:web:187960e3102bcbdcaa9b2d"
         };
 
         // تهيئة Firebase
@@ -376,6 +527,7 @@
         let allApplications = [];
         let filteredApplications = [];
         let currentFilter = 'all';
+        let deleteApplicationId = null; // لحفظ معرف السجل المراد حذفه
 
         // تحميل الصفحة
         document.addEventListener('DOMContentLoaded', function() {
@@ -394,7 +546,6 @@
                     throw new Error('Firebase غير متصل - تحقق من إعدادات الشبكة');
                 }
 
-                // قراءة البيانات من Firebase
                 const snapshot = await db.collection('membershipApplications').get();
                 
                 if (snapshot.empty) {
@@ -498,9 +649,8 @@
                 // رقم العضوية
                 const membershipNumber = app.membership_number || '-';
                 
-                // تاريخ الانتهاء
-                const expiryDate = app.expiry_date ? 
-                    new Date(app.expiry_date).toLocaleDateString('ar-SA') : '-';
+                // تاريخ الانتهاء (تحويل من هجري إلى ميلادي)
+                const expiryDate = convertToGregorianDate(app.expiry_date);
                 
                 // الإجراءات
                 const actions = createActionButtons(app);
@@ -520,6 +670,42 @@
             console.log('✅ Table displayed with', filteredApplications.length, 'rows');
         }
 
+        // تحويل التاريخ من هجري إلى ميلادي
+        function convertToGregorianDate(dateString) {
+            if (!dateString || dateString === '-') {
+                return '-';
+            }
+
+            try {
+                // إذا كان التاريخ بالفعل ميلادي، نعرضه كما هو
+                const date = new Date(dateString);
+                if (!isNaN(date.getTime())) {
+                    return date.toLocaleDateString('ar-SA', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    });
+                }
+
+                // إذا كان التاريخ هجري، نحوله إلى ميلادي
+                // هذا مثال بسيط - يمكن تحسينه باستخدام مكتبة تحويل التواريخ
+                if (dateString.includes('هـ') || dateString.includes('ه')) {
+                    // استخراج السنة الهجرية وتحويلها تقريبياً
+                    const hijriYear = parseInt(dateString.match(/\d{4}/)?.[0]);
+                    if (hijriYear) {
+                        // تحويل تقريبي: السنة الميلادية = السنة الهجرية + 622 - (السنة الهجرية / 33)
+                        const gregorianYear = Math.round(hijriYear + 622 - (hijriYear / 33));
+                        return `${gregorianYear}/01/01 (تقريبي)`;
+                    }
+                }
+
+                return dateString; // إرجاع التاريخ كما هو إذا لم نتمكن من تحويله
+            } catch (error) {
+                console.error('Error converting date:', error);
+                return dateString;
+            }
+        }
+
         // الحصول على الاسم الكامل
         function getFullName(app) {
             const firstName = app.first_name_ar || app.firstName || '';
@@ -530,17 +716,12 @@
             return fullName || app.name || 'غير محدد';
         }
 
-        // إنشاء أزرار الإجراءات
+        // إنشاء أزرار الإجراءات (مبسطة حسب المطلوب)
         function createActionButtons(app) {
-            let buttons = `<button class="action-btn primary" onclick="viewApplication('${app.id}')">عرض</button>`;
+            let buttons = `<button class="action-btn primary" onclick="viewApplication('${app.id}')">👁️ عرض</button>`;
             
-            if (app.status === 'pending') {
-                buttons += `<button class="action-btn success" onclick="quickApprove('${app.id}')">موافقة</button>`;
-                buttons += `<button class="action-btn danger" onclick="quickReject('${app.id}')">رفض</button>`;
-            } else if (app.status === 'renewal_requested') {
-                buttons += `<button class="action-btn warning" onclick="renewMembership('${app.id}')">تجديد</button>`;
-                buttons += `<button class="action-btn danger" onclick="quickReject('${app.id}')">رفض</button>`;
-            }
+            // إضافة زر المسح لجميع السجلات
+            buttons += `<button class="action-btn danger" onclick="showDeleteConfirmation('${app.id}', '${getFullName(app)}')">🗑️ مسح</button>`;
             
             return buttons;
         }
@@ -551,29 +732,54 @@
             window.location.href = `review-application.html?id=${applicationId}`;
         }
 
-        // موافقة سريعة
-        function quickApprove(applicationId) {
-            if (confirm('هل أنت متأكد من الموافقة على هذا الطلب؟')) {
-                console.log('✅ Quick approve for:', applicationId);
-                window.location.href = `review-application.html?id=${applicationId}&action=approve`;
+        // إظهار نافذة تأكيد الحذف
+        function showDeleteConfirmation(applicationId, memberName) {
+            deleteApplicationId = applicationId;
+            const modal = document.getElementById('confirmationModal');
+            const message = document.getElementById('confirmationMessage');
+            
+            message.textContent = `هل أنت متأكد من حذف سجل العضو "${memberName}"؟ لا يمكن التراجع عن هذا الإجراء.`;
+            modal.style.display = 'flex';
+        }
+
+        // تأكيد الحذف
+        async function confirmDelete() {
+            if (!deleteApplicationId) return;
+
+            try {
+                console.log('🗑️ Deleting application:', deleteApplicationId);
+                
+                // حذف السجل من Firebase
+                await db.collection('membershipApplications').doc(deleteApplicationId).delete();
+                
+                console.log('✅ Application deleted successfully');
+                
+                // إخفاء نافذة التأكيد
+                cancelDelete();
+                
+                // إعادة تحميل البيانات
+                await loadApplicationData();
+                
+                alert('تم حذف السجل بنجاح');
+                
+            } catch (error) {
+                console.error('❌ Error deleting application:', error);
+                alert('فشل في حذف السجل: ' + error.message);
             }
         }
 
-        // رفض سريع
-        function quickReject(applicationId) {
-            if (confirm('هل أنت متأكد من رفض هذا الطلب؟')) {
-                console.log('❌ Quick reject for:', applicationId);
-                window.location.href = `review-application.html?id=${applicationId}&action=reject`;
-            }
+        // إلغاء الحذف
+        function cancelDelete() {
+            deleteApplicationId = null;
+            document.getElementById('confirmationModal').style.display = 'none';
         }
 
-        // تجديد العضوية
-        function renewMembership(applicationId) {
-            if (confirm('هل أنت متأكد من تجديد هذه العضوية؟')) {
-                console.log('🔄 Renewing membership for:', applicationId);
-                window.location.href = `review-application.html?id=${applicationId}&action=renew`;
+        // إغلاق نافذة التأكيد عند النقر خارجها
+        document.getElementById('confirmationModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                cancelDelete();
             }
-        }
+        });
 
         // تحديث البيانات
         function refreshData() {
@@ -590,8 +796,35 @@
         // تصدير البيانات
         function exportData() {
             console.log('📊 Exporting data...');
-            // يمكن إضافة وظيفة التصدير هنا
-            alert('سيتم إضافة وظيفة التصدير قريباً');
+            
+            if (filteredApplications.length === 0) {
+                alert('لا توجد بيانات للتصدير');
+                return;
+            }
+
+            // إنشاء CSV
+            let csvContent = "الاسم,البريد الإلكتروني,الحالة,رقم العضوية,تاريخ الانتهاء\n";
+            
+            filteredApplications.forEach(app => {
+                const fullName = getFullName(app);
+                const email = app.email || 'غير محدد';
+                const status = getStatusText(app.status);
+                const membershipNumber = app.membership_number || '-';
+                const expiryDate = convertToGregorianDate(app.expiry_date);
+                
+                csvContent += `"${fullName}","${email}","${status}","${membershipNumber}","${expiryDate}"\n`;
+            });
+
+            // تحميل الملف
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `kaml_members_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         // الحصول على نص الحالة
