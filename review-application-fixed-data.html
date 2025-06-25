@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مراجعة طلب العضوية - KAML</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            direction: rtl;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .data-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .data-label {
+            font-weight: 600;
+            color: #475569;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .data-value {
+            color: #1e293b;
+            font-size: 16px;
+            font-weight: 500;
+            word-break: break-word;
+        }
+
+        .attachments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .attachment-item {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .attachment-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .attachment-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .attachment-name {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .attachment-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        .status-available {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-missing {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .attachment-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: #3b82f6;
+            color: white;
+        }
+
+        .attachment-btn:hover:not(:disabled) {
+            background: #2563eb;
+        }
+
+        .attachment-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .decision-section {
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 25px;
+            border: 2px solid #cbd5e1;
+        }
+
+        .decision-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .decision-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+
+        .btn-approve {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: #059669;
+        }
+
+        .btn-reject {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background: #dc2626;
+        }
+
+        .btn-renew {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-renew:hover {
+            background: #d97706;
+        }
+
+        .decision-form {
+            display: none;
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .decision-form h3 {
+            margin-bottom: 20px;
+            color: #1e293b;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        .btn-submit {
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            background: #059669;
+        }
+
+        .btn-cancel {
+            background: #6b7280;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel:hover {
+            background: #4b5563;
+        }
+
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-content {
+            position: relative;
+            margin: auto;
+            padding: 20px;
+            width: 90%;
+            max-width: 800px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .modal-image {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            color: white;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-modal:hover {
+            opacity: 0.7;
+        }
+
+        .debug-info {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+            padding: 15px;
+            margin: 20px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .data-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .attachments-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .decision-buttons {
+                flex-direction: column;
+            }
+            
+            .decision-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 مراجعة طلب العضوية</h1>
+            <a href="dashboard-firebase.html" class="btn btn-secondary">
+                ← العودة للوحة التحكم
+            </a>
+        </div>
+
+        <div class="main-content">
+            <div id="loadingIndicator" class="loading">
+                <div class="spinner"></div>
+                <div>جاري تحميل بيانات الطلب من السيرفر...</div>
+            </div>
+
+            <div id="errorContainer" class="error-message" style="display: none;">
+                <h3>خطأ في تحميل البيانات</h3>
+                <p id="errorMessage"></p>
+                <br>
+                <button class="btn btn-secondary" onclick="retryLoading()">إعادة المحاولة</button>
+                <a href="dashboard-firebase.html" class="btn btn-secondary">العودة للوحة التحكم</a>
+            </div>
+
+            <div id="debugContainer" class="debug-info" style="display: none;">
+                <strong>معلومات التشخيص:</strong>
+                <div id="debugInfo"></div>
+            </div>
+
+            <div id="contentContainer" class="content" style="display: none;">
+                <!-- البيانات الشخصية -->
+                <div class="section">
+                    <h2 class="section-title">👤 البيانات الشخصية</h2>
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <div class="data-label">الاسم بالعربية</div>
+                            <div class="data-value" id="nameArabic">-</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">الاسم بالإنجليزية</div>
+                            <div class="data-value" id="nameEnglish">-</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">الجنسية</div>
+                            <div class="data-value" id="nationality">-</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">الرقم المدني</div>
+                            <div class="data-value" id="civilId">-</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">تاريخ الميلاد</div>
+                            <div class="data-value" id="birthDate">-</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">الجنس</div>
+                            <div class="data-value" id="gender">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- بيانات الاتصال -->
+                <div class="section">
+                    <h2 class="section-title">📞 بيانات الاتصال</h2>
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <div class="data-label">البريد الإلكتروني</div>
+                            <div class="data-value" id="email">-</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">رقم الهاتف</div>
+                            <div class="data-value" id="phone">-</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">المنطقة</div>
+                            <div class="data-value" id="area">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- بيانات العمل والمؤهلات -->
+                <div class="section">
+                    <h2 class="section-title">🎓 بيانات العمل والمؤهلات</h2>
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <div class="data-label">المؤهل العلمي</div>
+                            <div class="data-value" id="qualification">-</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">التخصص</div>
+                            <div class="data-value" id="specialization">-</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">جهة العمل</div>
+                            <div class="data-value" id="workplace">-</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">المسمى الوظيفي</div>
+                            <div class="data-value" id="jobTitle">-</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">سنوات الخبرة</div>
+                            <div class="data-value" id="experience">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- بيانات الطلب -->
+                <div class="section">
+                    <h2 class="section-title">📄 بيانات الطلب</h2>
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <div class="data-label">رقم الطلب</div>
+                            <div class="data-value" id="applicationId">-</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">تاريخ التقديم</div>
+                            <div class="data-value" id="submissionDate">-</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">الحالة الحالية</div>
+                            <div class="data-value" id="currentStatus">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- بيانات الدخول -->
+                <div class="section">
+                    <h2 class="section-title">🔐 بيانات الدخول</h2>
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <div class="data-label">اسم المستخدم</div>
+                            <div class="data-value" id="username">-</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">كلمة المرور</div>
+                            <div class="data-value" id="password">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- المرفقات -->
+                <div class="section">
+                    <h2 class="section-title">📎 المرفقات والوثائق</h2>
+                    <div class="attachments-grid" id="attachmentsContainer">
+                        <!-- سيتم ملء المرفقات ديناميكياً -->
+                    </div>
+                </div>
+
+                <!-- قسم اتخاذ القرار -->
+                <div class="decision-section">
+                    <h2 class="section-title">⚖️ اتخاذ القرار</h2>
+                    <div class="decision-buttons">
+                        <button class="decision-btn btn-approve" onclick="showDecisionForm('approve')">
+                            ✅ الموافقة على طلب العضوية
+                        </button>
+                        <button class="decision-btn btn-reject" onclick="showDecisionForm('reject')">
+                            ❌ رفض طلب العضوية
+                        </button>
+                        <button class="decision-btn btn-renew" onclick="showDecisionForm('renew')" style="display: none;">
+                            🔄 تجديد العضوية
+                        </button>
+                    </div>
+
+                    <!-- نموذج الموافقة -->
+                    <div id="approveForm" class="decision-form">
+                        <h3>نموذج الموافقة على العضوية</h3>
+                        <div class="form-group">
+                            <label class="form-label">نوع العضوية</label>
+                            <select class="form-select" id="membershipType">
+                                <option value="affiliated">عضو منتسب</option>
+                                <option value="non-affiliated">عضو غير منتسب</option>
+                                <option value="honorary">عضو فخري</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">رقم العضوية</label>
+                            <input type="text" class="form-input" id="membershipNumber" placeholder="أدخل رقم العضوية">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">تاريخ انتهاء العضوية</label>
+                            <input type="date" class="form-input" id="expiryDate">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">ملاحظات الموافقة</label>
+                            <textarea class="form-textarea" id="approvalNotes" placeholder="أدخل أي ملاحظات إضافية"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn-submit" onclick="submitDecision('approve')">تأكيد الموافقة</button>
+                            <button class="btn-cancel" onclick="hideDecisionForms()">إلغاء</button>
+                        </div>
+                    </div>
+
+                    <!-- نموذج الرفض -->
+                    <div id="rejectForm" class="decision-form">
+                        <h3>نموذج رفض العضوية</h3>
+                        <div class="form-group">
+                            <label class="form-label">سبب الرفض</label>
+                            <select class="form-select" id="rejectionReason">
+                                <option value="incomplete_documents">وثائق ناقصة</option>
+                                <option value="invalid_qualification">مؤهل غير مناسب</option>
+                                <option value="duplicate_application">طلب مكرر</option>
+                                <option value="other">أخرى</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">تفاصيل الرفض</label>
+                            <textarea class="form-textarea" id="rejectionDetails" placeholder="أدخل تفاصيل سبب الرفض"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn-submit" onclick="submitDecision('reject')">تأكيد الرفض</button>
+                            <button class="btn-cancel" onclick="hideDecisionForms()">إلغاء</button>
+                        </div>
+                    </div>
+
+                    <!-- نموذج التجديد -->
+                    <div id="renewForm" class="decision-form">
+                        <h3>نموذج تجديد العضوية</h3>
+                        <div class="form-group">
+                            <label class="form-label">تاريخ انتهاء العضوية الجديد</label>
+                            <input type="date" class="form-input" id="newExpiryDate">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">ملاحظات التجديد</label>
+                            <textarea class="form-textarea" id="renewalNotes" placeholder="أدخل أي ملاحظات حول التجديد"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn-submit" onclick="submitDecision('renew')">تأكيد التجديد</button>
+                            <button class="btn-cancel" onclick="hideDecisionForms()">إلغاء</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة عرض الصور -->
+    <div id="imageModal" class="image-modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeImageModal()">&times;</span>
+            <img id="modalImage" class="modal-image" src="" alt="صورة المرفق">
+        </div>
+    </div>
+
+    <script>
+        // تكوين Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqzVdXOJY8lVKZmPkP5L5L5L5L5L5L5L5",
+            authDomain: "kaml-membership-system.firebaseapp.com",
+            projectId: "kaml-membership-system",
+            storageBucket: "kaml-membership-system.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdef123456789012345"
+        };
+
+        // تهيئة Firebase
+        let db = null;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            console.log('✅ Firebase initialized successfully');
+        } catch (error) {
+            console.error('❌ Firebase initialization error:', error);
+        }
+
+        // متغيرات عامة
+        let currentApplication = null;
+        let applicationId = null;
+
+        // تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            // الحصول على معرّف الطلب من URL
+            const urlParams = new URLSearchParams(window.location.search);
+            applicationId = urlParams.get('id');
+            
+            console.log('🚀 Review page loaded, application ID:', applicationId);
+            
+            if (!applicationId) {
+                showError('لم يتم تمرير معرّف الطلب. يرجى الوصول للصفحة من خلال لوحة التحكم.');
+                return;
+            }
+            
+            loadApplicationData();
+        });
+
+        // تحميل بيانات الطلب من Firebase
+        async function loadApplicationData() {
+            try {
+                console.log('🔄 Loading application data for ID:', applicationId);
+                showLoading(true);
+
+                if (!db) {
+                    throw new Error('Firebase غير متصل - تحقق من إعدادات الشبكة');
+                }
+
+                // قراءة البيانات من Firebase
+                const doc = await db.collection('membershipApplications').doc(applicationId).get();
+                
+                if (!doc.exists) {
+                    throw new Error('لم يتم العثور على الطلب في قاعدة البيانات');
+                }
+
+                currentApplication = { id: doc.id, ...doc.data() };
+                console.log('✅ Application data loaded:', currentApplication);
+
+                // إظهار معلومات التشخيص
+                showDebugInfo(currentApplication);
+
+                // عرض البيانات
+                displayApplicationData();
+                showLoading(false);
+
+            } catch (error) {
+                console.error('❌ Error loading application data:', error);
+                showError('فشل في تحميل بيانات الطلب: ' + error.message);
+                showLoading(false);
+            }
+        }
+
+        // إظهار معلومات التشخيص
+        function showDebugInfo(data) {
+            const debugContainer = document.getElementById('debugContainer');
+            const debugInfo = document.getElementById('debugInfo');
+            
+            debugInfo.innerHTML = `
+                <strong>معرّف الطلب:</strong> ${applicationId}<br>
+                <strong>البيانات المتوفرة:</strong><br>
+                ${Object.keys(data).map(key => `- ${key}: ${typeof data[key]} = ${JSON.stringify(data[key]).substring(0, 50)}...`).join('<br>')}
+            `;
+            
+            debugContainer.style.display = 'block';
+        }
+
+        // عرض بيانات الطلب مع معالجة جميع الاحتمالات
+        function displayApplicationData() {
+            if (!currentApplication) return;
+
+            const app = currentApplication;
+
+            // البيانات الشخصية - معالجة جميع الاحتمالات
+            document.getElementById('nameArabic').textContent = getFieldValue(app, [
+                'name_ar', 'nameAr', 'full_name_ar', 'fullNameAr', 
+                'first_name_ar', 'firstName_ar', 'name', 'fullName'
+            ]);
+
+            document.getElementById('nameEnglish').textContent = getFieldValue(app, [
+                'name_en', 'nameEn', 'full_name_en', 'fullNameEn',
+                'first_name_en', 'firstName_en', 'nameEnglish'
+            ]);
+
+            document.getElementById('nationality').textContent = getFieldValue(app, [
+                'nationality', 'country', 'citizenship'
+            ]);
+
+            document.getElementById('civilId').textContent = getFieldValue(app, [
+                'civil_id', 'civilId', 'national_id', 'nationalId', 'id_number'
+            ]);
+
+            document.getElementById('birthDate').textContent = formatDate(getFieldValue(app, [
+                'birth_date', 'birthDate', 'date_of_birth', 'dateOfBirth', 'dob'
+            ]));
+
+            document.getElementById('gender').textContent = getFieldValue(app, [
+                'gender', 'sex'
+            ]);
+
+            // بيانات الاتصال
+            document.getElementById('email').textContent = getFieldValue(app, [
+                'email', 'email_address', 'emailAddress', 'mail'
+            ]);
+
+            document.getElementById('phone').textContent = getFieldValue(app, [
+                'phone', 'phone_number', 'phoneNumber', 'mobile', 'tel'
+            ]);
+
+            document.getElementById('area').textContent = getFieldValue(app, [
+                'area', 'region', 'address', 'location', 'city'
+            ]);
+
+            // بيانات العمل والمؤهلات
+            document.getElementById('qualification').textContent = getFieldValue(app, [
+                'qualification', 'education', 'degree', 'education_level'
+            ]);
+
+            document.getElementById('specialization').textContent = getFieldValue(app, [
+                'specialization', 'major', 'field', 'specialty'
+            ]);
+
+            document.getElementById('workplace').textContent = getFieldValue(app, [
+                'workplace', 'company', 'employer', 'work_place', 'organization'
+            ]);
+
+            document.getElementById('jobTitle').textContent = getFieldValue(app, [
+                'job_title', 'jobTitle', 'position', 'title', 'role'
+            ]);
+
+            document.getElementById('experience').textContent = getFieldValue(app, [
+                'experience', 'experience_years', 'experienceYears', 'years_experience'
+            ]);
+
+            // بيانات الطلب
+            document.getElementById('applicationId').textContent = app.id || applicationId;
+            document.getElementById('submissionDate').textContent = formatDate(getFieldValue(app, [
+                'submission_date', 'submissionDate', 'created_at', 'createdAt', 'date_submitted'
+            ]));
+            document.getElementById('currentStatus').textContent = getStatusText(app.status);
+
+            // بيانات الدخول
+            document.getElementById('username').textContent = getFieldValue(app, [
+                'username', 'user_name', 'userName', 'login'
+            ]);
+
+            document.getElementById('password').textContent = getFieldValue(app, [
+                'password', 'pass', 'pwd'
+            ]);
+
+            // المرفقات
+            displayAttachments(app);
+
+            // إظهار أزرار القرار المناسبة
+            updateDecisionButtons(app.status);
+
+            console.log('✅ Application data displayed successfully');
+        }
+
+        // دالة للحصول على قيمة الحقل من عدة احتمالات
+        function getFieldValue(obj, fieldNames) {
+            for (let fieldName of fieldNames) {
+                if (obj[fieldName] !== undefined && obj[fieldName] !== null && obj[fieldName] !== '') {
+                    return obj[fieldName];
+                }
+            }
+            return 'غير محدد';
+        }
+
+        // عرض المرفقات
+        function displayAttachments(app) {
+            const container = document.getElementById('attachmentsContainer');
+            container.innerHTML = '';
+
+            const attachments = [
+                { 
+                    keys: ['civil_id_front', 'civilIdFront', 'id_front', 'national_id_front'], 
+                    name: 'صورة البطاقة المدنية (الأمامية)', 
+                    icon: '🆔' 
+                },
+                { 
+                    keys: ['civil_id_back', 'civilIdBack', 'id_back', 'national_id_back'], 
+                    name: 'صورة البطاقة المدنية (الخلفية)', 
+                    icon: '🆔' 
+                },
+                { 
+                    keys: ['personal_photo', 'personalPhoto', 'photo', 'profile_picture'], 
+                    name: 'الصورة الشخصية', 
+                    icon: '📷' 
+                },
+                { 
+                    keys: ['criminal_record', 'criminalRecord', 'police_clearance', 'background_check'], 
+                    name: 'صورة الصحيفة الجنائية', 
+                    icon: '📋' 
+                },
+                { 
+                    keys: ['practice_license', 'practiceLicense', 'license', 'work_permit'], 
+                    name: 'صورة ترخيص مزاولة مهنة', 
+                    icon: '📜' 
+                },
+                { 
+                    keys: ['qualification_certificate', 'qualificationCertificate', 'degree_certificate', 'diploma'], 
+                    name: 'صورة المؤهل العلمي', 
+                    icon: '🎓' 
+                }
+            ];
+
+            attachments.forEach(attachment => {
+                const attachmentDiv = document.createElement('div');
+                attachmentDiv.className = 'attachment-item';
+
+                // البحث عن الملف باستخدام جميع الاحتمالات
+                let fileUrl = null;
+                for (let key of attachment.keys) {
+                    if (app[key] && app[key] !== '') {
+                        fileUrl = app[key];
+                        break;
+                    }
+                }
+
+                const hasFile = fileUrl !== null;
+                const statusClass = hasFile ? 'status-available' : 'status-missing';
+                const statusText = hasFile ? 'متوفر' : 'غير متوفر';
+
+                attachmentDiv.innerHTML = `
+                    <div class="attachment-icon">${attachment.icon}</div>
+                    <div class="attachment-name">${attachment.name}</div>
+                    <div class="attachment-status ${statusClass}">${statusText}</div>
+                    <button class="attachment-btn" 
+                            onclick="viewAttachment('${fileUrl || ''}')" 
+                            ${!hasFile ? 'disabled' : ''}>
+                        ${hasFile ? 'عرض الملف' : 'غير متوفر'}
+                    </button>
+                `;
+
+                container.appendChild(attachmentDiv);
+            });
+        }
+
+        // عرض المرفق
+        function viewAttachment(fileUrl) {
+            if (!fileUrl || fileUrl === '') {
+                alert('الملف غير متوفر');
+                return;
+            }
+
+            // إذا كان رابط صورة، عرضها في النافذة المنبثقة
+            if (fileUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+                document.getElementById('modalImage').src = fileUrl;
+                document.getElementById('imageModal').style.display = 'block';
+            } else {
+                // فتح الملف في نافذة جديدة
+                window.open(fileUrl, '_blank');
+            }
+        }
+
+        // إغلاق نافذة الصورة
+        function closeImageModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+
+        // تحديث أزرار القرار
+        function updateDecisionButtons(status) {
+            const renewBtn = document.querySelector('.btn-renew');
+            
+            if (status === 'renewal_requested') {
+                renewBtn.style.display = 'flex';
+            } else {
+                renewBtn.style.display = 'none';
+            }
+        }
+
+        // إظهار نموذج القرار
+        function showDecisionForm(action) {
+            hideDecisionForms();
+            
+            const formId = action + 'Form';
+            document.getElementById(formId).style.display = 'block';
+            
+            // تعيين قيم افتراضية
+            if (action === 'approve') {
+                const expiryDate = new Date();
+                expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+                document.getElementById('expiryDate').value = expiryDate.toISOString().split('T')[0];
+            } else if (action === 'renew') {
+                const newExpiryDate = new Date();
+                newExpiryDate.setFullYear(newExpiryDate.getFullYear() + 1);
+                document.getElementById('newExpiryDate').value = newExpiryDate.toISOString().split('T')[0];
+            }
+        }
+
+        // إخفاء نماذج القرار
+        function hideDecisionForms() {
+            document.getElementById('approveForm').style.display = 'none';
+            document.getElementById('rejectForm').style.display = 'none';
+            document.getElementById('renewForm').style.display = 'none';
+        }
+
+        // تقديم القرار
+        async function submitDecision(action) {
+            try {
+                console.log('📝 Submitting decision:', action);
+
+                if (!currentApplication) {
+                    throw new Error('بيانات الطلب غير متوفرة');
+                }
+
+                let updateData = {
+                    status: action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : 'approved',
+                    decision_date: new Date().toISOString(),
+                    decision_by: 'admin' // يمكن تحديث هذا بمعرف المدير الحالي
+                };
+
+                if (action === 'approve') {
+                    updateData.membership_type = document.getElementById('membershipType').value;
+                    updateData.membership_number = document.getElementById('membershipNumber').value;
+                    updateData.expiry_date = document.getElementById('expiryDate').value;
+                    updateData.approval_notes = document.getElementById('approvalNotes').value;
+                } else if (action === 'reject') {
+                    updateData.rejection_reason = document.getElementById('rejectionReason').value;
+                    updateData.rejection_details = document.getElementById('rejectionDetails').value;
+                } else if (action === 'renew') {
+                    updateData.expiry_date = document.getElementById('newExpiryDate').value;
+                    updateData.renewal_notes = document.getElementById('renewalNotes').value;
+                    updateData.status = 'approved';
+                }
+
+                // تحديث البيانات في Firebase
+                await db.collection('membershipApplications').doc(applicationId).update(updateData);
+
+                alert('تم حفظ القرار بنجاح!');
+                
+                // العودة للوحة التحكم
+                window.location.href = 'dashboard-firebase.html';
+
+            } catch (error) {
+                console.error('❌ Error submitting decision:', error);
+                alert('حدث خطأ في حفظ القرار: ' + error.message);
+            }
+        }
+
+        // إعادة تحميل البيانات
+        function retryLoading() {
+            loadApplicationData();
+        }
+
+        // تنسيق التاريخ
+        function formatDate(dateString) {
+            if (!dateString || dateString === 'غير محدد') return 'غير محدد';
+            
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('ar-SA');
+            } catch (error) {
+                return dateString;
+            }
+        }
+
+        // الحصول على نص الحالة
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': 'في انتظار المراجعة',
+                'approved': 'معتمد',
+                'rejected': 'مرفوض',
+                'renewal_requested': 'طلب تجديد'
+            };
+            return statusMap[status] || status || 'غير محدد';
+        }
+
+        // إظهار/إخفاء مؤشر التحميل
+        function showLoading(show) {
+            document.getElementById('loadingIndicator').style.display = show ? 'block' : 'none';
+            document.getElementById('contentContainer').style.display = show ? 'none' : 'block';
+            document.getElementById('errorContainer').style.display = 'none';
+        }
+
+        // إظهار رسالة خطأ
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorContainer').style.display = 'block';
+            document.getElementById('loadingIndicator').style.display = 'none';
+            document.getElementById('contentContainer').style.display = 'none';
+        }
+
+        // إغلاق النافذة المنبثقة عند النقر خارجها
+        window.onclick = function(event) {
+            const modal = document.getElementById('imageModal');
+            if (event.target === modal) {
+                closeImageModal();
+            }
+        }
+    </script>
+</body>
+</html>
+
