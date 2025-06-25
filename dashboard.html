@@ -249,6 +249,72 @@
             border: 1px solid #c3e6cb;
         }
 
+        /* نافذة التأكيد المخصصة */
+        .confirmation-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .confirmation-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+            margin: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .confirmation-content h3 {
+            color: #dc3545;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .confirmation-content p {
+            margin-bottom: 20px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .confirmation-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .confirm-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .confirm-btn.danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .confirm-btn.secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .confirm-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
@@ -351,15 +417,27 @@
         </div>
     </div>
 
+    <!-- نافذة التأكيد المخصصة -->
+    <div id="confirmationModal" class="confirmation-modal">
+        <div class="confirmation-content">
+            <h3>⚠️ تأكيد الحذف</h3>
+            <p id="confirmationMessage">هل أنت متأكد من حذف هذا السجل؟ لا يمكن التراجع عن هذا الإجراء.</p>
+            <div class="confirmation-buttons">
+                <button class="confirm-btn danger" onclick="confirmDelete()">نعم، احذف</button>
+                <button class="confirm-btn secondary" onclick="cancelDelete()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // تكوين Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyBqzVdXOJY8lVKZmPkP5L5L5L5L5L5L5L5",
-            authDomain: "kaml-membership-system.firebaseapp.com",
-            projectId: "kaml-membership-system",
-            storageBucket: "kaml-membership-system.appspot.com",
-            messagingSenderId: "123456789012",
-            appId: "1:123456789012:web:abcdef123456789012345"
+            apiKey: "AIzaSyDGpAHia_wEmrhnmYjrPf1n1TrAzwEMiAI",
+            authDomain: "kaml-f5c8c.firebaseapp.com",
+            projectId: "kaml-f5c8c",
+            storageBucket: "kaml-f5c8c.appspot.com",
+            messagingSenderId: "381072250848",
+            appId: "1:381072250848:web:187960e3102bcbdcaa9b2d"
         };
 
         // تهيئة Firebase
@@ -376,6 +454,7 @@
         let allApplications = [];
         let filteredApplications = [];
         let currentFilter = 'all';
+        let deleteApplicationId = null; // لحفظ معرف السجل المراد حذفه
 
         // تحميل الصفحة
         document.addEventListener('DOMContentLoaded', function() {
@@ -498,11 +577,10 @@
                 // رقم العضوية
                 const membershipNumber = app.membership_number || '-';
                 
-                // تاريخ الانتهاء
-                const expiryDate = app.expiry_date ? 
-                    new Date(app.expiry_date).toLocaleDateString('ar-SA') : '-';
+                // تاريخ الانتهاء (تحويل من هجري إلى ميلادي)
+                const expiryDate = convertToGregorianDate(app.expiry_date);
                 
-                // الإجراءات
+                // الإجراءات (مبسطة حسب المطلوب)
                 const actions = createActionButtons(app);
 
                 row.innerHTML = `
@@ -520,6 +598,42 @@
             console.log('✅ Table displayed with', filteredApplications.length, 'rows');
         }
 
+        // تحويل التاريخ من هجري إلى ميلادي
+        function convertToGregorianDate(dateString) {
+            if (!dateString || dateString === '-') {
+                return '-';
+            }
+
+            try {
+                // إذا كان التاريخ بالفعل ميلادي، نعرضه كما هو
+                const date = new Date(dateString);
+                if (!isNaN(date.getTime())) {
+                    return date.toLocaleDateString('ar-SA', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    });
+                }
+
+                // إذا كان التاريخ هجري، نحوله إلى ميلادي
+                // هذا مثال بسيط - يمكن تحسينه باستخدام مكتبة تحويل التواريخ
+                if (dateString.includes('هـ') || dateString.includes('ه')) {
+                    // استخراج السنة الهجرية وتحويلها تقريبياً
+                    const hijriYear = parseInt(dateString.match(/\d{4}/)?.[0]);
+                    if (hijriYear) {
+                        // تحويل تقريبي: السنة الميلادية = السنة الهجرية + 622 - (السنة الهجرية / 33)
+                        const gregorianYear = Math.round(hijriYear + 622 - (hijriYear / 33));
+                        return `${gregorianYear}/01/01 (تقريبي)`;
+                    }
+                }
+
+                return dateString; // إرجاع التاريخ كما هو إذا لم نتمكن من تحويله
+            } catch (error) {
+                console.error('Error converting date:', error);
+                return dateString;
+            }
+        }
+
         // الحصول على الاسم الكامل
         function getFullName(app) {
             const firstName = app.first_name_ar || app.firstName || '';
@@ -530,17 +644,13 @@
             return fullName || app.name || 'غير محدد';
         }
 
-        // إنشاء أزرار الإجراءات
+        // إنشاء أزرار الإجراءات (مبسطة حسب المطلوب)
         function createActionButtons(app) {
-            let buttons = `<button class="action-btn primary" onclick="viewApplication('${app.id}')">عرض</button>`;
+            // زر العرض فقط (بدلاً من موافقة/رفض)
+            let buttons = `<button class="action-btn primary" onclick="viewApplication('${app.id}')">👁️ عرض</button>`;
             
-            if (app.status === 'pending') {
-                buttons += `<button class="action-btn success" onclick="quickApprove('${app.id}')">موافقة</button>`;
-                buttons += `<button class="action-btn danger" onclick="quickReject('${app.id}')">رفض</button>`;
-            } else if (app.status === 'renewal_requested') {
-                buttons += `<button class="action-btn warning" onclick="renewMembership('${app.id}')">تجديد</button>`;
-                buttons += `<button class="action-btn danger" onclick="quickReject('${app.id}')">رفض</button>`;
-            }
+            // إضافة زر المسح لجميع السجلات
+            buttons += `<button class="action-btn danger" onclick="showDeleteConfirmation('${app.id}', '${getFullName(app)}')">🗑️ مسح</button>`;
             
             return buttons;
         }
@@ -551,29 +661,55 @@
             window.location.href = `review-application.html?id=${applicationId}`;
         }
 
-        // موافقة سريعة
-        function quickApprove(applicationId) {
-            if (confirm('هل أنت متأكد من الموافقة على هذا الطلب؟')) {
-                console.log('✅ Quick approve for:', applicationId);
-                window.location.href = `review-application.html?id=${applicationId}&action=approve`;
+        // إظهار نافذة تأكيد الحذف
+        function showDeleteConfirmation(applicationId, memberName) {
+            deleteApplicationId = applicationId;
+            const modal = document.getElementById('confirmationModal');
+            const message = document.getElementById('confirmationMessage');
+            
+            message.textContent = `هل أنت متأكد من حذف سجل العضو "${memberName}"؟ لا يمكن التراجع عن هذا الإجراء.`;
+            modal.style.display = 'flex';
+        }
+
+        // تأكيد الحذف
+        async function confirmDelete() {
+            if (!deleteApplicationId) return;
+
+            try {
+                console.log('🗑️ Deleting application:', deleteApplicationId);
+                
+                // حذف السجل من Firebase
+                await db.collection('membershipApplications').doc(deleteApplicationId).delete();
+                
+                console.log('✅ Application deleted successfully');
+                
+                // إخفاء نافذة التأكيد
+                cancelDelete();
+                
+                // إعادة تحميل البيانات
+                await loadApplicationData();
+                
+                // إظهار رسالة نجاح
+                showSuccessMessage('تم حذف السجل بنجاح');
+                
+            } catch (error) {
+                console.error('❌ Error deleting application:', error);
+                showErrorMessage('فشل في حذف السجل: ' + error.message);
             }
         }
 
-        // رفض سريع
-        function quickReject(applicationId) {
-            if (confirm('هل أنت متأكد من رفض هذا الطلب؟')) {
-                console.log('❌ Quick reject for:', applicationId);
-                window.location.href = `review-application.html?id=${applicationId}&action=reject`;
-            }
+        // إلغاء الحذف
+        function cancelDelete() {
+            deleteApplicationId = null;
+            document.getElementById('confirmationModal').style.display = 'none';
         }
 
-        // تجديد العضوية
-        function renewMembership(applicationId) {
-            if (confirm('هل أنت متأكد من تجديد هذه العضوية؟')) {
-                console.log('🔄 Renewing membership for:', applicationId);
-                window.location.href = `review-application.html?id=${applicationId}&action=renew`;
+        // إغلاق نافذة التأكيد عند النقر خارجها
+        document.getElementById('confirmationModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                cancelDelete();
             }
-        }
+        });
 
         // تحديث البيانات
         function refreshData() {
@@ -590,8 +726,35 @@
         // تصدير البيانات
         function exportData() {
             console.log('📊 Exporting data...');
-            // يمكن إضافة وظيفة التصدير هنا
-            alert('سيتم إضافة وظيفة التصدير قريباً');
+            
+            if (filteredApplications.length === 0) {
+                alert('لا توجد بيانات للتصدير');
+                return;
+            }
+
+            // إنشاء CSV
+            let csvContent = "الاسم,البريد الإلكتروني,الحالة,رقم العضوية,تاريخ الانتهاء\n";
+            
+            filteredApplications.forEach(app => {
+                const fullName = getFullName(app);
+                const email = app.email || 'غير محدد';
+                const status = getStatusText(app.status);
+                const membershipNumber = app.membership_number || '-';
+                const expiryDate = convertToGregorianDate(app.expiry_date);
+                
+                csvContent += `"${fullName}","${email}","${status}","${membershipNumber}","${expiryDate}"\n`;
+            });
+
+            // تحميل الملف
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `kaml_members_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         // الحصول على نص الحالة
@@ -642,6 +805,30 @@
         function showEmptyState() {
             document.getElementById('emptyState').style.display = 'block';
             document.getElementById('tableContainer').style.display = 'none';
+        }
+
+        // إظهار رسالة نجاح
+        function showSuccessMessage(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.textContent = message;
+            document.querySelector('.container').appendChild(successDiv);
+            
+            setTimeout(() => {
+                successDiv.remove();
+            }, 3000);
+        }
+
+        // إظهار رسالة خطأ
+        function showErrorMessage(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            document.querySelector('.container').appendChild(errorDiv);
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
         }
     </script>
 </body>
