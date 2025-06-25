@@ -1024,38 +1024,122 @@
                     throw new Error('بيانات الطلب غير متوفرة');
                 }
 
+                if (!db) {
+                    throw new Error('Firebase غير متصل - تحقق من إعدادات الشبكة');
+                }
+
+                // التحقق من صحة البيانات المطلوبة
+                if (action === 'approve') {
+                    const membershipNumber = document.getElementById('membershipNumber').value.trim();
+                    if (!membershipNumber) {
+                        alert('يرجى إدخال رقم العضوية');
+                        return;
+                    }
+                } else if (action === 'reject') {
+                    const rejectionDetails = document.getElementById('rejectionDetails').value.trim();
+                    if (!rejectionDetails) {
+                        alert('يرجى إدخال تفاصيل سبب الرفض');
+                        return;
+                    }
+                }
+
+                // إظهار مؤشر التحميل
+                const submitButton = event.target;
+                const originalText = submitButton.textContent;
+                submitButton.textContent = 'جاري الحفظ...';
+                submitButton.disabled = true;
+
+                // إعداد بيانات التحديث
                 let updateData = {
                     status: action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : 'approved',
                     decision_date: new Date().toISOString(),
-                    decision_by: 'admin' // يمكن تحديث هذا بمعرف المدير الحالي
+                    decision_by: 'admin',
+                    last_updated: new Date().toISOString()
                 };
 
                 if (action === 'approve') {
                     updateData.membership_type = document.getElementById('membershipType').value;
-                    updateData.membership_number = document.getElementById('membershipNumber').value;
+                    updateData.membership_number = document.getElementById('membershipNumber').value.trim();
                     updateData.expiry_date = document.getElementById('expiryDate').value;
-                    updateData.approval_notes = document.getElementById('approvalNotes').value;
+                    updateData.approval_notes = document.getElementById('approvalNotes').value.trim();
+                    
+                    console.log('✅ Approving application with data:', updateData);
                 } else if (action === 'reject') {
                     updateData.rejection_reason = document.getElementById('rejectionReason').value;
-                    updateData.rejection_details = document.getElementById('rejectionDetails').value;
+                    updateData.rejection_details = document.getElementById('rejectionDetails').value.trim();
+                    
+                    console.log('❌ Rejecting application with data:', updateData);
                 } else if (action === 'renew') {
                     updateData.expiry_date = document.getElementById('newExpiryDate').value;
-                    updateData.renewal_notes = document.getElementById('renewalNotes').value;
+                    updateData.renewal_notes = document.getElementById('renewalNotes').value.trim();
                     updateData.status = 'approved';
+                    
+                    console.log('🔄 Renewing membership with data:', updateData);
                 }
 
                 // تحديث البيانات في Firebase
+                console.log('🔄 Updating Firebase document:', applicationId);
                 await db.collection('membershipApplications').doc(applicationId).update(updateData);
-
-                alert('تم حفظ القرار بنجاح!');
                 
-                // العودة للوحة التحكم
-                window.location.href = 'dashboard-firebase.html';
+                console.log('✅ Firebase update successful');
+
+                // التحقق من نجاح التحديث
+                const updatedDoc = await db.collection('membershipApplications').doc(applicationId).get();
+                if (updatedDoc.exists) {
+                    const updatedData = updatedDoc.data();
+                    console.log('✅ Verification: Updated status is:', updatedData.status);
+                    
+                    if (updatedData.status === updateData.status) {
+                        // نجح التحديث
+                        const statusText = action === 'approve' ? 'تمت الموافقة' : action === 'reject' ? 'تم الرفض' : 'تم التجديد';
+                        alert(`✅ ${statusText} على الطلب بنجاح!\n\nالحالة الجديدة: ${getStatusText(updatedData.status)}\n\nسيتم الآن العودة للوحة التحكم لرؤية التحديث.`);
+                        
+                        // انتظار قصير قبل العودة
+                        setTimeout(() => {
+                            window.location.href = 'dashboard-firebase.html';
+                        }, 1000);
+                    } else {
+                        throw new Error('فشل في تحديث الحالة - الحالة لم تتغير في قاعدة البيانات');
+                    }
+                } else {
+                    throw new Error('لم يتم العثور على الطلب بعد التحديث');
+                }
 
             } catch (error) {
                 console.error('❌ Error submitting decision:', error);
-                alert('حدث خطأ في حفظ القرار: ' + error.message);
+                
+                // إعادة تفعيل الزر
+                if (event && event.target) {
+                    event.target.textContent = originalText;
+                    event.target.disabled = false;
+                }
+                
+                // رسالة خطأ مفصلة
+                let errorMessage = 'حدث خطأ في حفظ القرار:\n\n';
+                
+                if (error.code === 'permission-denied') {
+                    errorMessage += 'ليس لديك صلاحية لتحديث هذا الطلب.\nيرجى التحقق من صلاحيات Firebase.';
+                } else if (error.code === 'unavailable') {
+                    errorMessage += 'خدمة Firebase غير متاحة حالياً.\nيرجى المحاولة مرة أخرى لاحقاً.';
+                } else if (error.code === 'not-found') {
+                    errorMessage += 'لم يتم العثور على الطلب في قاعدة البيانات.\nقد يكون تم حذفه أو تغيير معرفه.';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                alert(errorMessage);
             }
+        }
+
+        // تنسيق نص الحالة
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': 'في انتظار المراجعة',
+                'approved': 'معتمد',
+                'rejected': 'مرفوض',
+                'under_review': 'قيد المراجعة'
+            };
+            return statusMap[status] || status;
         }
 
         // إعادة تحميل البيانات

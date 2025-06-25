@@ -383,6 +383,32 @@
             loadApplicationData();
         });
 
+        // إعادة تحميل البيانات عند العودة للصفحة
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                console.log('👁️ Page became visible, refreshing data...');
+                loadApplicationData();
+            }
+        });
+
+        // إعادة تحميل البيانات عند التركيز على النافذة
+        window.addEventListener('focus', function() {
+            console.log('🎯 Window focused, refreshing data...');
+            loadApplicationData();
+        });
+
+        // إعادة تحميل البيانات كل 30 ثانية للتأكد من التحديث
+        setInterval(function() {
+            console.log('⏰ Auto-refresh: Reloading data...');
+            loadApplicationData();
+        }, 30000);
+
+        // تحديث البيانات
+        function refreshData() {
+            console.log('🔄 Refreshing data...');
+            loadApplicationData();
+        }
+
         // تحميل بيانات الطلبات من Firebase
         async function loadApplicationData() {
             try {
@@ -405,6 +431,7 @@
                 }
 
                 // تحويل البيانات
+                const previousCount = allApplications.length;
                 allApplications = [];
                 snapshot.forEach(doc => {
                     const data = doc.data();
@@ -415,8 +442,13 @@
                 });
 
                 console.log('✅ Data loaded successfully:', allApplications.length, 'records');
+                
+                // إظهار رسالة إذا تغيرت البيانات
+                if (previousCount > 0 && allApplications.length !== previousCount) {
+                    console.log('📊 Data count changed from', previousCount, 'to', allApplications.length);
+                }
 
-                // عرض البيانات
+                // عرض البيانات مع الحفاظ على الفلتر الحالي
                 updateStatistics();
                 filterApplications(currentFilter);
                 showLoading(false);
