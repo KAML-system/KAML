@@ -292,7 +292,7 @@
     <div class="container">
         <div class="header">
             <h1>📋 مراجعة طلب العضوية</h1>
-            <a href="dashboard-firebase.html" class="btn btn-secondary">
+            <a href="dashboard-filtering-fix.html" class="btn btn-secondary">
                 ← العودة للوحة التحكم
             </a>
         </div>
@@ -308,7 +308,7 @@
                 <p id="errorMessage"></p>
                 <br>
                 <button class="btn btn-secondary" onclick="retryLoading()">إعادة المحاولة</button>
-                <a href="dashboard-firebase.html" class="btn btn-secondary">العودة للوحة التحكم</a>
+                <a href="dashboard-filtering-fix.html" class="btn btn-secondary">العودة للوحة التحكم</a>
             </div>
 
             <div id="debugContainer" class="debug-info" style="display: none;">
@@ -836,11 +836,16 @@
                                 
                                 // نجح التحديث
                                 const statusText = action === 'approve' ? 'تمت الموافقة' : action === 'reject' ? 'تم الرفض' : 'تم التجديد';
+                                
+                                // إشارة للوحة التحكم أن البيانات تحدثت
+                                localStorage.setItem('applicationUpdated', Date.now().toString());
+                                localStorage.setItem('lastUpdatedId', applicationId);
+                                
                                 alert(`✅ ${statusText} على الطلب بنجاح!\n\nالحالة الجديدة: ${getStatusText(updatedData.status)}\n\nسيتم الآن العودة للوحة التحكم لرؤية التحديث.`);
                                 
                                 // انتظار قصير قبل العودة
                                 setTimeout(() => {
-                                    window.location.href = 'dashboard-firebase.html';
+                                    window.location.href = 'dashboard-filtering-fix.html';
                                 }, 2000);
                             } else {
                                 console.warn(`⚠️ Status mismatch: expected ${updateData.status}, got ${updatedData.status}`);

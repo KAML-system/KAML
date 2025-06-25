@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم نظام العضوية - KAML</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .stat-card.rejected { border-color: #dc3545; }
+        .stat-card.renewal { border-color: #ffc107; }
+        .stat-card.pending { border-color: #007bff; }
+        .stat-card.approved { border-color: #28a745; }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .stat-card.rejected .stat-number { color: #dc3545; }
+        .stat-card.renewal .stat-number { color: #ffc107; }
+        .stat-card.pending .stat-number { color: #007bff; }
+        .stat-card.approved .stat-number { color: #28a745; }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: white;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        .btn-info { background: #17a2b8; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .filter-btn {
+            position: relative;
+        }
+
+        .filter-btn.active {
+            background: #0056b3 !important;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.3);
+        }
+
+        .main-content {
+            padding: 30px;
+            min-height: 400px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+            text-align: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .applications-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            font-size: 0.9rem;
+        }
+
+        .applications-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            border: none;
+        }
+
+        .applications-table td {
+            padding: 12px 10px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .applications-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending { background: #cce5ff; color: #0066cc; }
+        .status-approved { background: #d4edda; color: #155724; }
+        .status-rejected { background: #f8d7da; color: #721c24; }
+        .status-renewal { background: #fff3cd; color: #856404; }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            border-radius: 15px;
+        }
+
+        .refresh-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+                padding: 20px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .applications-table {
+                font-size: 0.8rem;
+            }
+            
+            .applications-table th,
+            .applications-table td {
+                padding: 8px 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ لوحة تحكم نظام العضوية</h1>
+            <p>إدارة طلبات العضوية ومراجعة البيانات - الجمعية الكويتية للمختبرات الطبية</p>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card rejected" onclick="filterApplications('rejected')" data-filter="rejected">
+                <div class="stat-number" id="rejectedCount">0</div>
+                <div class="stat-label">مرفوض</div>
+            </div>
+            <div class="stat-card renewal" onclick="filterApplications('renewal_requested')" data-filter="renewal_requested">
+                <div class="stat-number" id="renewalCount">0</div>
+                <div class="stat-label">طلبات تجديد</div>
+            </div>
+            <div class="stat-card pending" onclick="filterApplications('pending')" data-filter="pending">
+                <div class="stat-number" id="pendingCount">0</div>
+                <div class="stat-label">في انتظار المراجعة</div>
+            </div>
+            <div class="stat-card approved" onclick="filterApplications('approved')" data-filter="approved">
+                <div class="stat-number" id="approvedCount">0</div>
+                <div class="stat-label">إجمالي الأعضاء المعتمدين</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary filter-btn active" data-filter="all" onclick="filterApplications('all')">
+                📊 تحديث البيانات
+            </button>
+            <button class="btn btn-danger filter-btn" data-filter="rejected" onclick="filterApplications('rejected')">
+                ❌ مرفوض
+            </button>
+            <button class="btn btn-warning filter-btn" data-filter="renewal_requested" onclick="filterApplications('renewal_requested')">
+                📋 طلبات تجديد
+            </button>
+            <button class="btn btn-info filter-btn" data-filter="pending" onclick="filterApplications('pending')">
+                ⏳ في انتظار المراجعة
+            </button>
+            <button class="btn btn-success filter-btn" data-filter="approved" onclick="filterApplications('approved')">
+                ✅ الأعضاء المعتمدين
+            </button>
+            <button class="btn btn-secondary filter-btn" data-filter="all" onclick="filterApplications('all')">
+                📊 جميع البيانات
+            </button>
+            <button class="btn btn-info" onclick="forceRefreshData()">
+                🔄 تحديث البيانات
+            </button>
+        </div>
+
+        <div class="main-content">
+            <div id="loadingIndicator" class="loading">
+                <div class="spinner"></div>
+                <div>جاري تحميل البيانات...</div>
+            </div>
+
+            <div id="errorContainer" class="error-message" style="display: none;">
+                <h3>خطأ في تحميل البيانات</h3>
+                <p id="errorMessage"></p>
+                <br>
+                <button class="btn btn-secondary" onclick="loadApplicationData()">إعادة المحاولة</button>
+            </div>
+
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <h3>لا توجد بيانات</h3>
+                <p>لم يتم العثور على أي طلبات عضوية في النظام</p>
+            </div>
+
+            <div id="tableContainer" class="table-container" style="display: none;">
+                <table class="applications-table">
+                    <thead>
+                        <tr>
+                            <th>الاسم</th>
+                            <th>البريد</th>
+                            <th>الحالة</th>
+                            <th>رقم العضوية</th>
+                            <th>تاريخ الانتهاء</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="applicationsTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="refreshIndicator" class="refresh-indicator">
+        🔄 تم تحديث البيانات
+    </div>
+
+    <script>
+        // إعدادات Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDGpAHia_wEmrhnmYjrPf1n1TrAzwEMiAI",
+            authDomain: "kaml-f5c8c.firebaseapp.com",
+            projectId: "kaml-f5c8c",
+            storageBucket: "kaml-f5c8c.appspot.com",
+            messagingSenderId: "381072250848",
+            appId: "1:381072250848:web:187960e3102bcbdcaa9b2d"
+        };
+
+        // تهيئة Firebase
+        let db = null;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            console.log('✅ Firebase initialized successfully');
+        } catch (error) {
+            console.error('❌ Firebase initialization error:', error);
+        }
+
+        // متغيرات عامة
+        let allApplications = [];
+        let filteredApplications = [];
+        let currentFilter = 'all';
+        let lastRefreshTime = 0;
+
+        // تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Dashboard loaded, starting data loading...');
+            loadApplicationData();
+        });
+
+        // إعادة تحميل البيانات عند العودة للصفحة
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                console.log('👁️ Page became visible, force refreshing data...');
+                forceRefreshData();
+            }
+        });
+
+        // إعادة تحميل البيانات عند التركيز على النافذة
+        window.addEventListener('focus', function() {
+            console.log('🎯 Window focused, force refreshing data...');
+            forceRefreshData();
+        });
+
+        // إعادة تحميل البيانات كل 30 ثانية للتأكد من التحديث
+        setInterval(function() {
+            console.log('⏰ Auto-refresh: Force reloading data...');
+            forceRefreshData();
+        }, 30000);
+
+        // إجبار تحديث البيانات
+        function forceRefreshData() {
+            console.log('🔄 Force refreshing data...');
+            
+            // إعادة تعيين المتغيرات
+            allApplications = [];
+            filteredApplications = [];
+            
+            // إخفاء الجدول وإظهار التحميل
+            showLoading(true);
+            
+            // تحميل البيانات مع تأخير قصير لضمان التحديث
+            setTimeout(() => {
+                loadApplicationData();
+            }, 500);
+            
+            // إظهار مؤشر التحديث
+            showRefreshIndicator();
+        }
+
+        // إظهار مؤشر التحديث
+        function showRefreshIndicator() {
+            const indicator = document.getElementById('refreshIndicator');
+            indicator.style.display = 'block';
+            setTimeout(() => {
+                indicator.style.display = 'none';
+            }, 2000);
+        }
+
+        // تحميل بيانات الطلبات من Firebase
+        async function loadApplicationData() {
+            try {
+                console.log('🔄 Loading applications from Firebase...');
+                showLoading(true);
+                hideError();
+
+                if (!db) {
+                    throw new Error('Firebase غير متصل - تحقق من إعدادات الشبكة');
+                }
+
+                // قراءة البيانات من Firebase مع إجبار التحديث
+                const snapshot = await db.collection('membershipApplications').get();
+                
+                if (snapshot.empty) {
+                    console.log('📊 No data found in Firebase');
+                    allApplications = [];
+                    filteredApplications = [];
+                    showEmptyState();
+                    return;
+                }
+
+                // تحويل البيانات مع إعادة تعيين كاملة
+                const previousCount = allApplications.length;
+                allApplications = []; // إعادة تعيين كاملة
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    allApplications.push({
+                        id: doc.id,
+                        ...data
+                    });
+                });
+
+                console.log('✅ Data loaded successfully:', allApplications.length, 'records');
+                console.log('📊 Current data:', allApplications);
+                
+                // إظهار رسالة إذا تغيرت البيانات
+                if (previousCount > 0 && allApplications.length !== previousCount) {
+                    console.log('📊 Data count changed from', previousCount, 'to', allApplications.length);
+                }
+
+                // تحديث الإحصائيات والعرض
+                updateStatistics();
+                filterApplications(currentFilter);
+                showLoading(false);
+                lastRefreshTime = Date.now();
+
+            } catch (error) {
+                console.error('❌ Error loading application data:', error);
+                showError('فشل في تحميل البيانات: ' + error.message);
+                showLoading(false);
+            }
+        }
+
+        // تحديث الإحصائيات مع تنظيف البيانات
+        function updateStatistics() {
+            // إعادة حساب الإحصائيات من البيانات الجديدة
+            const approved = allApplications.filter(app => app.status === 'approved').length;
+            const pending = allApplications.filter(app => app.status === 'pending').length;
+            const renewal = allApplications.filter(app => app.status === 'renewal_requested').length;
+            const rejected = allApplications.filter(app => app.status === 'rejected').length;
+
+            // تحديث العرض
+            document.getElementById('approvedCount').textContent = approved;
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('renewalCount').textContent = renewal;
+            document.getElementById('rejectedCount').textContent = rejected;
+
+            console.log('📊 Statistics updated:', { approved, pending, renewal, rejected });
+            
+            // تسجيل تفاصيل كل فئة للتشخيص
+            console.log('📋 Pending applications:', allApplications.filter(app => app.status === 'pending'));
+            console.log('✅ Approved applications:', allApplications.filter(app => app.status === 'approved'));
+            console.log('❌ Rejected applications:', allApplications.filter(app => app.status === 'rejected'));
+        }
+
+        // فلترة الطلبات مع تنظيف البيانات
+        function filterApplications(filter) {
+            console.log('🔍 Filtering applications by:', filter);
+            
+            currentFilter = filter;
+            
+            // تحديث أزرار الفلتر
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-filter') === filter) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // إعادة تعيين المصفوفة المفلترة
+            filteredApplications = [];
+
+            // فلترة البيانات مع تنظيف
+            if (filter === 'all') {
+                filteredApplications = [...allApplications];
+            } else {
+                filteredApplications = allApplications.filter(app => {
+                    // تنظيف الحالة وضمان المطابقة الدقيقة
+                    const appStatus = (app.status || '').toString().trim().toLowerCase();
+                    const filterStatus = filter.toString().trim().toLowerCase();
+                    return appStatus === filterStatus;
+                });
+            }
+
+            console.log('📊 Filtered results:', filteredApplications.length, 'records for filter:', filter);
+            console.log('📋 Filtered data:', filteredApplications);
+            
+            displayApplicationsTable();
+        }
+
+        // عرض جدول الطلبات
+        function displayApplicationsTable() {
+            const tableBody = document.getElementById('applicationsTableBody');
+            const tableContainer = document.getElementById('tableContainer');
+            
+            if (filteredApplications.length === 0) {
+                tableContainer.style.display = 'none';
+                if (currentFilter === 'all') {
+                    showEmptyState();
+                } else {
+                    document.getElementById('emptyState').style.display = 'none';
+                }
+                return;
+            }
+
+            // إخفاء حالة الفراغ وإظهار الجدول
+            document.getElementById('emptyState').style.display = 'none';
+            tableContainer.style.display = 'block';
+
+            // تنظيف الجدول
+            tableBody.innerHTML = '';
+
+            // إضافة الصفوف
+            filteredApplications.forEach(app => {
+                const row = createApplicationRow(app);
+                tableBody.appendChild(row);
+            });
+
+            console.log('📊 Table displayed with', filteredApplications.length, 'rows');
+        }
+
+        // إنشاء صف الطلب
+        function createApplicationRow(app) {
+            const row = document.createElement('tr');
+            
+            // الحصول على البيانات مع قيم افتراضية
+            const name = app.name_ar || app.nameAr || app.full_name_ar || app.fullNameAr || 'غير محدد';
+            const email = app.email || app.email_address || app.emailAddress || 'غير محدد';
+            const membershipNumber = app.membership_number || app.membershipNumber || '-';
+            const expiryDate = app.expiry_date || app.expiryDate || '-';
+            
+            row.innerHTML = `
+                <td>${name}</td>
+                <td>${email}</td>
+                <td><span class="status-badge status-${app.status || 'pending'}">${getStatusText(app.status || 'pending')}</span></td>
+                <td>${membershipNumber}</td>
+                <td>${formatDate(expiryDate)}</td>
+                <td>
+                    <div class="action-buttons">
+                        ${createActionButtons(app)}
+                    </div>
+                </td>
+            `;
+            
+            return row;
+        }
+
+        // إنشاء أزرار الإجراءات
+        function createActionButtons(app) {
+            let buttons = `
+                <button class="btn btn-primary btn-sm" onclick="viewApplication('${app.id}')">
+                    👁️ عرض
+                </button>
+            `;
+            
+            if (app.status === 'pending') {
+                buttons += `
+                    <button class="btn btn-success btn-sm" onclick="quickApprove('${app.id}')">
+                        ✅ موافقة
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="quickReject('${app.id}')">
+                        ❌ رفض
+                    </button>
+                `;
+            } else if (app.status === 'approved') {
+                buttons += `
+                    <button class="btn btn-warning btn-sm" onclick="renewMembership('${app.id}')">
+                        🔄 تجديد
+                    </button>
+                `;
+            }
+            
+            return buttons;
+        }
+
+        // عرض الطلب
+        function viewApplication(id) {
+            console.log('👁️ Viewing application:', id);
+            window.location.href = `review-application-status-fix.html?id=${id}`;
+        }
+
+        // موافقة سريعة
+        function quickApprove(applicationId) {
+            if (confirm('هل أنت متأكد من الموافقة على هذا الطلب؟')) {
+                window.location.href = `review-application-status-fix.html?id=${applicationId}`;
+            }
+        }
+
+        // رفض سريع
+        function quickReject(applicationId) {
+            if (confirm('هل أنت متأكد من رفض هذا الطلب؟')) {
+                window.location.href = `review-application-status-fix.html?id=${applicationId}`;
+            }
+        }
+
+        // تجديد العضوية
+        function renewMembership(applicationId) {
+            if (confirm('هل أنت متأكد من تجديد هذه العضوية؟')) {
+                console.log('🔄 Renewing membership for:', applicationId);
+                window.location.href = `review-application-status-fix.html?id=${applicationId}`;
+            }
+        }
+
+        // تنسيق نص الحالة
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': 'في انتظار المراجعة',
+                'approved': 'معتمد',
+                'rejected': 'مرفوض',
+                'renewal_requested': 'طلب تجديد',
+                'under_review': 'قيد المراجعة'
+            };
+            return statusMap[status] || status;
+        }
+
+        // تنسيق التاريخ
+        function formatDate(dateString) {
+            if (!dateString || dateString === '-') return '-';
+            
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('ar-SA');
+            } catch (error) {
+                return dateString;
+            }
+        }
+
+        // إظهار/إخفاء مؤشر التحميل
+        function showLoading(show) {
+            document.getElementById('loadingIndicator').style.display = show ? 'block' : 'none';
+            if (show) {
+                document.getElementById('tableContainer').style.display = 'none';
+                document.getElementById('emptyState').style.display = 'none';
+            }
+        }
+
+        // إظهار رسالة خطأ
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorContainer').style.display = 'block';
+            document.getElementById('tableContainer').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'none';
+        }
+
+        // إخفاء رسالة خطأ
+        function hideError() {
+            document.getElementById('errorContainer').style.display = 'none';
+        }
+
+        // إظهار حالة الفراغ
+        function showEmptyState() {
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('tableContainer').style.display = 'none';
+            showLoading(false);
+        }
+
+        // مراقبة تغييرات URL للتحديث التلقائي
+        window.addEventListener('popstate', function() {
+            console.log('🔄 URL changed, refreshing data...');
+            forceRefreshData();
+        });
+
+        // مراقبة تغييرات التخزين المحلي (إذا كانت صفحة أخرى تحدث البيانات)
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'applicationUpdated') {
+                console.log('🔄 Storage event detected, refreshing data...');
+                forceRefreshData();
+            }
+        });
+    </script>
+</body>
+</html>
+
