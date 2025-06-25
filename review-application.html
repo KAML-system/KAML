@@ -72,6 +72,12 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .main-content {
             padding: 30px;
         }
@@ -265,6 +271,39 @@
         .status-pending { background: #fff3cd; color: #856404; }
         .status-approved { background: #d4edda; color: #155724; }
         .status-rejected { background: #f8d7da; color: #721c24; }
+
+        /* تحسينات للتحديث الفوري */
+        .processing-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .processing-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+            margin: 20px;
+        }
+
+        .processing-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
 
         @media (max-width: 768px) {
             .header h1 {
@@ -547,6 +586,15 @@
         </div>
     </div>
 
+    <!-- Processing Overlay -->
+    <div id="processingOverlay" class="processing-overlay">
+        <div class="processing-content">
+            <div class="processing-spinner"></div>
+            <h3 id="processingTitle">جاري المعالجة...</h3>
+            <p id="processingMessage">يرجى الانتظار أثناء حفظ القرار</p>
+        </div>
+    </div>
+
     <!-- Modal لعرض الصور -->
     <div id="imageModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9);" onclick="closeImageModal()">
         <img id="modalImage" style="margin: auto; display: block; max-width: 90%; max-height: 90%; margin-top: 5%;">
@@ -605,99 +653,106 @@
                     throw new Error('لم يتم العثور على الطلب المحدد');
                 }
 
-                currentApplication = doc.data();
-                console.log('✅ Application data loaded:', currentApplication);
-
-                // عرض معلومات التشخيص
-                showDebugInfo(currentApplication);
+                const data = doc.data();
+                currentApplication = data;
+                
+                console.log('✅ Application data loaded:', data);
 
                 // عرض البيانات
-                displayApplicationData(currentApplication);
+                displayApplicationData(data);
+                
+                // إخفاء مؤشر التحميل وإظهار البيانات
                 showLoading(false);
+                document.getElementById('applicationContainer').style.display = 'block';
 
             } catch (error) {
                 console.error('❌ Error loading application data:', error);
-                showError('فشل في تحميل بيانات الطلب: ' + error.message);
+                showError(error.message);
                 showLoading(false);
             }
-        }
-
-        // عرض معلومات التشخيص
-        function showDebugInfo(data) {
-            const debugContainer = document.getElementById('debugContainer');
-            const debugInfo = document.getElementById('debugInfo');
-            
-            debugInfo.innerHTML = `
-                <strong>معرف الطلب:</strong> ${applicationId}<br>
-                <strong>الحالة الحالية:</strong> ${data.status || 'غير محدد'}<br>
-                <strong>البيانات المتوفرة:</strong><br>
-                ${JSON.stringify(data, null, 2)}
-            `;
-            
-            debugContainer.style.display = 'block';
-        }
-
-        // دالة مرنة للحصول على قيمة الحقل
-        function getFieldValue(data, fieldNames) {
-            for (const fieldName of fieldNames) {
-                if (data[fieldName] !== undefined && data[fieldName] !== null && data[fieldName] !== '') {
-                    return data[fieldName];
-                }
-            }
-            return 'غير محدد';
         }
 
         // عرض بيانات الطلب
         function displayApplicationData(data) {
+            console.log('📋 Displaying application data');
+
+            // دالة مساعدة للبحث في عدة احتمالات لأسماء الحقول
+            function getFieldValue(data, possibleNames, defaultValue = 'غير محدد') {
+                for (const name of possibleNames) {
+                    if (data[name] !== undefined && data[name] !== null && data[name] !== '') {
+                        return data[name];
+                    }
+                }
+                return defaultValue;
+            }
+
             // البيانات الشخصية
-            document.getElementById('nameAr').textContent = getFieldValue(data, ['name_ar', 'nameAr', 'full_name_ar', 'fullNameAr', 'first_name_ar', 'firstName_ar', 'name', 'fullName']);
-            document.getElementById('nameEn').textContent = getFieldValue(data, ['name_en', 'nameEn', 'full_name_en', 'fullNameEn', 'first_name_en', 'firstName_en', 'nameEnglish']);
-            document.getElementById('nationality').textContent = getFieldValue(data, ['nationality', 'country', 'citizenship']);
-            document.getElementById('civilId').textContent = getFieldValue(data, ['civil_id', 'civilId', 'national_id', 'nationalId', 'id_number']);
-            document.getElementById('birthDate').textContent = formatDate(getFieldValue(data, ['birth_date', 'birthDate', 'date_of_birth', 'dateOfBirth', 'dob']));
-            document.getElementById('gender').textContent = getFieldValue(data, ['gender', 'sex']);
+            document.getElementById('nameAr').textContent = getFieldValue(data, ['name_ar', 'nameAr', 'full_name_ar', 'fullNameAr', 'arabic_name']);
+            document.getElementById('nameEn').textContent = getFieldValue(data, ['name_en', 'nameEn', 'full_name_en', 'fullNameEn', 'english_name']);
+            document.getElementById('nationality').textContent = getFieldValue(data, ['nationality', 'جنسية']);
+            document.getElementById('civilId').textContent = getFieldValue(data, ['civil_id', 'civilId', 'رقم_مدني', 'id_number']);
+            document.getElementById('birthDate').textContent = formatDate(getFieldValue(data, ['birth_date', 'birthDate', 'تاريخ_الميلاد', 'date_of_birth']));
+            document.getElementById('gender').textContent = getFieldValue(data, ['gender', 'جنس', 'sex']);
 
             // بيانات الاتصال
-            document.getElementById('email').textContent = getFieldValue(data, ['email', 'email_address', 'emailAddress', 'mail']);
-            document.getElementById('phone').textContent = getFieldValue(data, ['phone', 'phone_number', 'phoneNumber', 'mobile', 'tel']);
-            document.getElementById('area').textContent = getFieldValue(data, ['area', 'region', 'address', 'location', 'city']);
+            document.getElementById('email').textContent = getFieldValue(data, ['email', 'بريد_الكتروني', 'email_address']);
+            document.getElementById('phone').textContent = getFieldValue(data, ['phone', 'هاتف', 'mobile', 'phone_number']);
+            document.getElementById('area').textContent = getFieldValue(data, ['area', 'منطقة', 'region', 'location']);
 
             // بيانات العمل والمؤهلات
-            document.getElementById('qualification').textContent = getFieldValue(data, ['qualification', 'education', 'degree', 'education_level']);
-            document.getElementById('specialization').textContent = getFieldValue(data, ['specialization', 'major', 'field', 'specialty']);
-            document.getElementById('workplace').textContent = getFieldValue(data, ['workplace', 'company', 'employer', 'work_place', 'organization']);
-            document.getElementById('jobTitle').textContent = getFieldValue(data, ['job_title', 'jobTitle', 'position', 'title', 'role']);
-            document.getElementById('experience').textContent = getFieldValue(data, ['experience', 'experience_years', 'experienceYears', 'years_experience']);
+            document.getElementById('qualification').textContent = getFieldValue(data, ['qualification', 'مؤهل', 'education', 'degree']);
+            document.getElementById('specialization').textContent = getFieldValue(data, ['specialization', 'تخصص', 'major', 'field']);
+            document.getElementById('workplace').textContent = getFieldValue(data, ['workplace', 'عمل', 'company', 'employer']);
+            document.getElementById('jobTitle').textContent = getFieldValue(data, ['job_title', 'jobTitle', 'وظيفة', 'position']);
+            document.getElementById('experience').textContent = getFieldValue(data, ['experience', 'خبرة', 'years_experience', 'work_experience']);
 
             // بيانات الطلب
             document.getElementById('applicationId').textContent = applicationId;
-            document.getElementById('submissionDate').textContent = formatDate(getFieldValue(data, ['submission_date', 'submissionDate', 'created_at', 'createdAt', 'date_submitted']));
-            document.getElementById('currentStatus').innerHTML = `<span class="status-indicator status-${data.status || 'pending'}">${getStatusText(data.status || 'pending')}</span>`;
+            document.getElementById('submissionDate').textContent = formatDate(getFieldValue(data, ['submission_date', 'submissionDate', 'created_at', 'تاريخ_التقديم', 'timestamp']));
+            
+            const currentStatus = getFieldValue(data, ['status', 'حالة'], 'pending');
+            document.getElementById('currentStatus').innerHTML = `<span class="status-indicator status-${currentStatus}">${getStatusText(currentStatus)}</span>`;
 
             // بيانات الدخول
-            document.getElementById('username').textContent = getFieldValue(data, ['username', 'user_name', 'userName', 'login']);
-            document.getElementById('password').textContent = getFieldValue(data, ['password', 'pass', 'pwd']);
+            document.getElementById('username').textContent = getFieldValue(data, ['username', 'اسم_المستخدم', 'user_name']);
+            document.getElementById('password').textContent = getFieldValue(data, ['password', 'كلمة_المرور']) !== 'غير محدد' ? '••••••••' : 'غير محدد';
 
             // المرفقات
-            displayAttachment('civilIdFront', data, ['civil_id_front', 'civilIdFront', 'id_front', 'national_id_front']);
-            displayAttachment('civilIdBack', data, ['civil_id_back', 'civilIdBack', 'id_back', 'national_id_back']);
-            displayAttachment('personalPhoto', data, ['personal_photo', 'personalPhoto', 'photo', 'profile_picture']);
-            displayAttachment('criminalRecord', data, ['criminal_record', 'criminalRecord', 'police_clearance', 'background_check']);
-            displayAttachment('practiceLicense', data, ['practice_license', 'practiceLicense', 'license', 'work_permit']);
-            displayAttachment('qualificationCert', data, ['qualification_certificate', 'qualificationCertificate', 'degree_certificate', 'diploma']);
+            const attachments = [
+                { id: 'civilIdFront', names: ['civil_id_front', 'civilIdFront', 'بطاقة_امامية', 'id_front'] },
+                { id: 'civilIdBack', names: ['civil_id_back', 'civilIdBack', 'بطاقة_خلفية', 'id_back'] },
+                { id: 'personalPhoto', names: ['personal_photo', 'personalPhoto', 'صورة_شخصية', 'photo'] },
+                { id: 'criminalRecord', names: ['criminal_record', 'criminalRecord', 'صحيفة_جنائية', 'police_clearance'] },
+                { id: 'practiceLicense', names: ['practice_license', 'practiceLicense', 'ترخيص_مهنة', 'license'] },
+                { id: 'qualificationCert', names: ['qualification_cert', 'qualificationCert', 'شهادة_مؤهل', 'certificate'] }
+            ];
 
-            // إظهار الحاوية
-            document.getElementById('applicationContainer').style.display = 'block';
+            attachments.forEach(attachment => {
+                const attachmentUrl = getFieldValue(data, attachment.names, null);
+                displayAttachment(attachment.id, attachmentUrl);
+            });
+
+            // عرض معلومات التشخيص
+            const debugInfo = document.getElementById('debugInfo');
+            debugInfo.innerHTML = `
+                <strong>معرف الطلب:</strong> ${applicationId}<br>
+                <strong>الحالة الحالية:</strong> ${currentStatus}<br>
+                <strong>البيانات المتوفرة:</strong><br>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+            
+            // إظهار معلومات التشخيص في وضع التطوير
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                document.getElementById('debugContainer').style.display = 'block';
+            }
         }
 
         // عرض المرفق
-        function displayAttachment(elementId, data, fieldNames) {
+        function displayAttachment(elementId, attachmentUrl) {
             const imgElement = document.getElementById(elementId);
             const textElement = document.getElementById(elementId + 'Text');
             
-            const attachmentUrl = getFieldValue(data, fieldNames);
-            
-            if (attachmentUrl && attachmentUrl !== 'غير محدد') {
+            if (attachmentUrl && attachmentUrl !== 'غير محدد' && attachmentUrl !== '') {
                 imgElement.src = attachmentUrl;
                 imgElement.style.display = 'block';
                 textElement.style.display = 'none';
@@ -743,7 +798,19 @@
             document.getElementById('renewForm').style.display = 'none';
         }
 
-        // تقديم القرار - النسخة المحسنة
+        // إظهار overlay المعالجة
+        function showProcessingOverlay(title, message) {
+            document.getElementById('processingTitle').textContent = title;
+            document.getElementById('processingMessage').textContent = message;
+            document.getElementById('processingOverlay').style.display = 'flex';
+        }
+
+        // إخفاء overlay المعالجة
+        function hideProcessingOverlay() {
+            document.getElementById('processingOverlay').style.display = 'none';
+        }
+
+        // تقديم القرار - النسخة المحسنة مع التحديث الفوري للواجهة
         async function submitDecision(action) {
             try {
                 console.log('📝 Submitting decision:', action);
@@ -771,11 +838,9 @@
                     }
                 }
 
-                // إظهار مؤشر التحميل
-                const submitButton = event.target;
-                const originalText = submitButton.textContent;
-                submitButton.textContent = 'جاري الحفظ...';
-                submitButton.disabled = true;
+                // إظهار overlay المعالجة
+                const actionText = action === 'approve' ? 'الموافقة' : action === 'reject' ? 'الرفض' : 'التجديد';
+                showProcessingOverlay(`جاري ${actionText}...`, 'يرجى الانتظار أثناء حفظ القرار في قاعدة البيانات');
 
                 // إعداد بيانات التحديث مع ضمان تحديث الحالة
                 let updateData = {
@@ -834,19 +899,28 @@
                             if (updatedData.status === updateData.status) {
                                 updateSuccess = true;
                                 
-                                // نجح التحديث
-                                const statusText = action === 'approve' ? 'تمت الموافقة' : action === 'reject' ? 'تم الرفض' : 'تم التجديد';
+                                // نجح التحديث - إخفاء overlay المعالجة
+                                hideProcessingOverlay();
+                                
+                                // تحديث الواجهة فوراً
+                                await updateUIInstantly(action, updateData);
                                 
                                 // إشارة للوحة التحكم أن البيانات تحدثت
                                 localStorage.setItem('applicationUpdated', Date.now().toString());
                                 localStorage.setItem('lastUpdatedId', applicationId);
+                                localStorage.setItem('forceRefresh', 'true');
                                 
-                                alert(`✅ ${statusText} على الطلب بنجاح!\n\nالحالة الجديدة: ${getStatusText(updatedData.status)}\n\nسيتم الآن العودة للوحة التحكم لرؤية التحديث.`);
+                                const statusText = action === 'approve' ? 'تمت الموافقة' : action === 'reject' ? 'تم الرفض' : 'تم التجديد';
                                 
-                                // انتظار قصير قبل العودة
+                                // إظهار رسالة نجاح
+                                showSuccessMessage(`✅ ${statusText} على الطلب بنجاح!\n\nالحالة الجديدة: ${getStatusText(updatedData.status)}\n\nسيتم الآن العودة للوحة التحكم.`);
+                                
+                                // انتظار قصير قبل العودة مع إجبار التحديث
                                 setTimeout(() => {
-                                    window.location.href = 'dashboard.html';
-                                }, 2000);
+                                    // إضافة معامل للإجبار على التحديث
+                                    const timestamp = Date.now();
+                                    window.location.href = `dashboard.html?refresh=${timestamp}&updated=${applicationId}`;
+                                }, 3000);
                             } else {
                                 console.warn(`⚠️ Status mismatch: expected ${updateData.status}, got ${updatedData.status}`);
                                 if (attempts === maxAttempts) {
@@ -869,11 +943,8 @@
             } catch (error) {
                 console.error('❌ Error submitting decision:', error);
                 
-                // إعادة تفعيل الزر
-                if (event && event.target) {
-                    event.target.textContent = originalText;
-                    event.target.disabled = false;
-                }
+                // إخفاء overlay المعالجة
+                hideProcessingOverlay();
                 
                 // رسالة خطأ مفصلة
                 let errorMessage = 'حدث خطأ في حفظ القرار:\n\n';
@@ -890,6 +961,76 @@
                 
                 alert(errorMessage);
             }
+        }
+
+        // تحديث الواجهة فوراً بعد اتخاذ القرار
+        async function updateUIInstantly(action, updateData) {
+            console.log('🎨 Updating UI instantly after decision');
+            
+            // تحديث الحالة الحالية في الصفحة
+            const newStatus = updateData.status;
+            document.getElementById('currentStatus').innerHTML = `<span class="status-indicator status-${newStatus}">${getStatusText(newStatus)}</span>`;
+            
+            // إخفاء نماذج القرار
+            hideDecisionForms();
+            
+            // تعطيل أزرار القرار لمنع التكرار
+            const decisionButtons = document.querySelectorAll('.decision-buttons .btn');
+            decisionButtons.forEach(btn => {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+            });
+            
+            // إضافة رسالة تأكيد في قسم القرار
+            const decisionSection = document.querySelector('.decision-section');
+            const confirmationDiv = document.createElement('div');
+            confirmationDiv.className = 'success-message';
+            confirmationDiv.style.marginTop = '20px';
+            
+            const actionText = action === 'approve' ? 'تمت الموافقة على' : action === 'reject' ? 'تم رفض' : 'تم تجديد';
+            confirmationDiv.innerHTML = `
+                <h3>✅ ${actionText} الطلب بنجاح!</h3>
+                <p>تم تحديث حالة الطلب في قاعدة البيانات</p>
+                <p><strong>الحالة الجديدة:</strong> ${getStatusText(newStatus)}</p>
+            `;
+            
+            decisionSection.appendChild(confirmationDiv);
+            
+            // إرسال رسالة للوحة التحكم لتحديث الواجهة
+            if (window.opener && !window.opener.closed) {
+                window.opener.postMessage({
+                    type: 'APPLICATION_UPDATED',
+                    applicationId: applicationId,
+                    newStatus: newStatus,
+                    action: action
+                }, '*');
+            }
+            
+            console.log('✅ UI updated instantly');
+        }
+
+        // إظهار رسالة نجاح
+        function showSuccessMessage(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.style.position = 'fixed';
+            successDiv.style.top = '50%';
+            successDiv.style.left = '50%';
+            successDiv.style.transform = 'translate(-50%, -50%)';
+            successDiv.style.zIndex = '10000';
+            successDiv.style.maxWidth = '500px';
+            successDiv.style.textAlign = 'center';
+            successDiv.innerHTML = `
+                <h3>نجح العملية!</h3>
+                <p style="white-space: pre-line;">${message}</p>
+            `;
+            
+            document.body.appendChild(successDiv);
+            
+            // إزالة الرسالة بعد 3 ثوان
+            setTimeout(() => {
+                document.body.removeChild(successDiv);
+            }, 3000);
         }
 
         // تنسيق نص الحالة
