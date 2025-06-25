@@ -473,18 +473,12 @@
             
             // البحث عن العضو في قاعدة البيانات
             const applications = JSON.parse(localStorage.getItem('membershipApplications') || '[]');
-            const member = applications.find(app => 
-                (app.username === username || app.email === username) && 
-                app.password === password
-            );
+            const member = applications.find(app => app.username === username && app.password === password);
             
             if (member) {
-                // حفظ بيانات العضو الكاملة في الجلسة
-                sessionStorage.setItem('currentMember', JSON.stringify(member));
-                sessionStorage.setItem('currentMemberId', member.id || member.civil_id);
+                // حفظ معرف العضو في الجلسة
+                sessionStorage.setItem('currentMemberId', member.id);
                 sessionStorage.setItem('memberLoggedIn', 'true');
-                
-                console.log('تم تسجيل الدخول بنجاح:', member);
                 
                 // توجيه إلى الملف الشخصي
                 window.location.href = 'member-profile.html';
@@ -492,11 +486,6 @@
                 // عرض رسالة خطأ
                 errorDiv.style.display = 'block';
                 errorDiv.innerHTML = '❌ اسم المستخدم أو كلمة المرور غير صحيحة';
-                
-                // إخفاء الرسالة بعد 5 ثوان
-                setTimeout(() => {
-                    errorDiv.style.display = 'none';
-                }, 5000);
             }
         });
 
