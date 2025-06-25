@@ -6,8 +6,8 @@
     <title>لوحة تحكم نظام العضوية - KAML</title>
     
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
     <style>
         * {
@@ -21,6 +21,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+            direction: rtl;
         }
 
         .container {
@@ -37,15 +38,13 @@
             color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
         }
 
         .header h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
         .header p {
@@ -53,11 +52,12 @@
             opacity: 0.9;
         }
 
-        .stats-grid {
+        .stats-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
             padding: 30px;
+            background: #f8f9fa;
         }
 
         .stat-card {
@@ -65,21 +65,21 @@
             border-radius: 15px;
             padding: 25px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            border: 3px solid;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
             cursor: pointer;
         }
 
         .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
         }
 
-        .stat-card.approved { border-color: #4CAF50; }
-        .stat-card.pending { border-color: #2196F3; }
-        .stat-card.renewal { border-color: #FF9800; }
-        .stat-card.rejected { border-color: #f44336; }
+        .stat-card.rejected { border-color: #dc3545; }
+        .stat-card.renewal { border-color: #ffc107; }
+        .stat-card.pending { border-color: #007bff; }
+        .stat-card.approved { border-color: #28a745; }
 
         .stat-number {
             font-size: 3rem;
@@ -87,26 +87,29 @@
             margin-bottom: 10px;
         }
 
-        .stat-card.approved .stat-number { color: #4CAF50; }
-        .stat-card.pending .stat-number { color: #2196F3; }
-        .stat-card.renewal .stat-number { color: #FF9800; }
-        .stat-card.rejected .stat-number { color: #f44336; }
+        .stat-card.rejected .stat-number { color: #dc3545; }
+        .stat-card.renewal .stat-number { color: #ffc107; }
+        .stat-card.pending .stat-number { color: #007bff; }
+        .stat-card.approved .stat-number { color: #28a745; }
 
         .stat-label {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: #666;
             font-weight: 600;
         }
 
         .controls {
-            padding: 0 30px 20px;
+            padding: 20px 30px;
+            background: white;
+            border-bottom: 1px solid #eee;
             display: flex;
-            flex-wrap: wrap;
             gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
             justify-content: center;
         }
 
-        .filter-btn, .action-btn {
+        .btn {
             padding: 12px 25px;
             border: none;
             border-radius: 25px;
@@ -120,82 +123,30 @@
             gap: 8px;
         }
 
-        .filter-btn {
-            background: #f8f9fa;
-            color: #495057;
-            border: 2px solid #dee2e6;
-        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        .btn-info { background: #17a2b8; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
 
-        .filter-btn:hover, .filter-btn.active {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-
-        .action-btn.primary { background: #007bff; color: white; }
-        .action-btn.success { background: #28a745; color: white; }
-        .action-btn.warning { background: #ffc107; color: #212529; }
-        .action-btn.danger { background: #dc3545; color: white; }
-
-        .action-btn:hover {
+        .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
-        .table-container {
+        .filter-btn {
+            position: relative;
+        }
+
+        .filter-btn.active {
+            background: #0056b3 !important;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.3);
+        }
+
+        .main-content {
             padding: 30px;
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        th, td {
-            padding: 15px;
-            text-align: center;
-            border-bottom: 1px solid #eee;
-        }
-
-        th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-
-        tr:hover {
-            background: #f8f9fa;
-        }
-
-        .status-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .status-approved { background: #d4edda; color: #155724; }
-        .status-pending { background: #cce5ff; color: #004085; }
-        .status-renewal { background: #fff3cd; color: #856404; }
-        .status-rejected { background: #f8d7da; color: #721c24; }
-
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .action-buttons .action-btn {
-            padding: 8px 15px;
-            font-size: 0.9rem;
-            border-radius: 15px;
+            min-height: 400px;
         }
 
         .loading {
@@ -220,6 +171,16 @@
             100% { transform: rotate(360deg); }
         }
 
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+            text-align: center;
+        }
+
         .empty-state {
             text-align: center;
             padding: 50px;
@@ -231,22 +192,82 @@
             color: #333;
         }
 
-        .error-message {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 15px;
+        .table-container {
+            overflow-x: auto;
             border-radius: 10px;
-            margin: 20px;
-            border: 1px solid #f5c6cb;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
-        .success-message {
-            background: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px;
-            border: 1px solid #c3e6cb;
+        .applications-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            font-size: 0.9rem;
+        }
+
+        .applications-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            border: none;
+        }
+
+        .applications-table td {
+            padding: 12px 10px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .applications-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending { background: #cce5ff; color: #0066cc; }
+        .status-approved { background: #d4edda; color: #155724; }
+        .status-rejected { background: #f8d7da; color: #721c24; }
+        .status-renewal { background: #fff3cd; color: #856404; }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            border-radius: 15px;
+        }
+
+        .refresh-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         @media (max-width: 768px) {
@@ -254,23 +275,29 @@
                 font-size: 2rem;
             }
             
-            .stats-grid {
+            .stats-container {
                 grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
                 gap: 15px;
                 padding: 20px;
             }
             
             .controls {
-                padding: 0 20px 20px;
+                flex-direction: column;
+                align-items: stretch;
             }
             
-            .table-container {
-                padding: 20px;
+            .btn {
+                width: 100%;
+                justify-content: center;
             }
             
-            th, td {
-                padding: 10px 8px;
-                font-size: 0.9rem;
+            .applications-table {
+                font-size: 0.8rem;
+            }
+            
+            .applications-table th,
+            .applications-table td {
+                padding: 8px 5px;
             }
         }
     </style>
@@ -282,51 +309,69 @@
             <p>إدارة طلبات العضوية ومراجعة البيانات - الجمعية الكويتية للمختبرات الطبية</p>
         </div>
 
-        <div class="stats-grid">
-            <div class="stat-card approved" onclick="filterApplications('approved')">
-                <div class="stat-number" id="approvedCount">0</div>
-                <div class="stat-label">إجمالي الأعضاء المعتمدين</div>
+        <div class="stats-container">
+            <div class="stat-card rejected" onclick="filterApplications('rejected')" data-filter="rejected">
+                <div class="stat-number" id="rejectedCount">0</div>
+                <div class="stat-label">مرفوض</div>
             </div>
-            <div class="stat-card pending" onclick="filterApplications('pending')">
-                <div class="stat-number" id="pendingCount">0</div>
-                <div class="stat-label">في انتظار المراجعة</div>
-            </div>
-            <div class="stat-card renewal" onclick="filterApplications('renewal_requested')">
+            <div class="stat-card renewal" onclick="filterApplications('renewal_requested')" data-filter="renewal_requested">
                 <div class="stat-number" id="renewalCount">0</div>
                 <div class="stat-label">طلبات تجديد</div>
             </div>
-            <div class="stat-card rejected" onclick="filterApplications('rejected')">
-                <div class="stat-number" id="rejectedCount">0</div>
-                <div class="stat-label">مرفوض</div>
+            <div class="stat-card pending" onclick="filterApplications('pending')" data-filter="pending">
+                <div class="stat-number" id="pendingCount">0</div>
+                <div class="stat-label">في انتظار المراجعة</div>
+            </div>
+            <div class="stat-card approved" onclick="filterApplications('approved')" data-filter="approved">
+                <div class="stat-number" id="approvedCount">0</div>
+                <div class="stat-label">إجمالي الأعضاء المعتمدين</div>
             </div>
         </div>
 
         <div class="controls">
-            <button class="filter-btn active" data-filter="all" onclick="filterApplications('all')">جميع البيانات 📊</button>
-            <button class="filter-btn" data-filter="approved" onclick="filterApplications('approved')">الأعضاء المعتمدين ✅</button>
-            <button class="filter-btn" data-filter="pending" onclick="filterApplications('pending')">في انتظار المراجعة ⏳</button>
-            <button class="filter-btn" data-filter="renewal_requested" onclick="filterApplications('renewal_requested')">طلبات تجديد 🔄</button>
-            <button class="filter-btn" data-filter="rejected" onclick="filterApplications('rejected')">مرفوض ❌</button>
-            
-            <button class="action-btn primary" onclick="refreshData()">تحديث البيانات 🔄</button>
-            <button class="action-btn success" onclick="exportData()">تصدير البيانات 📊</button>
+            <button class="btn btn-primary filter-btn active" data-filter="all" onclick="filterApplications('all')">
+                📊 تحديث البيانات
+            </button>
+            <button class="btn btn-danger filter-btn" data-filter="rejected" onclick="filterApplications('rejected')">
+                ❌ مرفوض
+            </button>
+            <button class="btn btn-warning filter-btn" data-filter="renewal_requested" onclick="filterApplications('renewal_requested')">
+                📋 طلبات تجديد
+            </button>
+            <button class="btn btn-info filter-btn" data-filter="pending" onclick="filterApplications('pending')">
+                ⏳ في انتظار المراجعة
+            </button>
+            <button class="btn btn-success filter-btn" data-filter="approved" onclick="filterApplications('approved')">
+                ✅ الأعضاء المعتمدين
+            </button>
+            <button class="btn btn-secondary filter-btn" data-filter="all" onclick="filterApplications('all')">
+                📊 جميع البيانات
+            </button>
+            <button class="btn btn-info" onclick="forceRefreshData()">
+                🔄 تحديث البيانات
+            </button>
         </div>
 
-        <div class="table-container">
+        <div class="main-content">
             <div id="loadingIndicator" class="loading">
                 <div class="spinner"></div>
-                <div>جاري تحميل البيانات من السيرفر...</div>
+                <div>جاري تحميل البيانات...</div>
             </div>
 
-            <div id="errorMessage" class="error-message" style="display: none;">
-                <strong>خطأ في الاتصال:</strong>
-                <span id="errorText"></span>
-                <br><br>
-                <button class="action-btn primary" onclick="retryConnection()">إعادة المحاولة</button>
+            <div id="errorContainer" class="error-message" style="display: none;">
+                <h3>خطأ في تحميل البيانات</h3>
+                <p id="errorMessage"></p>
+                <br>
+                <button class="btn btn-secondary" onclick="loadApplicationData()">إعادة المحاولة</button>
             </div>
 
-            <div id="tableContainer" style="display: none;">
-                <table>
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <h3>لا توجد بيانات</h3>
+                <p>لم يتم العثور على أي طلبات عضوية في النظام</p>
+            </div>
+
+            <div id="tableContainer" class="table-container" style="display: none;">
+                <table class="applications-table">
                     <thead>
                         <tr>
                             <th>الاسم</th>
@@ -341,25 +386,22 @@
                     </tbody>
                 </table>
             </div>
-
-            <div id="emptyState" class="empty-state" style="display: none;">
-                <h3>لا توجد بيانات</h3>
-                <p>لم يتم العثور على طلبات في قاعدة البيانات</p>
-                <br>
-                <button class="action-btn primary" onclick="refreshData()">تحديث البيانات</button>
-            </div>
         </div>
     </div>
 
+    <div id="refreshIndicator" class="refresh-indicator">
+        🔄 تم تحديث البيانات
+    </div>
+
     <script>
-        // تكوين Firebase
+        // إعدادات Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyBqzVdXOJY8lVKZmPkP5L5L5L5L5L5L5L5",
-            authDomain: "kaml-membership-system.firebaseapp.com",
-            projectId: "kaml-membership-system",
-            storageBucket: "kaml-membership-system.appspot.com",
-            messagingSenderId: "123456789012",
-            appId: "1:123456789012:web:abcdef123456789012345"
+            apiKey: "AIzaSyDGpAHia_wEmrhnmYjrPf1n1TrAzwEMiAI",
+            authDomain: "kaml-f5c8c.firebaseapp.com",
+            projectId: "kaml-f5c8c",
+            storageBucket: "kaml-f5c8c.appspot.com",
+            messagingSenderId: "381072250848",
+            appId: "1:381072250848:web:187960e3102bcbdcaa9b2d"
         };
 
         // تهيئة Firebase
@@ -376,12 +418,62 @@
         let allApplications = [];
         let filteredApplications = [];
         let currentFilter = 'all';
+        let lastRefreshTime = 0;
 
         // تحميل الصفحة
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Dashboard loaded, starting data loading...');
             loadApplicationData();
         });
+
+        // إعادة تحميل البيانات عند العودة للصفحة
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                console.log('👁️ Page became visible, force refreshing data...');
+                forceRefreshData();
+            }
+        });
+
+        // إعادة تحميل البيانات عند التركيز على النافذة
+        window.addEventListener('focus', function() {
+            console.log('🎯 Window focused, force refreshing data...');
+            forceRefreshData();
+        });
+
+        // إعادة تحميل البيانات كل 30 ثانية للتأكد من التحديث
+        setInterval(function() {
+            console.log('⏰ Auto-refresh: Force reloading data...');
+            forceRefreshData();
+        }, 30000);
+
+        // إجبار تحديث البيانات
+        function forceRefreshData() {
+            console.log('🔄 Force refreshing data...');
+            
+            // إعادة تعيين المتغيرات
+            allApplications = [];
+            filteredApplications = [];
+            
+            // إخفاء الجدول وإظهار التحميل
+            showLoading(true);
+            
+            // تحميل البيانات مع تأخير قصير لضمان التحديث
+            setTimeout(() => {
+                loadApplicationData();
+            }, 500);
+            
+            // إظهار مؤشر التحديث
+            showRefreshIndicator();
+        }
+
+        // إظهار مؤشر التحديث
+        function showRefreshIndicator() {
+            const indicator = document.getElementById('refreshIndicator');
+            indicator.style.display = 'block';
+            setTimeout(() => {
+                indicator.style.display = 'none';
+            }, 2000);
+        }
 
         // تحميل بيانات الطلبات من Firebase
         async function loadApplicationData() {
@@ -394,18 +486,21 @@
                     throw new Error('Firebase غير متصل - تحقق من إعدادات الشبكة');
                 }
 
-                // قراءة البيانات من Firebase
+                // قراءة البيانات من Firebase مع إجبار التحديث
                 const snapshot = await db.collection('membershipApplications').get();
                 
                 if (snapshot.empty) {
                     console.log('📊 No data found in Firebase');
                     allApplications = [];
+                    filteredApplications = [];
                     showEmptyState();
                     return;
                 }
 
-                // تحويل البيانات
-                allApplications = [];
+                // تحويل البيانات مع إعادة تعيين كاملة
+                const previousCount = allApplications.length;
+                allApplications = []; // إعادة تعيين كاملة
+                
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     allApplications.push({
@@ -415,35 +510,49 @@
                 });
 
                 console.log('✅ Data loaded successfully:', allApplications.length, 'records');
+                console.log('📊 Current data:', allApplications);
+                
+                // إظهار رسالة إذا تغيرت البيانات
+                if (previousCount > 0 && allApplications.length !== previousCount) {
+                    console.log('📊 Data count changed from', previousCount, 'to', allApplications.length);
+                }
 
-                // عرض البيانات
+                // تحديث الإحصائيات والعرض
                 updateStatistics();
                 filterApplications(currentFilter);
                 showLoading(false);
+                lastRefreshTime = Date.now();
 
             } catch (error) {
-                console.error('❌ Error loading data:', error);
-                showError('فشل في تحميل البيانات من السيرفر: ' + error.message);
+                console.error('❌ Error loading application data:', error);
+                showError('فشل في تحميل البيانات: ' + error.message);
                 showLoading(false);
             }
         }
 
-        // تحديث الإحصائيات
+        // تحديث الإحصائيات مع تنظيف البيانات
         function updateStatistics() {
+            // إعادة حساب الإحصائيات من البيانات الجديدة
             const approved = allApplications.filter(app => app.status === 'approved').length;
             const pending = allApplications.filter(app => app.status === 'pending').length;
             const renewal = allApplications.filter(app => app.status === 'renewal_requested').length;
             const rejected = allApplications.filter(app => app.status === 'rejected').length;
 
+            // تحديث العرض
             document.getElementById('approvedCount').textContent = approved;
             document.getElementById('pendingCount').textContent = pending;
             document.getElementById('renewalCount').textContent = renewal;
             document.getElementById('rejectedCount').textContent = rejected;
 
             console.log('📊 Statistics updated:', { approved, pending, renewal, rejected });
+            
+            // تسجيل تفاصيل كل فئة للتشخيص
+            console.log('📋 Pending applications:', allApplications.filter(app => app.status === 'pending'));
+            console.log('✅ Approved applications:', allApplications.filter(app => app.status === 'approved'));
+            console.log('❌ Rejected applications:', allApplications.filter(app => app.status === 'rejected'));
         }
 
-        // فلترة الطلبات
+        // فلترة الطلبات مع تنظيف البيانات
         function filterApplications(filter) {
             console.log('🔍 Filtering applications by:', filter);
             
@@ -457,14 +566,24 @@
                 }
             });
 
-            // فلترة البيانات
+            // إعادة تعيين المصفوفة المفلترة
+            filteredApplications = [];
+
+            // فلترة البيانات مع تنظيف
             if (filter === 'all') {
                 filteredApplications = [...allApplications];
             } else {
-                filteredApplications = allApplications.filter(app => app.status === filter);
+                filteredApplications = allApplications.filter(app => {
+                    // تنظيف الحالة وضمان المطابقة الدقيقة
+                    const appStatus = (app.status || '').toString().trim().toLowerCase();
+                    const filterStatus = filter.toString().trim().toLowerCase();
+                    return appStatus === filterStatus;
+                });
             }
 
-            console.log('📊 Filtered results:', filteredApplications.length, 'records');
+            console.log('📊 Filtered results:', filteredApplications.length, 'records for filter:', filter);
+            console.log('📋 Filtered data:', filteredApplications);
+            
             displayApplicationsTable();
         }
 
@@ -472,98 +591,104 @@
         function displayApplicationsTable() {
             const tableBody = document.getElementById('applicationsTableBody');
             const tableContainer = document.getElementById('tableContainer');
-            const emptyState = document.getElementById('emptyState');
-
+            
             if (filteredApplications.length === 0) {
                 tableContainer.style.display = 'none';
-                emptyState.style.display = 'block';
+                if (currentFilter === 'all') {
+                    showEmptyState();
+                } else {
+                    document.getElementById('emptyState').style.display = 'none';
+                }
                 return;
             }
 
+            // إخفاء حالة الفراغ وإظهار الجدول
+            document.getElementById('emptyState').style.display = 'none';
             tableContainer.style.display = 'block';
-            emptyState.style.display = 'none';
 
+            // تنظيف الجدول
             tableBody.innerHTML = '';
 
+            // إضافة الصفوف
             filteredApplications.forEach(app => {
-                const row = document.createElement('tr');
-                
-                // الاسم الكامل
-                const fullName = getFullName(app);
-                
-                // الحالة
-                const statusText = getStatusText(app.status);
-                const statusClass = getStatusClass(app.status);
-                
-                // رقم العضوية
-                const membershipNumber = app.membership_number || '-';
-                
-                // تاريخ الانتهاء
-                const expiryDate = app.expiry_date ? 
-                    new Date(app.expiry_date).toLocaleDateString('ar-SA') : '-';
-                
-                // الإجراءات
-                const actions = createActionButtons(app);
-
-                row.innerHTML = `
-                    <td>${fullName}</td>
-                    <td>${app.email || 'غير محدد'}</td>
-                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                    <td>${membershipNumber}</td>
-                    <td>${expiryDate}</td>
-                    <td><div class="action-buttons">${actions}</div></td>
-                `;
-
+                const row = createApplicationRow(app);
                 tableBody.appendChild(row);
             });
 
-            console.log('✅ Table displayed with', filteredApplications.length, 'rows');
+            console.log('📊 Table displayed with', filteredApplications.length, 'rows');
         }
 
-        // الحصول على الاسم الكامل
-        function getFullName(app) {
-            const firstName = app.first_name_ar || app.firstName || '';
-            const middleName = app.middle_name_ar || app.middleName || '';
-            const lastName = app.last_name_ar || app.lastName || '';
+        // إنشاء صف الطلب
+        function createApplicationRow(app) {
+            const row = document.createElement('tr');
             
-            const fullName = `${firstName} ${middleName} ${lastName}`.trim();
-            return fullName || app.name || 'غير محدد';
+            // الحصول على البيانات مع قيم افتراضية
+            const name = app.name_ar || app.nameAr || app.full_name_ar || app.fullNameAr || 'غير محدد';
+            const email = app.email || app.email_address || app.emailAddress || 'غير محدد';
+            const membershipNumber = app.membership_number || app.membershipNumber || '-';
+            const expiryDate = app.expiry_date || app.expiryDate || '-';
+            
+            row.innerHTML = `
+                <td>${name}</td>
+                <td>${email}</td>
+                <td><span class="status-badge status-${app.status || 'pending'}">${getStatusText(app.status || 'pending')}</span></td>
+                <td>${membershipNumber}</td>
+                <td>${formatDate(expiryDate)}</td>
+                <td>
+                    <div class="action-buttons">
+                        ${createActionButtons(app)}
+                    </div>
+                </td>
+            `;
+            
+            return row;
         }
 
         // إنشاء أزرار الإجراءات
         function createActionButtons(app) {
-            let buttons = `<button class="action-btn primary" onclick="viewApplication('${app.id}')">عرض</button>`;
+            let buttons = `
+                <button class="btn btn-primary btn-sm" onclick="viewApplication('${app.id}')">
+                    👁️ عرض
+                </button>
+            `;
             
             if (app.status === 'pending') {
-                buttons += `<button class="action-btn success" onclick="quickApprove('${app.id}')">موافقة</button>`;
-                buttons += `<button class="action-btn danger" onclick="quickReject('${app.id}')">رفض</button>`;
-            } else if (app.status === 'renewal_requested') {
-                buttons += `<button class="action-btn warning" onclick="renewMembership('${app.id}')">تجديد</button>`;
-                buttons += `<button class="action-btn danger" onclick="quickReject('${app.id}')">رفض</button>`;
+                buttons += `
+                    <button class="btn btn-success btn-sm" onclick="quickApprove('${app.id}')">
+                        ✅ موافقة
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="quickReject('${app.id}')">
+                        ❌ رفض
+                    </button>
+                `;
+            } else if (app.status === 'approved') {
+                buttons += `
+                    <button class="btn btn-warning btn-sm" onclick="renewMembership('${app.id}')">
+                        🔄 تجديد
+                    </button>
+                `;
             }
             
             return buttons;
         }
 
         // عرض الطلب
-        function viewApplication(applicationId) {
-            console.log('👁️ Viewing application:', applicationId);
-            window.location.href = `review-application.html?id=${applicationId}`;
+        function viewApplication(id) {
+            console.log('👁️ Viewing application:', id);
+            window.location.href = `review-application.html?id=${id}`;
         }
 
         // موافقة سريعة
         function quickApprove(applicationId) {
             if (confirm('هل أنت متأكد من الموافقة على هذا الطلب؟')) {
-                console.log('✅ Quick approve for:', applicationId);
-                window.location.href = `review-application.html?id=${applicationId}&action=approve`;
+                window.location.href = `review-application.html?id=${applicationId}`;
             }
         }
 
         // رفض سريع
         function quickReject(applicationId) {
             if (confirm('هل أنت متأكد من رفض هذا الطلب؟')) {
-                console.log('❌ Quick reject for:', applicationId);
-                window.location.href = `review-application.html?id=${applicationId}&action=reject`;
+                window.location.href = `review-application.html?id=${applicationId}`;
             }
         }
 
@@ -571,55 +696,38 @@
         function renewMembership(applicationId) {
             if (confirm('هل أنت متأكد من تجديد هذه العضوية؟')) {
                 console.log('🔄 Renewing membership for:', applicationId);
-                window.location.href = `review-application.html?id=${applicationId}&action=renew`;
+                window.location.href = `review-application.html?id=${applicationId}`;
             }
         }
 
-        // تحديث البيانات
-        function refreshData() {
-            console.log('🔄 Refreshing data...');
-            loadApplicationData();
-        }
-
-        // إعادة المحاولة
-        function retryConnection() {
-            console.log('🔄 Retrying connection...');
-            loadApplicationData();
-        }
-
-        // تصدير البيانات
-        function exportData() {
-            console.log('📊 Exporting data...');
-            // يمكن إضافة وظيفة التصدير هنا
-            alert('سيتم إضافة وظيفة التصدير قريباً');
-        }
-
-        // الحصول على نص الحالة
+        // تنسيق نص الحالة
         function getStatusText(status) {
             const statusMap = {
                 'pending': 'في انتظار المراجعة',
                 'approved': 'معتمد',
                 'rejected': 'مرفوض',
-                'renewal_requested': 'طلب تجديد'
+                'renewal_requested': 'طلب تجديد',
+                'under_review': 'قيد المراجعة'
             };
             return statusMap[status] || status;
         }
 
-        // الحصول على فئة CSS للحالة
-        function getStatusClass(status) {
-            const classMap = {
-                'pending': 'status-pending',
-                'approved': 'status-approved',
-                'rejected': 'status-rejected',
-                'renewal_requested': 'status-renewal'
-            };
-            return classMap[status] || '';
+        // تنسيق التاريخ
+        function formatDate(dateString) {
+            if (!dateString || dateString === '-') return '-';
+            
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('ar-SA');
+            } catch (error) {
+                return dateString;
+            }
         }
 
         // إظهار/إخفاء مؤشر التحميل
         function showLoading(show) {
             document.getElementById('loadingIndicator').style.display = show ? 'block' : 'none';
-            if (!show) {
+            if (show) {
                 document.getElementById('tableContainer').style.display = 'none';
                 document.getElementById('emptyState').style.display = 'none';
             }
@@ -627,22 +735,37 @@
 
         // إظهار رسالة خطأ
         function showError(message) {
-            document.getElementById('errorText').textContent = message;
-            document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorContainer').style.display = 'block';
             document.getElementById('tableContainer').style.display = 'none';
             document.getElementById('emptyState').style.display = 'none';
         }
 
         // إخفاء رسالة خطأ
         function hideError() {
-            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('errorContainer').style.display = 'none';
         }
 
-        // إظهار حالة فارغة
+        // إظهار حالة الفراغ
         function showEmptyState() {
             document.getElementById('emptyState').style.display = 'block';
             document.getElementById('tableContainer').style.display = 'none';
+            showLoading(false);
         }
+
+        // مراقبة تغييرات URL للتحديث التلقائي
+        window.addEventListener('popstate', function() {
+            console.log('🔄 URL changed, refreshing data...');
+            forceRefreshData();
+        });
+
+        // مراقبة تغييرات التخزين المحلي (إذا كانت صفحة أخرى تحدث البيانات)
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'applicationUpdated') {
+                console.log('🔄 Storage event detected, refreshing data...');
+                forceRefreshData();
+            }
+        });
     </script>
 </body>
 </html>
